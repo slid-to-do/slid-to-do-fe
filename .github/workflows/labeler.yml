@@ -11,26 +11,6 @@ on:
             - reopened
 
 jobs:
-    Auto_labeling_pr_target:
-        if: ${{ github.event_name == 'pull_request_target' }}
-        runs-on: ubuntu-latest
-
-        permissions:
-            contents: read
-            pull-requests: write
-            issues: write
-
-        steps:
-            - name: Run Issue PR Labeler
-              uses: hoho4190/issue-pr-labeler@v2
-              with:
-                  token: ${{ secrets.GITHUB_TOKEN }}
-                  disable-bot: true
-                  config-file-name: labeler-config.yml
-
-            - run: |
-                  echo "    action: ${{ github.event.action }}"
-
     Auto_labeling_pr:
         if: ${{ github.event_name == 'pull_request' }}
         runs-on: ubuntu-latest

@@ -1,0 +1,21 @@
+filters:
+  - label: bug
+    regexs:
+      - /\[bug\]/i # 제목에 [bug]
+      - /\bfix\b/i
+    events: [issues, pull_request]
+    targets: [title, comment]
+  - label: documentation
+    regexs:
+      - /\[documentation\]/i # 제목에 [documentation]
+      - /\bdocs?\b/i # "doc" or "docs"
+      - /documentation/i
+    events: [issues, pull_request]
+    targets: [title, body]
+  - label: Feature
+    regexs:
+      - /\[Feature\]/i # 제목에 [documentation]
+      - /\bFeature?\b/i # "doc" or "docs"
+      - /Feature/i
+    events: [issues, pull_request]
+    targets: [title, body]

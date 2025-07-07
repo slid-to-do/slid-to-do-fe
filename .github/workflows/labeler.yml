@@ -11,7 +11,7 @@ on:
             - reopened
 
 jobs:
-    Auto_labeling:
+    Auto-labeling:
         runs-on: ubuntu-latest
 
         permissions:
@@ -21,7 +21,7 @@ jobs:
 
         steps:
             - name: Run Issue PR Labeler
-              uses: hoho4190/issue-pr-labeler@v2
+              uses: nile27/issue-pr-labeler@main
               with:
                   token: ${{ secrets.GITHUB_TOKEN }}
                   disable-bot: true

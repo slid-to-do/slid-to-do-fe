@@ -29,7 +29,7 @@ jobs:
                   config-file-name: labeler-config.yml
 
             - run: |
-                  echo "  action: ${{ github.event.action }}"
+                  echo "    action: ${{ github.event.action }}"
 
     Auto_labeling_pr:
         if: ${{ github.event_name == 'pull_request' }}

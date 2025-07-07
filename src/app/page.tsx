@@ -1,3 +1,8 @@
+import Navigation from '@/components/Navigation'
 export default function Home() {
-    return <div className="">Home</div>
+    return (
+        <div className="">
+            <Navigation />
+        </div>
+    )
 }

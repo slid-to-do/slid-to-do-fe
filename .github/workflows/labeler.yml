@@ -20,12 +20,6 @@ jobs:
             issues: write
 
         steps:
-            - name: Check out Code
-              uses: actions/checkout@v4
-              with:
-                  repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
-                  ref: ${{ github.event.pull_request.head.ref || github.ref }}
-
             - name: Run Issue PR Labeler
               uses: hoho4190/issue-pr-labeler@v2
               with:

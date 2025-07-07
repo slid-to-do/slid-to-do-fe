@@ -11,7 +11,7 @@ on:
             - reopened
 
 jobs:
-    Auto-labeling:
+    Auto_labeling:
         runs-on: ubuntu-latest
 
         permissions:

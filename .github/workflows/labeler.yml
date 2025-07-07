@@ -5,11 +5,6 @@ on:
         types:
             - opened
             - reopened
-    pull_request_target:
-        types:
-            - opened
-            - reopened
-
 jobs:
     Auto_labeling_pr:
         if: ${{ github.event_name == 'pull_request' }}

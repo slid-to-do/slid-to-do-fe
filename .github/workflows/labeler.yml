@@ -1,13 +1,13 @@
 name: Issue PR Labeler
 
 on:
-    pull_request:
+    pull_request_target:
         types:
             - opened
             - reopened
+
 jobs:
-    Auto_labeling_pr:
-        if: ${{ github.event_name == 'pull_request' }}
+    Auto_labeling:
         runs-on: ubuntu-latest
 
         permissions:
@@ -23,5 +23,9 @@ jobs:
                   disable-bot: true
                   config-file-name: labeler-config.yml
 
-            - run: |
-                  echo "  action:  ${{ github.event.action }}"
+            - name: 'Debug: 직접 레이블 추가 시도해보기'
+
+              shell: bash
+              run: |
+                  PR_NUM=${{ github.event.pull_request.number }}
+                  REPO=${{ github.repository }}

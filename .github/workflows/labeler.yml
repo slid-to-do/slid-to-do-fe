@@ -1,27 +1,34 @@
 name: Issue PR Labeler
 
 on:
-  pull_request: # or pull_request_target
-    types:
-      - opened
-      - reopened
-  pull_request_target:
-    types:
-      - opened
-      - reopened
+    pull_request: # or pull_request_target
+        types:
+            - opened
+            - reopened
+    pull_request_target:
+        types:
+            - opened
+            - reopened
 
 jobs:
-  main:
-    runs-on: ubuntu-latest
+    Auto_labeling:
+        runs-on: ubuntu-latest
 
-    permissions:
-      contents: read # 위에 작성한 설정 파일을 읽기 위해 필요
-      pull-requests: write # PR에 라벨을 추가하기 위해 필요
+        permissions:
+            contents: read # 위에 작성한 설정 파일을 읽기 위해 필요
+            pull-requests: write # PR에 라벨을 추가하기 위해 필요
+            issues: write
 
-    steps:
-      - name: Run Issue PR Labeler
-        uses: hoho4190/issue-pr-labeler@v2
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          disable-bot: true
-          config-file-name: labeler-config.yml
+        steps:
+            - name: Check out Code
+              uses: actions/checkout@v4
+              with:
+                  repository: ${{ github.event.pull_request.head.repo.full_name || github.repository }}
+                  ref: ${{ github.event.pull_request.head.ref || github.ref }}
+
+            - name: Run Issue PR Labeler
+              uses: hoho4190/issue-pr-labeler@v2
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  disable-bot: true
+                  config-file-name: labeler-config.yml

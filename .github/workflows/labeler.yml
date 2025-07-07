@@ -1,6 +1,7 @@
 name: Issue PR Labeler
 
 on:
+
     pull_request_target:
         types:
             - opened
@@ -22,6 +23,7 @@ jobs:
                   token: ${{ secrets.GITHUB_TOKEN }}
                   disable-bot: true
                   config-file-name: labeler-config.yml
+
 
             - name: 'Debug: 직접 레이블 추가 시도해보기'
 

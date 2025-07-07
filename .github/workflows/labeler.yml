@@ -10,6 +10,10 @@ on:
             - opened
             - reopened
 
+permissions:
+    contents: read
+    issues: write
+
 jobs:
     Auto-labeling:
         runs-on: ubuntu-latest
@@ -20,6 +24,9 @@ jobs:
             issues: write
 
         steps:
+            - name: Checkout repository
+              uses: actions/checkout@v4
+
             - name: Run Issue PR Labeler
               uses: nile27/issue-pr-labeler@main
               with:

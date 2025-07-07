@@ -1,7 +1,7 @@
 name: Issue PR Labeler
 
 on:
-    pull_request: # or pull_request_target
+    pull_request:
         types:
             - opened
             - reopened
@@ -10,23 +10,34 @@ on:
             - opened
             - reopened
 
-permissions:
-    contents: read
-    issues: write
-
 jobs:
-    Auto-labeling:
+    Auto_labeling_pr_target:
+        if: ${{ github.event_name == 'pull_request_target' }}
         runs-on: ubuntu-latest
 
         permissions:
-            contents: read # 위에 작성한 설정 파일을 읽기 위해 필요
-            pull-requests: write # PR에 라벨을 추가하기 위해 필요
+            contents: read
+            pull-requests: write
             issues: write
 
         steps:
-            - name: Checkout repository
-              uses: actions/checkout@v4
+            - name: Run Issue PR Labeler
+              uses: nile27/issue-pr-labeler@main
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  disable-bot: true
+                  config-file-name: labeler-config.yml
 
+    Auto_labeling_pr:
+        if: ${{ github.event_name == 'pull_request' }}
+        runs-on: ubuntu-latest
+
+        permissions:
+            contents: read
+            pull-requests: write
+            issues: write
+
+        steps:
             - name: Run Issue PR Labeler
               uses: nile27/issue-pr-labeler@main
               with:

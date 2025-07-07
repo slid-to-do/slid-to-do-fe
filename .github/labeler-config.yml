@@ -1,21 +1,122 @@
 filters:
-  - label: bug
-    regexs:
-      - /\[bug\]/i # 제목에 [bug]
-      - /\bfix\b/i
-    events: [issues, pull_request]
-    targets: [title, comment]
-  - label: documentation
-    regexs:
-      - /\[documentation\]/i # 제목에 [documentation]
-      - /\bdocs?\b/i # "doc" or "docs"
-      - /documentation/i
-    events: [issues, pull_request]
-    targets: [title, body]
-  - label: Feature
-    regexs:
-      - /\[Feature\]/i # 제목에 [documentation]
-      - /\bFeature?\b/i # "doc" or "docs"
-      - /Feature/i
-    events: [issues, pull_request]
-    targets: [title, body]
+    - label: bug
+      # 제목이나 코멘트에 [bug] 혹은 단어 fix가 있을 때 bug 레이블 추가
+      regexs:
+          - /\[bug\]/i
+          - /\bfix\b/i
+      events: [issues, pull_request]
+      targets: [title, comment]
+
+    - label: documentation
+      # 제목이나 본문에 [documentation], doc/docs, documentation 키워드가 있을 때 documentation 레이블 추가
+      regexs:
+          - /\[documentation\]/i
+          - /\bdocs?\b/i
+          - /documentation/i
+      events: [issues, pull_request]
+      targets: [title, body]
+
+    - label: Feature
+      # 제목이나 본문에 [Feature], [feat] 접두사 혹은 Feature/feat 키워드가 있을 때 Feature 레이블 추가
+      regexs:
+          - /\[Feature\]/i
+          - /\[feat\]/i
+          - /\bFeature\b/i
+          - /\bfeat\b/i
+          - /Feature/i
+      events: [issues, pull_request]
+      targets: [title, body]
+
+    - label: Fix
+      # 제목에 [fix] 또는 단독 fix 키워드 포함 시 Fix 레이블 추가
+      regexs:
+          - /\[fix\]/i
+          - /\bfix\b/i
+      events: [issues, pull_request]
+      targets: [title]
+
+    - label: Docs
+      # 제목에 [doc] 또는 [docs], doc/docs 키워드 포함 시 Docs 레이블 추가
+      regexs:
+          - /\[docs?\]/i
+          - /\bdocs?\b/i
+      events: [issues, pull_request]
+      targets: [title]
+
+    - label: Style
+      # 제목에 [style] 또는 style 키워드 포함 시 Style 레이블 추가
+      regexs:
+          - /\[style\]/i
+          - /\bstyle\b/i
+      events: [issues, pull_request]
+      targets: [title]
+
+    - label: Refactor
+      # 제목에 [refactor] 또는 refactor 키워드 포함 시 Refactor 레이블 추가
+      regexs:
+          - /\[refactor\]/i
+          - /\brefactor\b/i
+      events: [issues, pull_request]
+      targets: [title]
+
+    - label: Test
+      # 제목에 [test] 또는 test 키워드 포함 시 Test 레이블 추가
+      regexs:
+          - /\[test\]/i
+          - /\btest\b/i
+      events: [issues, pull_request]
+      targets: [title]
+
+    - label: Chore
+      # 제목에 [chore] 또는 chore 키워드 포함 시 Chore 레이블 추가
+      regexs:
+          - /\[chore\]/i
+          - /\bchore\b/i
+      events: [issues, pull_request]
+      targets: [title]
+
+    - label: Design
+      # 제목에 [design] 또는 design 키워드 포함 시 Design 레이블 추가
+      regexs:
+          - /\[design\]/i
+          - /\bdesign\b/i
+      events: [issues, pull_request]
+      targets: [title]
+
+    - label: Comment
+      # 제목에 [comment] 또는 comment 키워드 포함 시 Comment 레이블 추가
+      regexs:
+          - /\[comment\]/i
+          - /\bcomment\b/i
+      events: [issues, pull_request]
+      targets: [title]
+
+    - label: Rename
+      # 제목에 [rename] 또는 rename 키워드 포함 시 Rename 레이블 추가
+      regexs:
+          - /\[rename\]/i
+          - /\brename\b/i
+      events: [issues, pull_request]
+      targets: [title]
+
+    - label: Remove
+      # 제목에 [remove] 또는 remove 키워드 포함 시 Remove 레이블 추가
+      regexs:
+          - /\[remove\]/i
+          - /\bremove\b/i
+      events: [issues, pull_request]
+      targets: [title]
+
+    - label: '!BREAKING CHANGE'
+      # 제목에 !BREAKING CHANGE 문구 포함 시 !BREAKING CHANGE 레이블 추가
+      regexs:
+          - /!BREAKING CHANGE/i
+      events: [issues, pull_request]
+      targets: [title]
+
+    - label: '!HOTFIX'
+      # 제목에 !HOTFIX 문구 포함 시 !HOTFIX 레이블 추가
+      regexs:
+          - /!HOTFIX/i
+      events: [issues, pull_request]
+      targets: [title]

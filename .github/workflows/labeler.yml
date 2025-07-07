@@ -1,10 +1,6 @@
 name: Issue PR Labeler
 
 on:
-    pull_request: # or pull_request_target
-        types:
-            - opened
-            - reopened
     pull_request_target:
         types:
             - opened
@@ -15,8 +11,8 @@ jobs:
         runs-on: ubuntu-latest
 
         permissions:
-            contents: read # 위에 작성한 설정 파일을 읽기 위해 필요
-            pull-requests: write # PR에 라벨을 추가하기 위해 필요
+            contents: read
+            pull-requests: write
             issues: write
 
         steps:
@@ -26,3 +22,10 @@ jobs:
                   token: ${{ secrets.GITHUB_TOKEN }}
                   disable-bot: true
                   config-file-name: labeler-config.yml
+
+            - name: 'Debug: 직접 레이블 추가 시도해보기'
+
+              shell: bash
+              run: |
+                  PR_NUM=${{ github.event.pull_request.number }}
+                  REPO=${{ github.repository }}

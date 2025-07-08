@@ -1,14 +1,7 @@
 'use client'
-
-import type {NextPage} from 'next'
-import React, {useState, useEffect, useRef} from 'react'
-import {fakeFetch} from '../fakeFetch'
+import LoadingSpinner from '@/components/common/LoadingSpinner'
+import {useInfiniteScroll} from '@/hooks/useInfiniteScroll'
 import {get} from '@/lib/api'
-
-export interface listResponse {
-    uid: number
-    title: string
-}
 
 export interface Goal {
     id: number
@@ -25,89 +18,108 @@ export interface GetGoalsResponse {
     nextCursor: number | null
 }
 
-const GoalsId: NextPage = () => {
-    const [list, setList] = useState<Goal[]>([])
-    const [cursor, setCursor] = useState<number>(0)
-    const [nextCursor, setNextCursor] = useState<number | null>(0)
-    const [loading, setLoading] = useState(false)
+const TOKEN = `eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDY5LCJ0ZWFtSWQiOiIxMDYwIiwiaWF0IjoxNzUxOTM0ODMyLCJleHAiOjE3NTIwMjEyMzIsImlzcyI6InNwLXNsaWR0b2RvIn0.bW8zR8cH9LZbJiSqyGlCEIW-vYcIB1ox92oJ-7Vax88`
 
-    const observerRef = useRef<HTMLDivElement | null>(null)
+async function fetchGoals(cursor: number) {
+    await new Promise((resolve) => setTimeout(resolve, 3000))
+    const res = await get<{
+        goals: Goal[]
+        nextCursor: number | null
+    }>({
+        endpoint: `1060/goals?cursor=${cursor}&size=6&sortOrder=oldest`,
+        options: {
+            headers: {Authorization: `Bearer ${TOKEN}`},
+        },
+    })
 
-    const fetchInfiniteApi = async () => {
-        if (loading || nextCursor === null) return
-        setLoading(true)
-        try {
-            // const data = await fakeFetch(cursor, 10)
-            const response = await get<GetGoalsResponse>({
-                endpoint: '1060/goals?cursor=1&size=20&sortOrder=oldest',
-                options: {
-                    headers: {
-                        Authorization: `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6NDY5LCJ0ZWFtSWQiOiIxMDYwIiwiaWF0IjoxNzUxODc5MDEzLCJleHAiOjE3NTE4ODI2MTMsImlzcyI6InNwLXNsaWR0b2RvIn0.OighxHpfeZQ0KORlEhRjEQxRzEY9B_5zNfC_XurrH6A`,
-                    },
-                },
-            })
-            const data = response.data
-            console.log('data', data)
-
-            setList((prev) => [
-                ...prev,
-                ...data.goals.map((item) => ({
-                    id: item.id,
-                    teamId: item.teamId,
-                    userId: item.userId,
-                    title: item.title,
-                    createdAt: item.createdAt,
-                    updatedAt: item.updatedAt,
-                })),
-            ])
-            setCursor(data.nextCursor ?? 0)
-            setNextCursor(data.nextCursor)
-        } catch (e) {
-            console.error('fetch error', e)
-        } finally {
-            setLoading(false)
-        }
+    return {
+        data: res.data.goals,
+        nextCursor: res.data.nextCursor,
     }
+}
 
-    useEffect(() => {
-        if (!observerRef.current || nextCursor === null) return
-        const observer = new IntersectionObserver(
-            (entries) => {
-                if (entries[0].isIntersecting) {
-                    fetchInfiniteApi()
-                }
-            },
-            {
-                threshold: 1.0,
-            },
-        )
-        const el = observerRef.current
-        observer.observe(el)
+async function fetchTodo(cursor: number) {
+    const res = await get<{
+        goals: Goal[]
+        nextCursor: number | null
+    }>({
+        endpoint: `1060/goals?cursor=${cursor}&size=6&sortOrder=oldest`,
+        options: {
+            headers: {Authorization: `Bearer ${TOKEN}`},
+        },
+    })
 
-        return () => {
-            if (el) observer.unobserve(el)
-        }
-    }, [observerRef.current, nextCursor])
+    return {
+        data: res.data.goals,
+        nextCursor: res.data.nextCursor,
+    }
+}
+export default function GoalsPage() {
+    const {
+        data: goals,
+        ref: goalRef,
+        isLoading: goalsLoading,
+        hasMore: goalsHasMore,
+    } = useInfiniteScroll<Goal>({fetchFn: fetchGoals})
+    const {
+        data: todos,
+        ref: todoRef,
+        isLoading: todosLoading,
+        hasMore: todosHasMore,
+    } = useInfiniteScroll<Goal>({fetchFn: fetchTodo})
 
     return (
         <div>
-            <div>
-                {list.map((v) => (
-                    <div key={v.id}>
-                        <span className="text-2xl font-bold">{v.id} </span>
-                        {v.title}
-                    </div>
-                ))}
-                {nextCursor !== null ? (
-                    <div ref={observerRef} className="text-center py-4 text-gray-500">
-                        Loading...
-                    </div>
-                ) : (
-                    <div className="text-center py-4 text-gray-400">모든 데이터를 불러왔습니다</div>
-                )}
+            <div className="flex gap-4">
+                <div className={`flex-1/2 border border-violet-500 h-[500px] overflow-y-scroll rounded`}>
+                    {goalsLoading && <LoadingSpinner />}
+
+                    <div className="text-2xl mb-4">목표 List</div>
+                    {goals.map((item) => (
+                        <div key={`goal_${item.id}`} className="mb-20 flex gap-4 items-center">
+                            <div>
+                                {item.id} {item.title}
+                            </div>
+                            <button
+                                className="bg-blue-500 text-white rounded px-4 py-1"
+                                disabled={goalsLoading}
+                                onClick={() => alert('추가')}
+                            >
+                                Btn
+                            </button>
+                        </div>
+                    ))}
+                    {goalsHasMore && !goalsLoading ? (
+                        <div ref={goalRef}></div>
+                    ) : (
+                        !goalsLoading && !goalsHasMore && <div>모든 데이터를 불러왔습니다.</div>
+                    )}
+                </div>
+                <div className="flex-1/2 border border-blue-500 h-[500px] overflow-y-scroll rounded">
+                    {todosLoading && <LoadingSpinner />}
+
+                    <div className="text-2xl mb-4">할일 List</div>
+                    {todos.map((item) => (
+                        <div key={`todo_${item.id}`} className="mb-20 flex gap-4 items-center">
+                            <div>
+                                {item.id} {item.title}
+                            </div>
+                            <button
+                                className="bg-blue-500 text-white rounded px-4 py-1"
+                                disabled={todosLoading}
+                                onClick={() => alert('추가')}
+                            >
+                                Btn
+                            </button>
+                        </div>
+                    ))}
+                    {todosHasMore && !todosLoading ? (
+                        <div ref={todoRef}></div>
+                    ) : (
+                        !todosLoading && !todosHasMore && <div>모든 데이터를 불러왔습니다.</div>
+                    )}
+                </div>
             </div>
         </div>
     )
 }
-
-export default GoalsId

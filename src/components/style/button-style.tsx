@@ -3,7 +3,7 @@ import {cva} from 'class-variance-authority'
 import {cn} from './utils'
 
 type ButtonInterface = React.ComponentProps<'button'> & {
-    size?: 'default' | 'medium' | 'round_small' | 'small'
+    size?: 'default' | 'medium' | 'round_small' | 'small' | 'full'
     color?: 'default' | 'outline'
 }
 
@@ -14,6 +14,7 @@ const ButtonStyle = ({size = 'default', color = 'default', children, ...restButt
                 default: 'w-80 h-12  max-sm:text-[12px] max-sm:w-16 max-sm:h-6 ',
                 medium: 'w-36 h-12 max-sm:w-16 max-sm:h-6 max-sm:text-[12px]',
                 small: 'w-16 h-6 text-[12px]',
+                full: 'w-full h-6',
                 round_small: 'w-16 h-6 rounded-full text-[12px]',
             },
             color: {

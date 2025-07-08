@@ -1,31 +1,31 @@
-name: Feature/Hotfix PR Work
+name: Main/Devolop PR Work
 on:
-  pull_request:
-    branches:
-      - develop
-      - main
+    pull_request:
+        branches:
+            - develop
+            - main
 
 jobs:
-  main-lint-build-test:
-    runs-on: ubuntu-latest
+    main-lint-build-test:
+        runs-on: ubuntu-latest
 
-    steps:
-      # 코드 체크 아웃
-      - name: Check out Code
-        uses: actions/checkout@v4
+        steps:
+            # 코드 체크 아웃
+            - name: Check out Code
+              uses: actions/checkout@v4
 
-        # 의존성 설치
-      - name: Install dependencieså
-        run: npm ci
+              # 의존성 설치
+            - name: Install dependencieså
+              run: npm ci
 
-        # ESLint 스타일 test
-      - name: Run ESLint
-        run: npm run lint
+              # ESLint 스타일 test
+            - name: Run ESLint
+              run: npm run lint
 
-        # TypeScript 컴파일러 타입 오류 검사
-      - name: Run TS type check
-        run: npm run tsc -- --noEmit
+              # TypeScript 컴파일러 타입 오류 검사
+            - name: Run TS type check
+              run: npm run tsc -- --noEmit
 
-        # 빋드 test
-      - name: Run Build test
-        run: npm run build
+              # 빋드 test
+            - name: Run Build test
+              run: npm run build

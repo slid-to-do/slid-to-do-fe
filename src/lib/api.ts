@@ -5,30 +5,30 @@ import type {
     DeleteApiParams,
     RequestParams,
     ApiResponse,
+    ApiPayload,
 } from '@/types/api'
 
-/* 사용법
+/** 사용법
 import { get, post, patch, del } from '@/lib/api'
 
-// ex) get
+ex) get
 const response = await get<타입>({ endpoint: 'url' })
 const todos = response.data
 
-// ex) post / patch
+ex) post / patch
 const response = await post<타입>({ 
     endpoint: 'url', 
     data: {  } 
 })
 const newTodo = response.data
 
-// ex) delete
+ex) delete
 const response = await del({ endpoint: 'url' })
 */
 
-// API Base URL 설정
-const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL || 'http://localhost:3000/api'
+const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
-// 통합된 HTTP 요청 함수
+/** 통합된 HTTP 요청 함수 */
 async function request<T>({method, endpoint, data, options}: RequestParams): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}/${endpoint}`
     const response = await fetch(url, {
@@ -42,23 +42,23 @@ async function request<T>({method, endpoint, data, options}: RequestParams): Pro
     })
 
     const status = response.status
-    const payload = await response.json().catch(() => ({}))
+    const payload = (await response.json()) as Partial<ApiPayload<T>>;
 
     if (!response.ok) {
-        const message = (payload as any).message || `HTTP error! status: ${status}`
+        const message = payload.message || `HTTP error! status: ${status}`
         throw new Error(message)
     }
 
-    // data가 null or undefined 이면 status 반환
+    /** data가 null or undefined 이면 status 반환 */
     const apiResponse: ApiResponse<T> = {
-        data: (payload as any).data ?? (payload as T),
+        data: payload.data ?? (payload as unknown as T),
         status,
-        message: (payload as any).message,
+        message: payload.message,
     }
     return apiResponse
 }
 
-// HTTP 메서드별 함수
+/** HTTP 메서드별 함수 */
 export function get<T>({endpoint, options}: GetApiParams): Promise<ApiResponse<T>> {
     return request<T>({method: 'GET', endpoint, options})
 }

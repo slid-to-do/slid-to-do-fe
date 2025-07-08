@@ -1,13 +1,13 @@
-import {cn} from './utils'
 import {cva} from 'class-variance-authority'
 
-type BtnInterface = React.ComponentProps<'button'> & {
+import {cn} from './utils'
+
+type ButtonInterface = React.ComponentProps<'button'> & {
     size?: 'default' | 'medium' | 'round_small' | 'small'
     color?: 'default' | 'outline'
-    children: any
 }
 
-const BtnStyle = ({size = 'default', color = 'default', children, ...restBtnProps}: BtnInterface) => {
+const ButtonStyle = ({size = 'default', color = 'default', children, ...restButtonProperties}: ButtonInterface) => {
     const buttonVariants = cva('', {
         variants: {
             size: {
@@ -29,7 +29,7 @@ const BtnStyle = ({size = 'default', color = 'default', children, ...restBtnProp
     })
     return (
         <button
-            {...restBtnProps}
+            {...restButtonProperties}
             className={cn(
                 buttonVariants({size, color}),
                 ' flex justify-center items-center text-center  font-semibold rounded-md whitespace-nowrap ',
@@ -40,4 +40,4 @@ const BtnStyle = ({size = 'default', color = 'default', children, ...restBtnProp
     )
 }
 
-export default BtnStyle
+export default ButtonStyle

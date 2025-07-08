@@ -18,31 +18,31 @@ export interface ApiPayload<T> {
 
 export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE'
 
-export interface RequestParams {
+export interface RequestParameters {
     method: HttpMethod
     endpoint: string
     data?: object
     options?: RequestInit
 }
 
-export interface GetApiParams {
+export interface GetApiParameters {
     endpoint: string
     options?: RequestInit
 }
 
-export interface PostApiParams {
-    endpoint: string
-    data?: object
-    options?: RequestInit
-}
-
-export interface PatchApiParams {
+export interface PostApiParameters {
     endpoint: string
     data?: object
     options?: RequestInit
 }
 
-export interface DeleteApiParams {
+export interface PatchApiParameters {
+    endpoint: string
+    data?: object
+    options?: RequestInit
+}
+
+export interface DeleteApiParameters {
     endpoint: string
     options?: RequestInit
 }

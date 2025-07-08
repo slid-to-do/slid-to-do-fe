@@ -1,9 +1,9 @@
 import type {
-    GetApiParams,
-    PostApiParams,
-    PatchApiParams,
-    DeleteApiParams,
-    RequestParams,
+    GetApiParameters,
+    PostApiParameters,
+    PatchApiParameters,
+    DeleteApiParameters,
+    RequestParameters,
     ApiResponse,
     ApiPayload,
 } from '@/types/api'
@@ -29,7 +29,7 @@ const response = await del({ endpoint: 'url' })
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 /** 통합된 HTTP 요청 함수 */
-async function request<T>({method, endpoint, data, options}: RequestParams): Promise<ApiResponse<T>> {
+async function request<T>({method, endpoint, data, options}: RequestParameters): Promise<ApiResponse<T>> {
     const url = `${API_BASE_URL}/${endpoint}`
     const response = await fetch(url, {
         method,
@@ -59,18 +59,18 @@ async function request<T>({method, endpoint, data, options}: RequestParams): Pro
 }
 
 /** HTTP 메서드별 함수 */
-export function get<T>({endpoint, options}: GetApiParams): Promise<ApiResponse<T>> {
+export function get<T>({endpoint, options}: GetApiParameters): Promise<ApiResponse<T>> {
     return request<T>({method: 'GET', endpoint, options})
 }
 
-export function post<T>({endpoint, data, options}: PostApiParams): Promise<ApiResponse<T>> {
+export function post<T>({endpoint, data, options}: PostApiParameters): Promise<ApiResponse<T>> {
     return request<T>({method: 'POST', endpoint, data, options})
 }
 
-export function patch<T>({endpoint, data, options}: PatchApiParams): Promise<ApiResponse<T>> {
+export function patch<T>({endpoint, data, options}: PatchApiParameters): Promise<ApiResponse<T>> {
     return request<T>({method: 'PATCH', endpoint, data, options})
 }
 
-export function del<T>({endpoint, options}: DeleteApiParams): Promise<ApiResponse<T>> {
+export function del<T>({endpoint, options}: DeleteApiParameters): Promise<ApiResponse<T>> {
     return request<T>({method: 'DELETE', endpoint, options})
 }

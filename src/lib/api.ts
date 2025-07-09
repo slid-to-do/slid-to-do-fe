@@ -38,11 +38,10 @@ async function request<T>({method, endpoint, data, options}: RequestParameters):
             ...options?.headers,
         },
         body: data ? JSON.stringify(data) : undefined,
-        ...options,
     })
 
     const status = response.status
-    const payload = (await response.json()) as Partial<ApiPayload<T>>;
+    const payload = (await response.json()) as Partial<ApiPayload<T>>
 
     if (!response.ok) {
         const message = payload.message || `HTTP error! status: ${status}`

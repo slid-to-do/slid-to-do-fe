@@ -83,20 +83,20 @@ function Toolbar({editorInstance}: {editorInstance: ReturnType<typeof useEditor>
 
             <div className="flex gap-1">
                 <button
-                    onClick={() => editorInstance?.chain().focus().toggleBold().run()}
-                    className={`rounded-full hover:bg-blue-500 size-6 font-bold transition ${editorInstance?.isActive('bold') ? 'bg-blue-500' : 'bg-white'}`}
+                    onClick={() => editorInstance?.chain().focus().toggleTextAlign('left').run()}
+                    className={`rounded-full hover:bg-blue-500 size-6 font-bold transition ${editorInstance?.isActive('left') ? 'bg-blue-500' : 'bg-white'}`}
                 >
                     <Image src="/markdown-editor/ic-align-left.svg" alt="Left Align" width={24} height={24} />
                 </button>
                 <button
-                    onClick={() => editorInstance?.chain().focus().toggleItalic().run()}
-                    className={`rounded-full hover:bg-blue-500 size-6 font-bold transition ${editorInstance?.isActive('italic') ? 'bg-blue-500' : 'bg-white'}`}
+                    onClick={() => editorInstance?.chain().focus().toggleTextAlign('center').run()}
+                    className={`rounded-full hover:bg-blue-500 size-6 font-bold transition ${editorInstance?.isActive('center') ? 'bg-blue-500' : 'bg-white'}`}
                 >
                     <Image src="/markdown-editor/ic-align-center.svg" alt="Center Align" width={24} height={24} />
                 </button>
                 <button
-                    onClick={() => editorInstance?.chain().focus().toggleUnderline().run()}
-                    className={`rounded-full hover:bg-blue-500 size-6 font-bold transition ${editorInstance?.isActive('underline') ? 'bg-blue-500' : 'bg-white'}`}
+                    onClick={() => editorInstance?.chain().focus().toggleTextAlign('right').run()}
+                    className={`rounded-full hover:bg-blue-500 size-6 font-bold transition ${editorInstance?.isActive('right') ? 'bg-blue-500' : 'bg-white'}`}
                 >
                     <Image src="/markdown-editor/ic-align-right.svg" alt="Right Align" width={24} height={24} />
                 </button>

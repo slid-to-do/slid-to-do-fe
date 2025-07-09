@@ -1,0 +1,33 @@
+name: Issue PR Labeler
+
+on:
+
+    pull_request_target:
+        types:
+            - opened
+            - reopened
+
+jobs:
+    Auto_labeling:
+        runs-on: ubuntu-latest
+
+        permissions:
+            contents: read
+            pull-requests: write
+            issues: write
+
+        steps:
+            - name: Run Issue PR Labeler
+              uses: hoho4190/issue-pr-labeler@v2
+              with:
+                  token: ${{ secrets.GITHUB_TOKEN }}
+                  disable-bot: true
+                  config-file-name: labeler-config.yml
+
+
+            - name: 'Debug: 직접 레이블 추가 시도해보기'
+
+              shell: bash
+              run: |
+                  PR_NUM=${{ github.event.pull_request.number }}
+                  REPO=${{ github.repository }}

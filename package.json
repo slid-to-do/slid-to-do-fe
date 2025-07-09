@@ -10,11 +10,17 @@
         "tsc": "tsc"
     },
     "dependencies": {
+        "class-variance-authority": "^0.7.1",
+        "clsx": "^2.1.1",
         "motion": "^12.23.0",
         "next": "15.3.4",
         "react": "^19.0.0",
         "react-dom": "^19.0.0",
         "react-intersection-observer": "^9.16.0",
+<<<<<<< HEAD
+=======
+        "tailwind-merge": "^3.3.1",
+>>>>>>> upstream/develop
         "zustand": "^5.0.6"
     },
     "devDependencies": {

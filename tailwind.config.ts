@@ -1,4 +1,5 @@
 import type {Config} from 'tailwindcss'
+import plugin from 'tailwindcss/plugin'
 
 const config: Config = {
     content: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
@@ -36,7 +37,45 @@ const config: Config = {
             },
         },
     },
-    plugins: [],
+    plugins: [
+        plugin(({matchUtilities, theme}) => {
+            // 클래스별 기본 사이즈 지정
+            const defaults = {
+                'text-subBody': {size: '12px', weight: 'light'},
+                'text-body': {size: '16px', weight: 'normal'},
+                'text-subTitle': {size: '18px', weight: 'semibold'},
+                'text-title': {size: '24px', weight: 'extrabold'},
+            }
+            // 공통 사이즈 맵
+            const sizes = {
+                xs: '12px',
+                sm: '14px',
+                base: '16px',
+                lg: '18px',
+                xl: '20px',
+                xxl: '24px',
+                xxxl: '30px',
+            }
+
+            Object.entries(defaults).forEach(([className, {size, weight}]) => {
+                matchUtilities(
+                    {
+                        [className]: (value) => ({
+                            fontSize: value,
+                            fontWeight: theme(`fontWeight.${weight}`),
+                        }),
+                    },
+                    {
+                        values: {
+                            DEFAULT: size,
+                            ...sizes,
+                        },
+                        type: 'length',
+                    },
+                )
+            })
+        }),
+    ],
 }
 
 export default config

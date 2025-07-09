@@ -11,11 +11,11 @@ const ButtonStyle = ({size = 'default', color = 'default', children, ...restButt
     const buttonVariants = cva('', {
         variants: {
             size: {
-                default: 'w-80 h-12  max-sm:text-[12px] max-sm:w-16 max-sm:h-6 ',
-                medium: 'w-36 h-12 max-sm:w-16 max-sm:h-6 max-sm:text-[12px]',
-                small: 'w-16 h-6 text-[12px]',
-                full: 'w-full h-6',
-                round_small: 'w-16 h-6 rounded-full text-[12px]',
+                default: 'w-80 h-12  max-sm:text-[12px] max-sm:w-16 max-sm:h-6 rounded-md',
+                medium: 'w-36 h-12 max-sm:w-16 max-sm:h-6 max-sm:text-[12px] rounded-md',
+                small: 'w-16 h-6 text-[12px] rounded-md',
+                full: 'w-full h-6 rounded-md',
+                round_small: 'w-16 h-6 rounded-full text-[12px] ',
             },
             color: {
                 default:
@@ -33,7 +33,7 @@ const ButtonStyle = ({size = 'default', color = 'default', children, ...restButt
             {...restButtonProperties}
             className={cn(
                 buttonVariants({size, color}),
-                ' flex justify-center items-center text-center  font-semibold rounded-md whitespace-nowrap ',
+                ' flex justify-center items-center text-center  font-semibold  whitespace-nowrap ',
             )}
         >
             {children}

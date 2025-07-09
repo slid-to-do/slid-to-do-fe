@@ -4,8 +4,12 @@ export const metadata = {
     title: 'DashBoard',
 }
 
-const layout = () => {
-    return <div>layout</div>
+const layout = ({
+    children,
+}: Readonly<{
+    children: React.ReactNode
+}>) => {
+    return <main>{children}</main>
 }
 
 export default layout

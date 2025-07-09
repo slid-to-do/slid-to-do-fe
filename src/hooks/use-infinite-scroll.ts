@@ -17,7 +17,7 @@ export function useInfiniteScroll<T>({fetchFn}: UseInfiniteScrollProperties<T>) 
     const {ref, inView} = useInView({threshold: 0.5})
 
     const fetchMore = useCallback(async () => {
-        if (isLoading || cursor === undefined) return
+        if (isLoading || typeof cursor !== 'number') return
 
         setIsLoading(true)
         try {

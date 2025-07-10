@@ -48,6 +48,11 @@ async function request<T>({method, endpoint, data, options}: RequestParameters):
         throw new Error(message)
     }
 
+    if (!(response.status >= 200 && response.status < 300)) {
+        const message = payload.message || `HTTP error! status: ${status}`
+        throw new Error(message)
+    }
+
     /** data가 null or undefined 이면 status 반환 */
     const apiResponse: ApiResponse<T> = {
         data: payload.data ?? (payload as unknown as T),

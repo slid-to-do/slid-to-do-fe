@@ -3,7 +3,7 @@ import {useCallback, useEffect, useState} from 'react'
 import {useInView} from 'react-intersection-observer'
 
 interface UseInfiniteScrollProperties<T> {
-    fetchFn: (cursor: number) => Promise<{
+    fetchFn: (cursor: number | undefined) => Promise<{
         data: T[]
         nextCursor: number | undefined
     }>
@@ -11,36 +11,33 @@ interface UseInfiniteScrollProperties<T> {
 
 export function useInfiniteScroll<T>({fetchFn}: UseInfiniteScrollProperties<T>) {
     const [data, setData] = useState<T[]>([])
-    const [cursor, setCursor] = useState<number | undefined>(1)
     const [nextCursor, setNextCursor] = useState<number | undefined>()
     const [isLoading, setIsLoading] = useState(false)
     const {ref, inView} = useInView({threshold: 0.5})
 
     const fetchMore = useCallback(async () => {
-        if (isLoading || typeof cursor !== 'number') return
-
+        if (isLoading || nextCursor === null) return
         setIsLoading(true)
         try {
-            const response = await fetchFn(cursor)
+            const response = await fetchFn(nextCursor)
             setData((previous) => [...previous, ...response.data])
-            setCursor(response.nextCursor)
             setNextCursor(response.nextCursor)
         } finally {
             setIsLoading(false)
         }
-    }, [cursor, fetchFn, isLoading])
+    }, [nextCursor, fetchFn, isLoading])
 
     useEffect(() => {
-        if (data.length === 0) {
+        if (data.length === 0 && !isLoading) {
             fetchMore()
         }
-    }, [data.length, fetchMore])
+    }, [data.length, isLoading, fetchMore])
 
     useEffect(() => {
-        if (inView && nextCursor !== undefined) {
+        if (inView && !isLoading && nextCursor !== undefined && nextCursor !== null) {
             fetchMore()
         }
-    }, [inView, nextCursor, fetchMore])
+    }, [inView, isLoading, nextCursor, fetchMore])
 
     return {
         data,

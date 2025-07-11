@@ -2,6 +2,8 @@
 
 import {useEffect, useState, useCallback} from 'react'
 
+import AddTodoModal from '@/components/common/modal/add-todo-modal'
+import {useModal} from '@/hooks/use-modal'
 import {del, get, patch} from '@/lib/api'
 
 import Filter from './filter'
@@ -30,7 +32,7 @@ interface TodoListDetail {
     }[]
 }
 
-export default function Page() {
+const Page = () => {
     const [data, setData] = useState<TodoListDetail>({
         totalCount: 0,
         nextCursor: 0,
@@ -40,6 +42,8 @@ export default function Page() {
     const [selectedFilter, setSelectedFilter] = useState<FilterValue>('ALL')
     const [loading, setLoading] = useState<boolean>(true)
     const [error, setError] = useState<string>('')
+
+    const {openModal} = useModal(<AddTodoModal />)
 
     const handleFilterChange = (value: string) => {
         setSelectedFilter(value as FilterValue)
@@ -120,7 +124,9 @@ export default function Page() {
         <>
             <div className="flex items-center justify-between">
                 <h1 className="text-lg font-semibold">모든 할 일 ({data?.totalCount})</h1>
-                <button className="text-sm font-semibold text-custom_blue-500">+ 할 일 추가</button>
+                <button className="text-sm font-semibold text-custom_blue-500" onClick={openModal}>
+                    + 할 일 추가
+                </button>
             </div>
 
             <div className="h-full p-6 mt-4 bg-white rounded-xl">
@@ -184,3 +190,5 @@ export default function Page() {
         </>
     )
 }
+
+export default Page

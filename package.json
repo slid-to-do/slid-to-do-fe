@@ -10,6 +10,7 @@
         "tsc": "tsc"
     },
     "dependencies": {
+        "@tanstack/react-query": "^5.82.0",
         "@tiptap/extension-character-count": "^2.25.0",
         "@tiptap/extension-placeholder": "^2.25.0",
         "@tiptap/extension-text-align": "^2.25.0",

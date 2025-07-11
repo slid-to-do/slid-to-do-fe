@@ -1,8 +1,7 @@
-import React from 'react'
-
+import React, {useState} from 'react'
 import {cva} from 'class-variance-authority'
-
 import {cn} from './utils'
+import Image from 'next/image'
 
 type InputInterface = React.ComponentProps<'input'> & {
     state?: 'default' | 'error' | 'blue'
@@ -11,9 +10,12 @@ type InputInterface = React.ComponentProps<'input'> & {
 }
 
 const InputStyle = React.forwardRef<HTMLInputElement, InputInterface>(function InputStyle(
-    {placeholder, state = 'default', custom_size = 'default', ...restInputProperties},
+    {placeholder, state = 'default', custom_size = 'default', type = 'text', ...restInputProperties},
     reference,
 ) {
+    const [showPassword, setShowPassword] = useState(false)
+    const isPassword = type === 'password'
+
     const inputVariants = cva('', {
         variants: {
             state: {
@@ -33,15 +35,31 @@ const InputStyle = React.forwardRef<HTMLInputElement, InputInterface>(function I
     })
 
     return (
-        <input
-            {...restInputProperties}
-            ref={reference}
-            className={cn(
-                inputVariants({state, custom_size}),
-                ' px-6 py-3 border placeholder:text-slate-400 text-black bg-slate-50 disabled:text-slate-400  rounded-md  outline-none ',
+        <div className={cn('relative', inputVariants({state, custom_size}))}>
+            <input
+                {...restInputProperties}
+                ref={reference}
+                type={isPassword && showPassword ? 'text' : type}
+                className={cn(
+                    'w-full px-6 py-3 border placeholder:text-slate-400 text-black bg-slate-50 disabled:text-slate-400 rounded-md outline-none pr-12',
+                    inputVariants({state, custom_size}),
+                )}
+                placeholder={placeholder}
+            />
+            {isPassword && (
+                <button
+                    type="button"
+                    onClick={() => setShowPassword((prev) => !prev)}
+                    className="absolute inset-y-0 right-3 flex items-center text-gray-500"
+                >
+                    {showPassword ? (
+                        <Image src="/input/ic-eye-on.svg" alt="비밀번호 보기" width={20} height={20} />
+                    ) : (
+                        <Image src="/input/ic-eye-off.svg" alt="비밀번호 숨기기" width={20} height={20} />
+                    )}
+                </button>
             )}
-            placeholder={placeholder}
-        />
+        </div>
     )
 })
 

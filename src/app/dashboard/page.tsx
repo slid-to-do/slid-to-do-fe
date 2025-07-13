@@ -1,5 +1,7 @@
+'use client'
 import React from 'react'
-import Sidebar from '@/components/navigation/sidebar'
+
+import Sidebar from '@/components/navigation/sidebar-container'
 
 const DashBoard = () => {
     return (

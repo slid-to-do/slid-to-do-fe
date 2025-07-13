@@ -9,15 +9,28 @@ import {motion} from 'motion/react'
 import Expand from '@/../public/sidebar/ic_expand.svg'
 import useLayout from '@/hooks/use-layout'
 
-import ButtonStyle from '../style/button-style'
-import SidebarList from './components/goal-list'
-import SidebarProfile from './components/sidebar-profile'
-import {disappearAnimation, buttonAnimation} from './util/motion-variants'
+import ButtonStyle from '../../style/button-style'
+import SidebarList from './goal-list'
+import SidebarProfile from './sidebar-profile'
+import {disappearAnimation, buttonAnimation} from '../util/motion-variants'
 
 import type {ClientInterface} from '@/types/sidebar'
 
 const ClientSidebar = ({isClose, controls, setIsClose}: ClientInterface) => {
     const isMobile = useLayout('mobile')
+
+    const onClickHandler = () => {
+        if (isClose) {
+            setIsClose(false)
+            controls.start('close')
+        } else if (!isClose && isMobile) {
+            setIsClose(true)
+            controls.start('mobile')
+        } else {
+            controls.start('open')
+            setIsClose(true)
+        }
+    }
 
     return (
         <>
@@ -55,7 +68,7 @@ const ClientSidebar = ({isClose, controls, setIsClose}: ClientInterface) => {
                     animate={isClose ? 'open' : 'close'}
                     transition={{duration: 0.3}}
                     className=" group  rounded-lg w-8 h-8 flex justify-center items-center z-30 "
-                    onClick={() => setIsClose(!isClose)}
+                    onClick={onClickHandler}
                 >
                     <Expand
                         className={`  ${isClose ? 'x-28' : 'x-0'} x  w-6 h-6 fill-white text-slate-400 group-hover:text-slate-300  `}
@@ -66,7 +79,7 @@ const ClientSidebar = ({isClose, controls, setIsClose}: ClientInterface) => {
                 layout
                 variants={disappearAnimation}
                 animate={controls}
-                className={`flex flex-1 min-h-0 ${isClose ? ' tablet:flex' : 'tablet:hidden'} flex-col h-full `}
+                className={`flex flex-1 min-h-0 ${isClose ? ' tablet:flex' : 'tablet:hidden'} flex-col w-full h-full `}
             >
                 <SidebarProfile />
                 {!isMobile && <ButtonStyle size="full">+ 새 할일</ButtonStyle>}

@@ -5,6 +5,12 @@ export const disappearAnimation = {
             duration: 0.3,
         },
     },
+    mobile: {
+        opacity: 1,
+        transition: {
+            duration: 0.3,
+        },
+    },
     close: {
         opacity: 0,
 
@@ -24,6 +30,28 @@ export const widthAnimation = {
     },
     close: {
         width: 50,
+        transition: {
+            duration: 0.3,
+        },
+    },
+    mobile: {
+        width: '100vw',
+        transition: {
+            duration: 0.3,
+        },
+    },
+}
+
+export const mobileAnimation = {
+    open: {
+        width: '100vw',
+
+        transition: {
+            duration: 0.3,
+        },
+    },
+    close: {
+        width: 0,
         transition: {
             duration: 0.3,
         },

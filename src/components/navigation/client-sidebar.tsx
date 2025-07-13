@@ -14,7 +14,7 @@ import SidebarList from './components/goal-list'
 import SidebarProfile from './components/sidebar-profile'
 import {disappearAnimation, buttonAnimation} from './util/motion-variants'
 
-import {ClientInterface} from '@/types/sidebar'
+import type {ClientInterface} from '@/types/sidebar'
 
 const ClientSidebar = ({isClose, controls, setIsClose}: ClientInterface) => {
     const isMobile = useLayout('mobile')
@@ -23,7 +23,7 @@ const ClientSidebar = ({isClose, controls, setIsClose}: ClientInterface) => {
         <>
             <motion.header
                 transition={{duration: 0.3, delay: 0.3}}
-                className="  h-auto w-full border-b-[#E2E8F0] flex justify-between items-center "
+                className="  h-auto w-full border-b-[#E2E8F0] flex justify-between items-center"
             >
                 <Link href="/" className="flex w-auto h-[32px] min-w-[32px]  ">
                     <Image
@@ -36,7 +36,7 @@ const ClientSidebar = ({isClose, controls, setIsClose}: ClientInterface) => {
                     <motion.div
                         variants={disappearAnimation}
                         animate={controls}
-                        className="flex justify-center items-center w-auto h-auto "
+                        className="flex justify-center items-center w-auto h-full "
                     >
                         <Image
                             src={'./slid-to-do.svg'}
@@ -66,7 +66,7 @@ const ClientSidebar = ({isClose, controls, setIsClose}: ClientInterface) => {
                 layout
                 variants={disappearAnimation}
                 animate={controls}
-                className={`flex  ${isClose ? ' tablet:flex' : 'tablet:hidden'} flex-col h-full `}
+                className={`flex flex-1 min-h-0 ${isClose ? ' tablet:flex' : 'tablet:hidden'} flex-col h-full `}
             >
                 <SidebarProfile />
                 {!isMobile && <ButtonStyle size="full">+ 새 할일</ButtonStyle>}

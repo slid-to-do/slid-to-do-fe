@@ -42,7 +42,7 @@ const NavigationSidebar = () => {
             variants={widthAnimation}
             animate={controls}
             aria-label="사이드바 네비게이션"
-            className={` p-2 tablet:w-12  w-64 text-slate-700 bg-white shadow-md h-screen gap-6 sticky  flex flex-col justify-start overflow-x-hidden`}
+            className={` p-2 tablet:w-12  w-64 text-slate-700 bg-white shadow-md h-screen gap-6  fixed  flex flex-col justify-start overflow-x-hidden `}
         >
             <NoSSR isClose={isClose} controls={controls} setIsClose={setIsClose} />
         </motion.aside>

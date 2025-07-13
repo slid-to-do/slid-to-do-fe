@@ -12,9 +12,9 @@ const SidebarProfile = () => {
                 alt="profile"
                 width={24}
                 height={24}
-                className=" w-16 h-16 p-2 rounded-full max-sm:w-5 max-sm:h-5 max-sm:p-0"
+                className=" w-16 h-16 p-2 rounded-full mobile:w-5 mobile:h-5 mobile:p-0"
             />
-            <div className="w-full h-auto max-sm:flex max-sm: justify-between max-sm:items-end">
+            <div className="w-full h-auto mobile:flex mobile: justify-between mobile:items-end">
                 <div className="flex flex-col">
                     <p className="text-sm font-medium overflow-x-hidden w-full">체대치즈</p>
                     <p className="text-sm font-medium overflow-x-hidden w-full">codeit@gmail.com</p>

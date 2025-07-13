@@ -1,6 +1,7 @@
 import {Geist, Geist_Mono} from 'next/font/google'
 
 import ModalProvider from './providers/modal-provider'
+import QueryProvider from './providers/query-provider'
 
 import type {Metadata} from 'next'
 
@@ -35,8 +36,10 @@ export default function RootLayout({
     return (
         <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
-                {children}
-                <ModalProvider />
+                <QueryProvider>
+                    {children}
+                    <ModalProvider />
+                </QueryProvider>
             </body>
         </html>
     )

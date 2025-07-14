@@ -6,7 +6,7 @@ interface FilterProperties {
     name: string
 }
 
-export default function Filter({children, checked = false, onChange, value, name}: FilterProperties) {
+const Filter = ({children, checked = false, onChange, value, name}: FilterProperties) => {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
         onChange?.(event.target.value)
     }
@@ -29,3 +29,5 @@ export default function Filter({children, checked = false, onChange, value, name
         </label>
     )
 }
+
+export default Filter

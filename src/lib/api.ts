@@ -44,15 +44,13 @@ const request = async <T>({method, endpoint, data, options}: RequestParameters):
     const status = response.status
     const payload = (await response.json()) as Partial<ApiPayload<T>>
 
-    if (!response.ok) {
+    /** 200번대 코드가 아니면 에러 발생  error.message , error.status로 접근하여 코드별 에러처리 가능*/
+    if (!(status >= 200 && status < 300)) {
         const message = payload.message || `HTTP error! status: ${status}`
-        throw new Error(message)
-    }
-
-    if (!(response.status >= 200 && response.status < 300)) {
-        const message = payload.message || `HTTP error! status: ${status}`
-        throw new Error(message)
-    }
+        const error = new Error(message) as Error & { status: number }
+        error.status = status
+        throw error
+      }
 
     /** data가 null or undefined 이면 status 반환 */
     const apiResponse: ApiResponse<T> = {

@@ -1,7 +1,9 @@
 'use client'
 
-import InputForm from '@/components/common/InputForm'
+import InputForm from '@/components/common/input-form'
 import {useForm} from 'react-hook-form'
+import {useSignup} from '@/hooks/use-signup'
+import {useRouter} from 'next/navigation'
 
 const SignPage = () => {
     const {
@@ -9,13 +11,28 @@ const SignPage = () => {
         handleSubmit,
         watch,
         formState: {errors},
+        setError,
     } = useForm()
 
-    const onSubmit = (data: any) => {
-        console.log('회원가입 요청:', data)
-    }
-
     const password = watch('password')
+    const {signup, loading, error} = useSignup()
+    const router = useRouter()
+
+    const onSubmit = async (data: any) => {
+        const {name, email, password} = data
+        try {
+            await signup({name, email, password})
+            alert('회원가입이 완료되었습니다!')
+            router.push('/')
+        } catch (e: any) {
+            console.error('회원가입 실패:', e)
+            if (e.status === 400) {
+                setError('email', {message: e.message})
+            } else if (e.status === 409) {
+                setError('email', {message: e.message})
+            }
+        }
+    }
 
     return (
         <InputForm
@@ -36,8 +53,8 @@ const SignPage = () => {
                 password: {
                     required: '비밀번호는 필수입니다.',
                     minLength: {
-                        value: 6,
-                        message: '비밀번호는 최소 6자 이상이어야 합니다.',
+                        value: 8,
+                        message: '비밀번호는 최소 8자 이상이어야 합니다.',
                     },
                 },
                 confirmPassword: {
@@ -56,7 +73,7 @@ const SignPage = () => {
                     placeholder: '비밀번호를 다시 입력해주세요',
                 },
             ]}
-            submitText="회원가입하기"
+            submitText={loading ? '가입 중...' : '회원가입하기'}
             bottomText="이미 회원이신가요?"
             bottomLink={{href: '/login', text: '로그인'}}
         />

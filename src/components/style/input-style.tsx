@@ -7,6 +7,7 @@ type InputInterface = React.ComponentProps<'input'> & {
     state?: 'default' | 'error' | 'blue'
     custom_size?: 'default' | 'medium'
     placeholder: string
+    type: string
 }
 
 const InputStyle = React.forwardRef<HTMLInputElement, InputInterface>(function InputStyle(

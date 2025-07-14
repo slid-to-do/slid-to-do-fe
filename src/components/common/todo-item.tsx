@@ -6,23 +6,7 @@ import {useState} from 'react'
 import {useModal} from '@/hooks/use-modal'
 
 import SideModal from './modal/side-modal'
-
-interface TodoDetail {
-    noteId: number
-    done: boolean
-    linkUrl: string
-    fileUrl: string
-    title: string
-    id: number
-    goal: {
-        id: number
-        title: string
-    }
-    userId: number
-    teamId: string
-    updatedAt: string
-    createdAt: string
-}
+import type {TodoResponse} from '@/types/todos'
 
 export default function TodoItem({
     todoDetail,
@@ -30,7 +14,7 @@ export default function TodoItem({
     onEdit,
     onDelete,
 }: {
-    todoDetail: TodoDetail
+    todoDetail: TodoResponse
     onToggle: (todoId: number, newDone: boolean) => void
     onEdit?: (todoId: number) => void
     onDelete?: (todoId: number) => void
@@ -47,7 +31,7 @@ export default function TodoItem({
 
     return (
         <div>
-            <div className="flex justify-between bg-white">
+            <div className="flex justify-between">
                 {/* 체크박스, 제목 영역 */}
                 <div className="flex items-center gap-2">
                     <div
@@ -121,7 +105,6 @@ export default function TodoItem({
                         {/* 컨텍스트 메뉴 */}
                         {isContextMenuOpen && (
                             <div className="absolute right-0 flex flex-col overflow-hidden text-sm bg-white shadow-lg top-8 rounded-xl min-w-max z-10">
-
                                 <div
                                     className="px-4 py-2 transition cursor-pointer hover:bg-gray-100"
                                     onClick={() => onEdit?.(todoDetail.id)}

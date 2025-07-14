@@ -1,3 +1,5 @@
+import type {Goal} from './goals'
+
 export interface Todo {
     id: number
     title: string
@@ -9,14 +11,9 @@ export interface Todo {
 /**할일 리스트 조회 응답 */
 export interface TodoResponse extends Todo {
     noteId: number
-    goal: TodoGoal
+    goal: Goal
     userId: number
     teamId: string
     updatedAt: string
     createdAt: string
-}
-
-export interface TodoGoal {
-    title: string
-    id: number
 }

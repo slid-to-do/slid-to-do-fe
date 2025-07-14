@@ -3,19 +3,38 @@
 import React from 'react'
 import clsx from 'clsx'
 import InputStyle from '../style/input-style'
-import type {FormProps} from '@/types/login'
+import type {InputFormProps} from '@/types/login'
 
-const InputForm: React.FC<FormProps> = ({fields, submitText, bottomText, bottomLink}) => {
+const InputForm: React.FC<InputFormProps> = ({
+    fields,
+    submitText,
+    bottomText,
+    bottomLink,
+    register,
+    errors,
+    onSubmit,
+    validationRules,
+}) => {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
             <img src="/common/img-logo.svg" alt="Logo" className="h-15 mb-2" />
-            <form className="w-full max-w-xl flex flex-col gap-6">
+
+            <form onSubmit={onSubmit} className="w-full max-w-xl flex flex-col gap-6">
                 {fields.map((field, index) => (
-                    <div key={index} className="flex flex-col gap-3">
+                    <div key={index} className="flex flex-col gap-1">
                         <label className="text-custom_slate-800 font-semibold">{field.label}</label>
-                        <InputStyle type={field.type} placeholder={field.placeholder} className="w-full" />
+                        <InputStyle
+                            type={field.type}
+                            placeholder={field.placeholder}
+                            {...register(field.name, validationRules?.[field.name])}
+                            className={clsx('w-full', errors?.[field.name] && 'border border-red-500')}
+                        />
+                        {errors?.[field.name] && (
+                            <span className="text-sm text-red-500 mt-1">{errors[field.name]?.message as string}</span>
+                        )}
                     </div>
                 ))}
+
                 <button
                     type="submit"
                     className={clsx(
@@ -26,6 +45,7 @@ const InputForm: React.FC<FormProps> = ({fields, submitText, bottomText, bottomL
                     {submitText}
                 </button>
             </form>
+
             <div className="mt-6 text-sm text-custom_slate-800">
                 {bottomText}{' '}
                 <a href={bottomLink?.href} className="text-blue-500 underline">

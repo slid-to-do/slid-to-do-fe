@@ -1,15 +1,60 @@
 'use client'
 
 import InputForm from '@/components/common/InputForm'
+import {useForm} from 'react-hook-form'
 
 const SignPage = () => {
+    const {
+        register,
+        handleSubmit,
+        watch,
+        formState: {errors},
+    } = useForm()
+
+    const onSubmit = (data: any) => {
+        console.log('회원가입 요청:', data)
+    }
+
+    const password = watch('password')
+
     return (
         <InputForm
+            onSubmit={handleSubmit(onSubmit)}
+            register={register}
+            errors={errors}
+            validationRules={{
+                name: {
+                    required: '이름은 필수입니다.',
+                },
+                email: {
+                    required: '이메일은 필수입니다.',
+                    pattern: {
+                        value: /^[\w-.]+@([\w-]+\.)+[\w-]{2,4}$/,
+                        message: '이메일 형식이 올바르지 않습니다.',
+                    },
+                },
+                password: {
+                    required: '비밀번호는 필수입니다.',
+                    minLength: {
+                        value: 6,
+                        message: '비밀번호는 최소 6자 이상이어야 합니다.',
+                    },
+                },
+                confirmPassword: {
+                    required: '비밀번호 확인은 필수입니다.',
+                    validate: (value) => value === password || '비밀번호가 일치하지 않습니다.',
+                },
+            }}
             fields={[
-                {label: '이름', type: 'text', placeholder: '이름을 입력해주세요'},
-                {label: '이메일', type: 'text', placeholder: '이메일을 입력해주세요'},
-                {label: '비밀번호', type: 'password', placeholder: '비밀번호를 입력해주세요'},
-                {label: '비밀번호 확인', type: 'password', placeholder: '비밀번호를 입력해주세요'},
+                {name: 'name', label: '이름', type: 'text', placeholder: '이름을 입력해주세요'},
+                {name: 'email', label: '이메일', type: 'text', placeholder: '이메일을 입력해주세요'},
+                {name: 'password', label: '비밀번호', type: 'password', placeholder: '비밀번호를 입력해주세요'},
+                {
+                    name: 'confirmPassword',
+                    label: '비밀번호 확인',
+                    type: 'password',
+                    placeholder: '비밀번호를 다시 입력해주세요',
+                },
             ]}
             submitText="회원가입하기"
             bottomText="이미 회원이신가요?"

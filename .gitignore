@@ -19,7 +19,7 @@
 # misc
 .DS_Store
 *.pem
-/src/components/navigation
+
 
 # debug
 npm-debug.log*

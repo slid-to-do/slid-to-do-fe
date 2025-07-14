@@ -1,3 +1,4 @@
+import {keyframes} from 'motion'
 import type {Config} from 'tailwindcss'
 import plugin from 'tailwindcss/plugin'
 
@@ -5,6 +6,10 @@ const config: Config = {
     content: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
     theme: {
         extend: {
+            screens: {
+                mobile: {max: '374px'},
+                tablet: {min: '375px', max: '774px'},
+            },
             colors: {
                 custom_blue: {
                     DEFAULT: '#3B82F6',

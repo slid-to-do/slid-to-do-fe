@@ -36,3 +36,17 @@ button {
 button:disabled {
   cursor: default;
 }
+.scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+.scrollbar-custom::-webkit-scrollbar {
+    width: 6px;
+}
+.scrollbar-custom::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+.scrollbar-custom::-webkit-scrollbar-track {
+    background: transparent;
+}

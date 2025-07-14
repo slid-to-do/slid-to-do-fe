@@ -120,7 +120,7 @@ export default function TodoItem({
 
                         {/* 컨텍스트 메뉴 */}
                         {isContextMenuOpen && (
-                            <div className="absolute right-0 flex flex-col overflow-hidden text-sm bg-white shadow-lg top-8 rounded-xl min-w-max">
+                            <div className="absolute right-0 flex flex-col overflow-hidden text-sm bg-white shadow-lg top-8 rounded-xl min-w-max z-10">
                                 <div
                                     className="px-4 py-2 transition cursor-pointer hover:bg-gray-100"
                                     onClick={() => onEdit?.(todoDetail.id)}

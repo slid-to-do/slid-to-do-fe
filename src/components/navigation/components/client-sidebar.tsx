@@ -7,30 +7,18 @@ import React from 'react'
 import {motion} from 'motion/react'
 
 import Expand from '@/../public/sidebar/ic_expand.svg'
+import HamburgerToggle from '@/components/style/hamburger-toggle'
 import useLayout from '@/hooks/use-layout'
 
-import ButtonStyle from '../../style/button-style'
 import SidebarList from './goal-list'
 import SidebarProfile from './sidebar-profile'
+import ButtonStyle from '../../style/button-style'
 import {disappearAnimation, buttonAnimation} from '../util/motion-variants'
 
 import type {ClientInterface} from '@/types/sidebar'
 
-const ClientSidebar = ({isClose, controls, setIsClose}: ClientInterface) => {
+const ClientSidebar = ({isOpen, controls, onClickHandler}: ClientInterface) => {
     const isMobile = useLayout('mobile')
-
-    const onClickHandler = () => {
-        if (isClose) {
-            setIsClose(false)
-            controls.start('close')
-        } else if (!isClose && isMobile) {
-            setIsClose(true)
-            controls.start('mobile')
-        } else {
-            controls.start('open')
-            setIsClose(true)
-        }
-    }
 
     return (
         <>
@@ -38,7 +26,7 @@ const ClientSidebar = ({isClose, controls, setIsClose}: ClientInterface) => {
                 transition={{duration: 0.3, delay: 0.3}}
                 className="  h-auto w-full border-b-[#E2E8F0] flex justify-between items-center"
             >
-                <Link href="/" className="flex w-auto h-[32px] min-w-[32px]  ">
+                <Link href="/" className={`flex w-auto h-[32px] min-w-[32px] ${isMobile && isOpen && 'hidden'} `}>
                     <Image
                         src={'./ic_favicon.svg'}
                         alt="Logo"
@@ -61,25 +49,32 @@ const ClientSidebar = ({isClose, controls, setIsClose}: ClientInterface) => {
                         />
                     </motion.div>
                 </Link>
-
-                <motion.button
-                    variants={buttonAnimation}
-                    initial={isClose ? 'open' : 'close'}
-                    animate={isClose ? 'open' : 'close'}
-                    transition={{duration: 0.3}}
-                    className=" group  rounded-lg w-8 h-8 flex justify-center items-center z-30 "
-                    onClick={onClickHandler}
-                >
-                    <Expand
-                        className={`  ${isClose ? 'x-28' : 'x-0'} x  w-6 h-6 fill-white text-slate-400 group-hover:text-slate-300  `}
-                    />
-                </motion.button>
+                {isMobile ? (
+                    <motion.button
+                        onClick={onClickHandler}
+                        className=" w-8 h-5 bg-red flex justify-center items-center "
+                    >
+                        <HamburgerToggle group={!isOpen} />
+                    </motion.button>
+                ) : (
+                    <motion.button
+                        variants={buttonAnimation}
+                        animate={isOpen ? 'open' : 'close'}
+                        transition={{duration: 0.3}}
+                        className=" group  rounded-lg w-8 h-8 flex justify-center items-center z-30 "
+                        onClick={onClickHandler}
+                    >
+                        <Expand
+                            className={`  ${isOpen ? 'x-28' : 'x-0'}   w-6 h-6 fill-white text-slate-400 group-hover:text-slate-300  `}
+                        />
+                    </motion.button>
+                )}
             </motion.header>
             <motion.div
                 layout
                 variants={disappearAnimation}
                 animate={controls}
-                className={`flex flex-1 min-h-0 ${isClose ? ' tablet:flex' : 'tablet:hidden'} flex-col w-full h-full `}
+                className={`flex flex-1 min-h-0 ${isOpen ? ' tablet:flex' : 'tablet:hidden'} flex-col w-full h-full `}
             >
                 <SidebarProfile />
                 {!isMobile && <ButtonStyle size="full">+ 새 할일</ButtonStyle>}

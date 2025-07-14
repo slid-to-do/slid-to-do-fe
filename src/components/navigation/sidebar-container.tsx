@@ -7,12 +7,12 @@ import {motion, useAnimationControls} from 'motion/react'
 
 import useLayout from '@/hooks/use-layout'
 
-import {widthAnimation, mobileAnimation} from './util/motion-variants'
+import {widthAnimation} from './util/motion-variants'
 
 const NoSSR = dynamic(() => import('./components/client-sidebar'), {ssr: false})
 
 const NavigationSidebar = () => {
-    const [isClose, setIsClose] = useState(true)
+    const [isOpen, setIsOpen] = useState(true)
 
     const controls = useAnimationControls()
 
@@ -21,30 +21,52 @@ const NavigationSidebar = () => {
 
     useEffect(() => {
         if (isTablet) {
-            setIsClose(false)
-            console.log('open', isMobile, isTablet)
+            setIsOpen(false)
+            // console.log('open', isMobile, isTablet)
             controls.start('close')
         } else if (isMobile && !isTablet) {
-            console.log('mobile', isMobile, isTablet)
+            // console.log('mobile', isMobile, isTablet)
             controls.start('mobile')
         } else if (!isMobile || !isTablet) {
-            setIsClose(true)
-            console.log('close', isMobile, isTablet, window.innerWidth)
+            setIsOpen(true)
+            // console.log('mobile', isMobile, isTablet, window.innerWidth)
             controls.start('open')
         }
     }, [isTablet, isMobile, controls])
 
+    const onClickHandler = () => {
+        if (isOpen && !isMobile) {
+            setIsOpen(false)
+            controls.start('close')
+            // console.log('open animation')
+        } else if (!isOpen && isMobile) {
+            setIsOpen(true)
+            controls.start('mobile')
+            // console.log('mobile animation')
+        } else if (isOpen && isMobile) {
+            setIsOpen(false)
+            // console.log('mobileClose')
+            controls.start('mobileClose')
+        } else {
+            controls.start('open')
+            // console.log('no mobile open')
+            setIsOpen(true)
+        }
+    }
+
     return (
         <>
             <motion.aside
-                layout
                 variants={widthAnimation}
                 animate={controls}
                 aria-label="사이드바 네비게이션"
-                className={` p-2 tablet:w-12 mobile:w-screen mobile:h-[100px]  w-64 text-slate-700 bg-white shadow-md h-screen gap-6  fixed  flex flex-col justify-start overflow-x-hidden `}
+                className={` p-2   tablet:w-12 mobile:w-screen ${isOpen ? 'mobile:h-[100px] min-w-64 z-50' : 'mobile:h-screen '}  w-64 text-slate-700  bg-white shadow-md h-screen gap-6 relative  flex flex-col justify-start overflow-x-hidden `}
             >
-                <NoSSR isClose={isClose} controls={controls} setIsClose={setIsClose} />
+                <NoSSR isOpen={isOpen} controls={controls} onClickHandler={onClickHandler} />
             </motion.aside>
+            {isOpen && isTablet && (
+                <div className="w-full h-screen opacity-75 bg-black absolute" onClick={onClickHandler} />
+            )}
         </>
     )
 }

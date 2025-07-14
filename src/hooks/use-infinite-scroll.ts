@@ -1,16 +1,12 @@
-import {useInfiniteQuery, InfiniteData} from '@tanstack/react-query'
-import {useInView} from 'react-intersection-observer'
 import {useEffect} from 'react'
 
-interface UseInfiniteScrollQueryProps<T> {
-    queryKey: (string | number | boolean)[]
-    fetchFn: (cursor: number | undefined) => Promise<{
-        data: T[]
-        nextCursor: number | undefined
-    }>
-}
+import {useInfiniteQuery} from '@tanstack/react-query'
+import {useInView} from 'react-intersection-observer'
 
-export function useInfiniteScrollQuery<T>({queryKey, fetchFn}: UseInfiniteScrollQueryProps<T>) {
+import type {InfiniteScrollOptions} from '@/types/infinite-scroll'
+import type {InfiniteData} from '@tanstack/react-query'
+
+export function useInfiniteScrollQuery<T>({queryKey, fetchFn}: InfiniteScrollOptions<T>) {
     const {data, fetchNextPage, hasNextPage, isFetchingNextPage, isError, error, isLoading} = useInfiniteQuery<
         {data: T[]; nextCursor: number | undefined},
         Error,

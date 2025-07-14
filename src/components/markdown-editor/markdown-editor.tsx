@@ -8,7 +8,7 @@ import Underline from '@tiptap/extension-underline'
 import {EditorContent, useEditor} from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 
-export default function MarkdownEditor({
+const MarkdownEditor = ({
     value,
     onUpdate,
     className,
@@ -16,7 +16,7 @@ export default function MarkdownEditor({
     value: string
     onUpdate: (content: string) => void
     className?: string
-}) {
+}) => {
     const editorInstance = useEditor({
         extensions: [
             StarterKit,
@@ -119,3 +119,5 @@ function Toolbar({editorInstance}: {editorInstance: ReturnType<typeof useEditor>
         </div>
     )
 }
+
+export default MarkdownEditor

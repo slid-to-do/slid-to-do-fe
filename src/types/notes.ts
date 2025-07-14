@@ -1,4 +1,4 @@
-import type {Goal} from './goal'
+import type {Goal} from './goals'
 import type {Todo} from './todos'
 
 /**노트 응답 공통 타입*/
@@ -20,8 +20,8 @@ export interface NoteListResponse {
     notes: NoteCommon[]
 }
 
-/**단일노트 조회 응답 
- * & 노트 수정 응답 
+/**단일노트 조회 응답
+ * & 노트 수정 응답
  * &노트 생성 응답 (응답 데이터 동일*/
 export interface NoteItemResponse extends NoteCommon {
     linkUrl: string

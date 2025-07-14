@@ -3,6 +3,7 @@ import {fileURLToPath} from 'node:url'
 
 import {FlatCompat} from '@eslint/eslintrc'
 import naverpay from '@naverpay/eslint-config'
+import pluginQuery from '@tanstack/eslint-plugin-query'
 
 const __filename = fileURLToPath(import.meta.url)
 const __dirname = path.dirname(__filename)
@@ -16,6 +17,7 @@ const eslintConfig = [
     ...naverpay.configs.node,
     ...naverpay.configs.typescript,
     ...naverpay.configs.strict,
+    ...pluginQuery.configs['flat/recommended'],
 ]
 
 export default eslintConfig

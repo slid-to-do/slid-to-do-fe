@@ -76,10 +76,10 @@ type AnimationProperties = Pick<MotionProps, 'initial' | 'animate' | 'exit' | 't
  * })
  * ```
  */
-export function useModal<T = unknown>(
+export const useModal = <T = unknown,>(
     modal: JSX.Element | ((properties: T) => JSX.Element),
     options?: UseModalOptions,
-): UseModalReturn<T> {
+): UseModalReturn<T> => {
     const {currentModal, setModal, clearModal} = useModalStore()
 
     // 기본값 설정
@@ -253,3 +253,5 @@ export function useModal<T = unknown>(
 
     return {openModal, closeModal}
 }
+
+export default useModal

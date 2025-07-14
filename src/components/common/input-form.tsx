@@ -1,11 +1,15 @@
 'use client'
 
+import Image from 'next/image'
 import React from 'react'
-import clsx from 'clsx'
-import InputStyle from '../style/input-style'
-import type {InputFormProps} from '@/types/login'
 
-const InputForm: React.FC<InputFormProps> = ({
+import clsx from 'clsx'
+
+import InputStyle from '../style/input-style'
+
+import type {InputFormProperties} from '@/types/login'
+
+const InputForm: React.FC<InputFormProperties> = ({
     fields,
     submitText,
     bottomText,
@@ -17,7 +21,9 @@ const InputForm: React.FC<InputFormProps> = ({
 }) => {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
-            <img src="/common/img-logo.svg" alt="Logo" className="h-15 mb-2" />
+            <div className="relative w-[240px] h-[48px] mb-2">
+                <Image src="/common/img-logo.svg" alt="Logo" fill className="object-contain" />
+            </div>
 
             <form onSubmit={onSubmit} className="w-full max-w-xl flex flex-col gap-6">
                 {fields.map((field, index) => (

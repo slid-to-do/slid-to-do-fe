@@ -1,9 +1,14 @@
 'use client'
 
-import InputForm from '@/components/common/input-form'
-import {useForm} from 'react-hook-form'
-import {useSignup} from '@/hooks/use-signup'
 import {useRouter} from 'next/navigation'
+
+import {useForm} from 'react-hook-form'
+
+import InputForm from '@/components/common/input-form'
+import {useSignup} from '@/hooks/use-signup'
+
+import type {ApiError} from '@/types/api'
+import type {SignupFormData} from '@/types/signup'
 
 const SignPage = () => {
     const {
@@ -12,24 +17,24 @@ const SignPage = () => {
         watch,
         formState: {errors},
         setError,
-    } = useForm()
+    } = useForm<SignupFormData>()
 
     const password = watch('password')
-    const {signup, loading, error} = useSignup()
+    const {signup, loading} = useSignup()
     const router = useRouter()
 
-    const onSubmit = async (data: any) => {
-        const {name, email, password} = data
+    const onSubmit = async (data: SignupFormData) => {
+        const {name, email, password: formPasswor} = data
         try {
-            await signup({name, email, password})
+            await signup({name, email, password: formPasswor})
             alert('회원가입이 완료되었습니다!')
             router.push('/')
-        } catch (e: any) {
-            console.error('회원가입 실패:', e)
-            if (e.status === 400) {
-                setError('email', {message: e.message})
-            } else if (e.status === 409) {
-                setError('email', {message: e.message})
+        } catch (error_: unknown) {
+            const error = error_ as ApiError
+            if (error.status === 400 || error.status === 404) {
+                setError('email', {message: error.message})
+            } else {
+                alert('알 수 없는 오류가 발생했습니다.')
             }
         }
     }
@@ -59,7 +64,7 @@ const SignPage = () => {
                 },
                 confirmPassword: {
                     required: '비밀번호 확인은 필수입니다.',
-                    validate: (value) => value === password || '비밀번호가 일치하지 않습니다.',
+                    validate: (value: string) => value === password || '비밀번호가 일치하지 않습니다.',
                 },
             }}
             fields={[

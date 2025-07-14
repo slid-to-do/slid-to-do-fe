@@ -12,7 +12,7 @@ export interface Field {
     placeholder: string
 }
 
-export interface InputFormProps {
+export interface InputFormProperties {
     fields: Field[]
     submitText: string
     bottomText: string
@@ -24,4 +24,9 @@ export interface InputFormProps {
     errors: FieldErrors
     onSubmit: (e?: React.BaseSyntheticEvent) => Promise<void>
     validationRules?: Record<string, RegisterOptions>
+}
+
+export interface LoginFormData {
+    email: string
+    password: string
 }

@@ -1,7 +1,9 @@
-import React, {useState} from 'react'
-import {cva} from 'class-variance-authority'
-import {cn} from './utils'
 import Image from 'next/image'
+import React, {useState} from 'react'
+
+import {cva} from 'class-variance-authority'
+
+import {cn} from './utils'
 
 type InputInterface = React.ComponentProps<'input'> & {
     state?: 'default' | 'error' | 'blue'
@@ -50,7 +52,7 @@ const InputStyle = React.forwardRef<HTMLInputElement, InputInterface>(function I
             {isPassword && (
                 <button
                     type="button"
-                    onClick={() => setShowPassword((prev) => !prev)}
+                    onClick={() => setShowPassword((previous) => !previous)}
                     className="absolute inset-y-0 right-3 flex items-center text-gray-500"
                 >
                     {showPassword ? (

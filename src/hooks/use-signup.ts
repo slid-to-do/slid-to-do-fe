@@ -1,30 +1,29 @@
 'use client'
 
-import {post} from '@/lib/api'
 import {useState} from 'react'
 
-interface SignupRequest {
-    name: string
-    email: string
-    password: string
-}
+import {post} from '@/lib/api'
+
+import type {ApiError} from '@/types/api'
+import type {SignupFormData} from '@/types/signup'
 
 export function useSignup() {
     const [loading, setLoading] = useState(false)
-    const [error, setError] = useState<string | null>(null)
+    const [error, setError] = useState<string>('')
 
-    const signup = async (data: SignupRequest) => {
+    const signup = async (data: SignupFormData) => {
         setLoading(true)
-        setError(null)
+        setError('')
         try {
-            const res = await post({
+            const response = await post({
                 endpoint: 'user',
                 data,
             })
-            return res.data
-        } catch (err: any) {
-            setError(err.message || '회원가입 중 오류가 발생했습니다.')
-            throw err
+            return response.data
+        } catch (error_: unknown) {
+            const api_error = error_ as ApiError
+            setError(api_error.message || '회원가입 중 오류가 발생했습니다.')
+            throw api_error
         } finally {
             setLoading(false)
         }

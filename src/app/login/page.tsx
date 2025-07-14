@@ -1,31 +1,38 @@
 'use client'
 
-import InputForm from '@/components/common/input-form'
-import {useLogin} from '@/hooks/use-login'
 import {useRouter} from 'next/navigation'
+
 import {useForm} from 'react-hook-form'
 
+import InputForm from '@/components/common/input-form'
+import {useLogin} from '@/hooks/use-login'
+
+import type {ApiError} from '@/types/api'
+import type {LoginFormData} from '@/types/login'
+
 const LoginPage = () => {
+    const {login, loading} = useLogin()
+    const router = useRouter()
+
     const {
         register,
         handleSubmit,
         formState: {errors},
         setError,
-    } = useForm()
-    const {login, loading, error} = useLogin()
-    const router = useRouter()
+    } = useForm<LoginFormData>()
 
-    const onSubmit = async (data: any) => {
+    const onSubmit = async (data: LoginFormData) => {
         const {email, password} = data
         try {
             await login({email, password})
             alert('로그인에 성공했습니다!')
             router.push('/')
-        } catch (e: any) {
-            if (e.status === 400) {
-                setError('email', {message: e.message})
-            } else if (e.status === 404) {
-                setError('email', {message: e.message})
+        } catch (error_: unknown) {
+            const error = error_ as ApiError
+            if (error.status === 400 || error.status === 404) {
+                setError('email', {message: error.message})
+            } else {
+                alert('알 수 없는 오류가 발생했습니다.')
             }
         }
     }

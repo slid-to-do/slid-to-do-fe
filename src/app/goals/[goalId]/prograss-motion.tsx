@@ -4,11 +4,9 @@ import {useEffect} from 'react'
 
 import {motion, useAnimation} from 'framer-motion'
 
-interface ProgressBarProperties {
-    progress: number // 0~1 사이의 값
-}
+import type {GoalProgress} from '@/types/goals'
 
-export default function ProgressBar({progress}: ProgressBarProperties) {
+export default function ProgressBar({progress}: GoalProgress) {
     const controls = useAnimation()
 
     useEffect(() => {
@@ -22,8 +20,11 @@ export default function ProgressBar({progress}: ProgressBarProperties) {
     }, [progress, controls])
 
     return (
-        <div className="bg-custom_slate-50 overflow-hidden rounded-sm h-1 w-full">
-            <motion.div initial={{scaleX: 0}} animate={controls} className="h-full bg-black origin-left" />
+        <div className="flex gap-4 items-center">
+            <div className="bg-custom_slate-50 overflow-hidden rounded-sm h-1 w-full">
+                <motion.div initial={{scaleX: 0}} animate={controls} className="h-full bg-black origin-left" />
+            </div>
+            <div className="flex-shrink font-semibold text-subBody">{progress * 100}%</div>
         </div>
     )
 }

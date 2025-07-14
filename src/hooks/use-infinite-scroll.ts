@@ -27,6 +27,19 @@ export function useInfiniteScroll<T>({fetchFn}: UseInfiniteScrollProperties<T>) 
         }
     }, [nextCursor, fetchFn, isLoading])
 
+    const reset = useCallback(async () => {
+        setData([])
+        setNextCursor(undefined)
+        setIsLoading(true)
+        try {
+            const response = await fetchFn(nextCursor)
+            setData(response.data)
+            setNextCursor(response.nextCursor)
+        } finally {
+            setIsLoading(false)
+        }
+    }, [fetchFn, nextCursor])
+
     useEffect(() => {
         if (data.length === 0 && !isLoading) {
             fetchMore()
@@ -44,5 +57,6 @@ export function useInfiniteScroll<T>({fetchFn}: UseInfiniteScrollProperties<T>) 
         ref,
         isLoading,
         hasMore: nextCursor !== undefined,
+        reset,
     }
 }

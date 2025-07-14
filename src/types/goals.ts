@@ -4,7 +4,7 @@ export interface Goal {
 }
 
 /**단일 목표 응답 */
-export interface GoalReponse extends Goal {
+export interface GoalResponse extends Goal {
     linkUrl: string
     content: string
     teamId: string
@@ -13,14 +13,7 @@ export interface GoalReponse extends Goal {
     updatedAt: string
 }
 
-export interface GetGoalId {
-    params: {
-        goalId: string
-    }
-}
-
-export interface GetGoalsResponse {
-    goals: Goal[]
-    totalCount: number
-    nextCursor: number | undefined
+/**단일 목표 달성률 응답 */
+export interface GoalProgress {
+    progress: number
 }

@@ -7,17 +7,16 @@ export interface Todo {
 }
 
 /**할일 리스트 조회 응답 */
-export interface TodoReponse extends Todo {
+export interface TodoResponse extends Todo {
     noteId: number
-    id: number
-    goal: GetTodoGoal
+    goal: TodoGoal
     userId: number
     teamId: string
-    updatedAt: Date
-    createdAt: Date
+    updatedAt: string
+    createdAt: string
 }
 
-export interface GetTodoGoal {
+export interface TodoGoal {
     title: string
     id: number
 }

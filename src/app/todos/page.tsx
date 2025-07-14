@@ -81,6 +81,8 @@ const Page = () => {
 
     const deleteTodo = useMutation({
         mutationFn: async (todoId: number) => {
+            if (!confirm('정말로 이 할 일을 삭제하시겠습니까?')) return
+
             const response = await del({
                 endpoint: `todos/${todoId}`,
                 options: {

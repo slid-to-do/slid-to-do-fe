@@ -29,9 +29,9 @@ const response = await del({ endpoint: 'url' })
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
 /** 통합된 HTTP 요청 함수 */
-
 const request = async <T>({method, endpoint, data, options}: RequestParameters): Promise<ApiResponse<T>> => {
     const url = `${API_BASE_URL}/${endpoint}`
+
     const response = await fetch(url, {
         method,
         headers: {
@@ -44,13 +44,21 @@ const request = async <T>({method, endpoint, data, options}: RequestParameters):
     const status = response.status
     const payload = (await response.json()) as Partial<ApiPayload<T>>
 
+    /** 204 코드는 데이터가 없음을 의미하므로 데이터를 undefined로 설정 */
+    if (response.status === 204) {
+        return {
+            status: response.status,
+            data: undefined as unknown as T,
+        }
+    }
+
     /** 200번대 코드가 아니면 에러 발생  error.message , error.status로 접근하여 코드별 에러처리 가능*/
-    if (!(status >= 200 && status < 300)) {
+    if (!response.ok) {
         const message = payload.message || `HTTP error! status: ${status}`
-        const error = new Error(message) as Error & { status: number }
+        const error = new Error(message) as Error & {status: number}
         error.status = status
         throw error
-      }
+    }
 
     /** data가 null or undefined 이면 status 반환 */
     const apiResponse: ApiResponse<T> = {
@@ -74,6 +82,5 @@ export const patch = <T>({endpoint, data, options}: PatchApiParameters): Promise
     return request<T>({method: 'PATCH', endpoint, data, options})
 }
 
-export const del = <T>({endpoint, options}: DeleteApiParameters): Promise<ApiResponse<T>> => {
-    return request<T>({method: 'DELETE', endpoint, options})
-}
+export const del = ({endpoint, options}: DeleteApiParameters): Promise<void> =>
+    request<void>({method: 'DELETE', endpoint, options}).then(() => {})

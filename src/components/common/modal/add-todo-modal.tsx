@@ -1,8 +1,9 @@
 'use client'
 
 import Image from 'next/image'
-import {useEffect, useRef, useState} from 'react'
+import {useRef, useState} from 'react'
 
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import clsx from 'clsx'
 
 import ButtonStyle from '@/components/style/button-style'
@@ -33,38 +34,108 @@ interface Goal {
 }
 
 const AddTodoModal = () => {
-    const [isCheckedFile, setIsCheckedFile] = useState<boolean>(false)
-    const [isCheckedLink, setIsCheckedLink] = useState<boolean>(false)
-    const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
-    const fileInputReference = useRef<HTMLInputElement>(null)
-    const [goals, setGoals] = useState<Goal[]>([])
-    const [file, setFile] = useState<File | undefined>()
+    const queryClient = useQueryClient()
 
-    const [error, setError] = useState<string>('')
-
-    const [formData, setFormData] = useState<AddTodoData>({
+    const [inputs, setInputs] = useState<AddTodoData>({
         title: '',
         goalId: undefined,
     })
 
+    const [isCheckedFile, setIsCheckedFile] = useState<boolean>(false)
+    const [isCheckedLink, setIsCheckedLink] = useState<boolean>(false)
+    const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
+    const [error, setError] = useState<string>('')
+    const [file, setFile] = useState<File | undefined>()
+
+    const fileInputReference = useRef<HTMLInputElement>(null)
+
     const {clearModal} = useModalStore()
 
-    const getGoals = async () => {
-        const response = await get<GoalsResponse>({
-            endpoint: 'goals',
-            options: {
+    const {data: goals, isLoading} = useQuery({
+        queryKey: ['goals'],
+        queryFn: async () => {
+            const response = await get<GoalsResponse>({
+                endpoint: 'goals',
+                options: {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                },
+            })
+            return response.data
+        },
+    })
+
+    const uploadFileMutation = useMutation({
+        mutationFn: async () => {
+            const formData = new FormData()
+
+            if (!file) {
+                throw new Error('파일이 선택되지 않았습니다.')
+            }
+
+            formData.append('file', file)
+
+            // 파일 업로드 API 호출
+            // 파일 호출하는 API 함수를 구현하는 것보다 직접 호출하는 것이 더 간단하여
+            // 직접 fetch를 사용합니다.
+            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/files`, {
+                method: 'POST',
+                body: formData,
                 headers: {
                     Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
-            },
-        })
-        setGoals(response.data.goals)
-    }
+            })
 
-    const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+            if (!response.ok) {
+                throw new Error('파일 업로드에 실패했습니다.')
+            }
+
+            const {url} = await response.json()
+
+            return url
+        },
+        onError: () => {
+            setError('파일 업로드에 실패했습니다.')
+        },
+    })
+
+    const submitForm = useMutation({
+        mutationFn: async () => {
+            const payload = {...inputs}
+
+            if (isCheckedFile && file) {
+                const fileUrl = await uploadFileMutation.mutateAsync()
+                payload.fileUrl = fileUrl
+            }
+
+            if (isCheckedLink) {
+                payload.linkUrl = inputs.linkUrl
+            }
+
+            return await post({
+                endpoint: 'todos',
+                data: payload,
+                options: {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    },
+                },
+            })
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ['todos']})
+            clearModal()
+        },
+        onError: () => {
+            setError('할 일 생성에 실패했습니다.')
+        },
+    })
+
+    const handleInputUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target
 
-        setFormData((previousData) => ({
+        setInputs((previousData) => ({
             ...previousData,
             [name]: value,
         }))
@@ -74,64 +145,13 @@ const AddTodoModal = () => {
         const selectedFile = event.target.files?.[0]
 
         if (selectedFile) {
+            if (selectedFile.size > 3 * 1024 * 1024) {
+                alert('파일 크기는 3MB 이하로 제한됩니다.')
+                return
+            }
             setFile(selectedFile)
         }
     }
-
-    const uploadFile = async () => {
-        if (!file) return
-
-        const fd = new FormData()
-        fd.append('file', file)
-
-        try {
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/files`, {
-                method: 'POST',
-                body: fd,
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            })
-
-            const data = await response.json()
-
-            return data.url
-        } catch {
-            setError('파일 업로드에 실패했습니다.')
-        }
-    }
-
-    const handleSubmit = async () => {
-        const payload = {...formData}
-
-        if (isCheckedFile) {
-            const fileUrl = await uploadFile()
-            payload.fileUrl = fileUrl
-        }
-
-        if (isCheckedLink) {
-            payload.linkUrl = formData.linkUrl
-        }
-
-        try {
-            await post({
-                endpoint: 'todos',
-                data: payload,
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
-                },
-            })
-            clearModal()
-        } catch {
-            setError('할 일 생성에 실패했습니다.')
-        }
-    }
-
-    useEffect(() => {
-        getGoals()
-    }, [])
 
     if (error) {
         return (
@@ -155,15 +175,16 @@ const AddTodoModal = () => {
                     className="cursor-pointer"
                 />
             </div>
+
             {/* 제목 */}
             <div className="flex flex-col gap-3 mt-6">
                 <div className="text-base font-semibold">제목</div>
                 <InputStyle
                     type="text"
                     placeholder="할 일의 제목을 적어주세요"
-                    value={formData.title}
+                    value={inputs.title}
                     name="title"
-                    onChange={handleChange}
+                    onChange={handleInputUpdate}
                 />
             </div>
 
@@ -220,9 +241,9 @@ const AddTodoModal = () => {
                     <InputStyle
                         type="text"
                         placeholder="링크를 입력해주세요"
-                        value={formData.linkUrl}
+                        value={inputs.linkUrl}
                         name="linkUrl"
-                        onChange={handleChange}
+                        onChange={handleInputUpdate}
                     />
                 )}
 
@@ -245,44 +266,62 @@ const AddTodoModal = () => {
                 )}
             </div>
 
-            {/* 목표 */}
+            {/* 목표 드롭다운 */}
+            {/* goals API가 무한 스크롤 방식이기 때문에 input 태그 대신 div 태그로 구현 */}
             <div className="mt-6">
                 <div className="text-base font-semibold">목표</div>
 
                 <div className="relative px-5 py-3 bg-custom_slate-50">
                     <div
-                        className={clsx('text-custom_slate-400', {'text-custom_slate-800': formData.goalId})}
+                        className={clsx('text-custom_slate-400', {'text-custom_slate-800': inputs.goalId})}
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
-                        {formData.goalId
-                            ? goals.find((goal) => goal.id === formData.goalId)?.title
+                        {inputs.goalId
+                            ? goals?.goals.find((goal) => goal.id === inputs.goalId)?.title
                             : '목표를 선택해주세요'}
                     </div>
-                    <div
-                        className="absolute left-0 w-full h-full cursor-pointer top-12"
-                        onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                    >
-                        {isDropdownOpen && (
+
+                    {isDropdownOpen && (
+                        <div
+                            className="absolute left-0 w-full h-full cursor-pointer top-12"
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        >
                             <div className="bg-white">
-                                {goals.map((goal) => (
-                                    <div
-                                        key={goal.id}
-                                        className="px-3 py-2 text-sm rounded-lg hover:bg-custom_slate-100"
-                                        onClick={() => {
-                                            setFormData((previous) => ({...previous, goalId: goal.id}))
-                                            setIsDropdownOpen(false)
-                                        }}
-                                    >
-                                        {goal.title}
+                                {isLoading ? (
+                                    <div className="flex items-center justify-center w-full h-full text-sm text-custom_slate-400">
+                                        로딩 중...
                                     </div>
-                                ))}
+                                ) : (
+                                    <div className="flex flex-col">
+                                        {goals?.goals.length === 0 ? (
+                                            <div className="px-3 py-2 text-sm text-custom_slate-400">
+                                                등록된 목표가 없어요
+                                            </div>
+                                        ) : (
+                                            goals?.goals.map((goal) => (
+                                                <div
+                                                    key={goal.id}
+                                                    className="px-3 py-2 text-sm rounded-lg hover:bg-custom_slate-100"
+                                                    onClick={() => {
+                                                        setInputs((previous) => ({...previous, goalId: goal.id}))
+                                                        setIsDropdownOpen(false)
+                                                    }}
+                                                >
+                                                    {goal.title}
+                                                </div>
+                                            ))
+                                        )}
+                                    </div>
+                                )}
                             </div>
-                        )}
-                    </div>
+                        </div>
+                    )}
                 </div>
             </div>
+
+            {/* 확인 버튼 */}
             <div className="mt-6">
-                <ButtonStyle disabled={!formData.title.trim() || !formData.goalId} onClick={handleSubmit}>
+                <ButtonStyle disabled={!inputs.title.trim() || !inputs.goalId} onClick={() => submitForm.mutate()}>
                     확인
                 </ButtonStyle>
             </div>

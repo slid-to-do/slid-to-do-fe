@@ -6,6 +6,7 @@ import {useState} from 'react'
 import {useModal} from '@/hooks/use-modal'
 
 import SideModal from './modal/side-modal'
+
 import type {TodoResponse} from '@/types/todos'
 
 export default function TodoItem({

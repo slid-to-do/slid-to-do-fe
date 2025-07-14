@@ -17,64 +17,51 @@ import {disappearAnimation, buttonAnimation} from '../util/motion-variants'
 
 import type {ClientInterface} from '@/types/sidebar'
 
-const ClientSidebar = ({isOpen, controls, onClickHandler}: ClientInterface) => {
+const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
     const isMobile = useLayout('mobile')
+    const isTablet = useLayout('tablet')
 
     return (
         <>
-            <motion.header
-                transition={{duration: 0.3, delay: 0.3}}
-                className="  h-auto w-full border-b-[#E2E8F0] flex justify-between items-center"
-            >
-                <Link href="/" className={`flex w-auto h-[32px] min-w-[32px] ${isMobile && isOpen && 'hidden'} `}>
-                    <Image
-                        src={'./ic_favicon.svg'}
-                        alt="Logo"
-                        width={32}
-                        height={32}
-                        className="w-[32px] hover:opacity-80"
-                    />
-                    <motion.div
-                        variants={disappearAnimation}
-                        animate={controls}
-                        className="flex justify-center items-center w-auto h-full "
-                    >
+            <header className="  h-auto w-full border-b-[#E2E8F0] flex justify-between items-center mb-5">
+                <Link
+                    href="/"
+                    className={` ${isOpen === null ? 'flex tablet:hidden' : isOpen ? 'flex animate-opacity-open' : 'hidden animate-opacity-close '} w-auto h-[32px] min-w-[32px] 
+                  flex
+                `}
+                >
+                    <div className={`flex justify-center items-center w-auto h-full `}>
+                        <Image
+                            src={'./ic_favicon.svg'}
+                            alt="Logo"
+                            width={32}
+                            height={32}
+                            className="w-[32px] hover:opacity-80"
+                        />
                         <Image
                             src={'./slid-to-do.svg'}
                             alt="Logo"
-                            loading={'lazy'}
                             width={80}
                             height={15}
                             className="w-[80px] h-[15px]"
                         />
-                    </motion.div>
+                    </div>
                 </Link>
                 {isMobile ? (
-                    <motion.button
-                        onClick={onClickHandler}
-                        className=" w-8 h-5 bg-red flex justify-center items-center "
-                    >
+                    <button onClick={onClickHandler} className=" w-8 h-5 bg-red flex justify-center items-center ">
                         <HamburgerToggle group={!isOpen} />
-                    </motion.button>
+                    </button>
                 ) : (
-                    <motion.button
-                        variants={buttonAnimation}
-                        animate={isOpen ? 'open' : 'close'}
-                        transition={{duration: 0.3}}
-                        className=" group  rounded-lg w-8 h-8 flex justify-center items-center z-30 "
+                    <button
+                        className={` absolute right-2 top-2 group  rounded-lg w-8 h-8 flex justify-center items-center z-30  ${isOpen === null ? 'rotate-180 tablet:rotate-0 ' : isOpen ? 'rotate-180 ' : 'rotate-0 '} `}
                         onClick={onClickHandler}
                     >
-                        <Expand
-                            className={`  ${isOpen ? 'x-28' : 'x-0'}   w-6 h-6 fill-white text-slate-400 group-hover:text-slate-300  `}
-                        />
-                    </motion.button>
+                        <Expand className=" w-6 h-6 fill-white text-slate-400 group-hover:text-slate-300" />
+                    </button>
                 )}
-            </motion.header>
-            <motion.div
-                layout
-                variants={disappearAnimation}
-                animate={controls}
-                className={`flex flex-1 min-h-0 ${isOpen ? ' tablet:flex' : 'tablet:hidden'} flex-col w-full h-full `}
+            </header>
+            <div
+                className={` flex-1 min-h-0    flex-col w-full h-full  ${isOpen === null ? 'flex tablet:hidden' : isOpen ? 'flex animate-opacity-open ' : ' animate-opacity-close'}`}
             >
                 <SidebarProfile />
                 {!isMobile && <ButtonStyle size="full">+ 새 할일</ButtonStyle>}
@@ -104,7 +91,7 @@ const ClientSidebar = ({isOpen, controls, onClickHandler}: ClientInterface) => {
 
                 {/* 목표 섹션 */}
                 <SidebarList isMobile={isMobile} />
-            </motion.div>
+            </div>
         </>
     )
 }

@@ -6,9 +6,9 @@ const useLayout = (size: 'mobile' | 'tablet' | 'desktop') => {
 
     useLayoutEffect(() => {
         const check = () => {
-            if (size === 'mobile') setIsResponsive(window.innerWidth <= 374.5)
+            if (size === 'mobile') setIsResponsive(window.innerWidth <= 374)
             else if (size === 'desktop') setIsResponsive(window.innerWidth > 774)
-            else setIsResponsive(window.innerWidth <= 774 && window.innerWidth > 374.5)
+            else setIsResponsive(window.innerWidth <= 774 && window.innerWidth > 374)
         }
         check()
 

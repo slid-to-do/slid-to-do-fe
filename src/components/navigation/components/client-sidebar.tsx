@@ -26,7 +26,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
             <header className="  h-auto w-full border-b-[#E2E8F0] flex justify-between items-center mb-5">
                 <Link
                     href="/"
-                    className={` ${isOpen === null ? 'flex tablet:hidden' : isOpen ? 'flex animate-opacity-open' : 'hidden animate-opacity-close '} w-auto h-[32px] min-w-[32px] 
+                    className={` ${isOpen === null ? 'flex tablet:hidden mobile:hidden' : isOpen ? 'flex animate-opacity-open' : 'hidden animate-opacity-close '} w-auto h-[32px] min-w-[32px] 
                   flex
                 `}
                 >
@@ -53,7 +53,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                     </button>
                 ) : (
                     <button
-                        className={` absolute right-2 top-2 group  rounded-lg w-8 h-8 flex justify-center items-center z-30  ${isOpen === null ? 'rotate-180 tablet:rotate-0 ' : isOpen ? 'rotate-180 ' : 'rotate-0 '} `}
+                        className={` mobile:hidden absolute right-2 top-2 group  rounded-lg w-8 h-8 flex justify-center items-center z-30  ${isOpen === null ? 'rotate-180 tablet:rotate-0 ' : isOpen ? 'rotate-180 ' : 'rotate-0 '} `}
                         onClick={onClickHandler}
                     >
                         <Expand className=" w-6 h-6 fill-white text-slate-400 group-hover:text-slate-300" />
@@ -61,7 +61,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                 )}
             </header>
             <div
-                className={` flex-1 min-h-0    flex-col w-full h-full  ${isOpen === null ? 'flex tablet:hidden' : isOpen ? 'flex animate-opacity-open ' : ' animate-opacity-close'}`}
+                className={` flex-1 min-h-0    flex-col w-full h-full  ${isOpen === null ? 'flex tablet:hidden mobile:hidden' : isOpen ? 'flex animate-opacity-open ' : ' animate-opacity-close mobile:hidden'}`}
             >
                 <SidebarProfile />
                 {!isMobile && <ButtonStyle size="full">+ 새 할일</ButtonStyle>}

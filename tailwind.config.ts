@@ -6,10 +6,47 @@ const config: Config = {
     content: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
     theme: {
         extend: {
+            keyframes: {
+                sidebarOpen: {
+                    '0%': {width: '50px', height: '100vh'},
+                    '100%': {width: '256px', height: '100vh'},
+                },
+                sidebarClose: {
+                    '0%': {width: '256px', height: '100vh'},
+                    '100%': {width: '50px', height: '100vh'},
+                },
+                opacityOpen: {
+                    '0%': {opacity: '0'},
+                    '100%': {opacity: '1'},
+                },
+                opacityClose: {
+                    '0%': {opacity: '1'},
+                    '50%': {opacity: '0.5'},
+                    '100%': {opacity: '0'},
+                },
+                mobileOpen: {
+                    '0%': {height: '40px'},
+                    '100%': {height: '100vh'},
+                },
+                mobileClose: {
+                    '0%': {height: '100vh'},
+                    '100%': {height: '40px'},
+                },
+            },
+            animation: {
+                opacityOpen: 'opacityOpen 0.3s ease-in-out forwards',
+                opacityClose: 'opacityClose 0.3s ease-in-out forwards',
+                sidebarOpen: 'sidebarOpen 0.3s ease-in-out forwards',
+                sidebarClose: 'sidebarClose 0.3s ease-in-out forwards',
+                mobileOpen: 'mobileOpen 0.3s ease-in-out forwards',
+                mobileClose: 'mobileClose 0.3s ease-in-out forwards',
+            },
+
             screens: {
                 mobile: {max: '374px'},
-                tablet: {min: '375px', max: '774px'},
+                tablet: {min: '374px', max: '774px'},
             },
+
             colors: {
                 custom_blue: {
                     DEFAULT: '#3B82F6',

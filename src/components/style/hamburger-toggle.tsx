@@ -9,21 +9,21 @@ export default function HamburgerToggle({group = true}: {group: boolean}) {
             <span
                 className={`
           block w-1/2 h-[2px] bg-black rounded transition-all duration-300 origin
-          ${group ? 'translate-y-[4px] rotate-45' : 'translate-y-0 rotate-0'}
+          ${group === false ? 'translate-y-[9px] rotate-45' : 'translate-y-0 rotate-0'}
         `}
             />
             {/* 중간 바 */}
             <span
                 className={`
           block w-1/2 h-[2px] bg-black rounded transition-opacity duration-300
-          ${group ? 'opacity-0' : 'opacity-100'}
+          ${group === false ? 'opacity-0' : 'opacity-100'}
         `}
             />
             {/* 하단 바 */}
             <span
                 className={`
           block w-1/2 h-[2px] bg-black rounded transition-all duration-300
-          ${group ? '-translate-y-[7px] -rotate-45' : 'translate-y-0 rotate-0'}
+          ${group === false ? '-translate-y-[3px] -rotate-45' : 'translate-y-0 rotate-0'}
         `}
             />
         </div>

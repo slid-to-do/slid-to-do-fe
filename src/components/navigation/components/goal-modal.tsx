@@ -1,7 +1,7 @@
 import React from 'react'
 
 const goalModal = () => {
-    return <section>goalModal</section>
+    return <section className="w-full h-full">goalModal</section>
 }
 
 export default goalModal

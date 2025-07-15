@@ -3,9 +3,16 @@
 import Image from 'next/image'
 import React from 'react'
 
+import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
+import {useModal} from '@/hooks/use-modal'
+import AddTodoModal from '@/components/common/modal/add-todo-modal'
+
 import ButtonStyle from '../../style/button-style'
+import GoalModal from './goal-modal'
 
 const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
+    const {openModal, closeModal} = useModal(<GoalModal />)
+
     return (
         <section
             aria-labelledby="goals-heading"
@@ -19,7 +26,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                     </h2>
 
                     {isMobile && (
-                        <ButtonStyle type="button" onClick={() => false} size="small" color="outline">
+                        <ButtonStyle onClick={openModal} type="button" size="small" color="outline">
                             + 새 목표
                         </ButtonStyle>
                     )}
@@ -41,7 +48,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                 </ul>
             </div>
             {!isMobile && (
-                <ButtonStyle type="button" onClick={() => false} size="full" color="outline">
+                <ButtonStyle type="button" onClick={openModal} size="full" color="outline">
                     + 새 목표
                 </ButtonStyle>
             )}

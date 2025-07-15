@@ -83,5 +83,6 @@ export const patch = <T>({endpoint, data, options}: PatchApiParameters): Promise
     return request<T>({method: 'PATCH', endpoint, data, options})
 }
 
-export const del = ({endpoint, options}: DeleteApiParameters): Promise<void> =>
-    request<void>({method: 'DELETE', endpoint, options}).then(() => {})
+export const del = async ({endpoint, options}: DeleteApiParameters): Promise<void> => {
+    await request<void>({method: 'DELETE', endpoint, options})
+}

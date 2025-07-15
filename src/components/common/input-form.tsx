@@ -9,23 +9,24 @@ import InputStyle from '../style/input-style'
 
 import type {InputFormProperties} from '@/types/login'
 
-const InputForm: React.FC<InputFormProperties> = ({
+const InputForm = <T extends Record<string, unknown>>({
     fields,
     submitText,
     bottomText,
     bottomLink,
     register,
     errors,
+    handleSubmit,
     onSubmit,
     validationRules,
-}) => {
+}: InputFormProperties<T>) => {
     return (
         <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
             <div className="relative w-[240px] h-[48px] mb-2">
                 <Image src="/common/img-logo.svg" alt="Logo" fill className="object-contain" />
             </div>
 
-            <form onSubmit={onSubmit} className="w-full max-w-xl flex flex-col gap-6">
+            <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-xl flex flex-col gap-6">
                 {fields.map((field, index) => (
                     <div key={index} className="flex flex-col gap-1">
                         <label className="text-custom_slate-800 font-semibold">{field.label}</label>

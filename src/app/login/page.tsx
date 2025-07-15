@@ -38,8 +38,9 @@ const LoginPage = () => {
     }
 
     return (
-        <InputForm
-            onSubmit={handleSubmit(onSubmit)}
+        <InputForm<LoginFormData>
+            handleSubmit={handleSubmit}
+            onSubmit={onSubmit}
             register={register}
             errors={errors}
             validationRules={{

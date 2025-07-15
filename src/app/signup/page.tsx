@@ -24,9 +24,9 @@ const SignPage = () => {
     const router = useRouter()
 
     const onSubmit = async (data: SignupFormData) => {
-        const {name, email, password: formPasswor} = data
+        const {name, email, password: formPassword} = data
         try {
-            await signup({name, email, password: formPasswor})
+            await signup({name, email, password: formPassword})
             alert('회원가입이 완료되었습니다!')
             router.push('/')
         } catch (error_: unknown) {
@@ -40,8 +40,9 @@ const SignPage = () => {
     }
 
     return (
-        <InputForm
-            onSubmit={handleSubmit(onSubmit)}
+        <InputForm<SignupFormData>
+            onSubmit={onSubmit}
+            handleSubmit={handleSubmit}
             register={register}
             errors={errors}
             validationRules={{

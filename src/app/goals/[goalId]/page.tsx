@@ -167,7 +167,7 @@ export default function GoalsPage() {
                 },
             })
 
-            return response.data
+            return response
         },
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ['todos']})

@@ -1,4 +1,3 @@
-// components/HamburgerToggle.tsx
 'use client'
 
 import React from 'react'

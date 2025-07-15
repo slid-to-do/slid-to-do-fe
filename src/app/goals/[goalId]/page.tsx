@@ -3,9 +3,11 @@ import Image from 'next/image'
 import {useParams, useRouter} from 'next/navigation'
 import {useCallback, useEffect, useState} from 'react'
 
+import {useMutation, useQueryClient} from '@tanstack/react-query'
+
 import LoadingSpinner from '@/components/common/loading-spinner'
 import TodoItem from '@/components/common/todo-item'
-import {useInfiniteScroll} from '@/hooks/use-infinite-scroll'
+import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import {del, get, patch} from '@/lib/api'
 
 import ProgressBar from './prograss-motion'
@@ -20,11 +22,9 @@ export default function GoalsPage() {
     const router = useRouter()
     const [posts, setPosts] = useState<GoalResponse>()
     const [moreButton, setMoreButton] = useState<boolean>(false)
-    /** const [nextCursor, setNextCursor] = useState<number | undefined>() */
-    const [nextCursorDone, setNextCursorDone] = useState<number | undefined>()
-    const [nextCursorNotDone, setNextCursorNotDone] = useState<number | undefined>()
-
     const [progress, setProgress] = useState<number>(0)
+
+    const queryClient = useQueryClient()
 
     const parameters = useParams()
     const goalId = parameters.goalId as string
@@ -64,34 +64,28 @@ export default function GoalsPage() {
     }, [goalId])
 
     /** 할일 API 호출 */
-    const GetTodoList = useCallback(
-        (done: boolean, setCursor: (cursor: number | undefined) => void) => {
-            return async (cursor: number | undefined) => {
-                let apiResponse = `${TEAM_ID}/todos?goald=${goalId}&done=${done}&size=10`
-                if (cursor !== undefined) {
-                    apiResponse += `&cursor=${cursor}`
-                }
-
-                const result = await get<{
-                    todos: TodoResponse[]
-                    nextCursor: number | undefined
-                }>({
-                    endpoint: apiResponse,
-                    options: {
-                        headers: {Authorization: `Bearer ${TOKEN}`},
-                    },
-                })
-
-                setCursor(result.data.nextCursor)
-
-                return {
-                    data: result.data.todos,
-                    nextCursor: result.data.nextCursor,
-                }
+    const GetTodoList = (done: boolean) => {
+        return async (cursor: number | undefined) => {
+            let endpoint = `${TEAM_ID}/todos?goalId=${goalId}&done=${done}&size=10`
+            if (cursor !== undefined) {
+                endpoint += `&cursor=${cursor}`
             }
-        },
-        [goalId],
-    )
+
+            const result = await get<{
+                todos: TodoResponse[]
+                nextCursor: number | undefined
+            }>({
+                endpoint,
+                options: {
+                    headers: {Authorization: `Bearer ${TOKEN}`},
+                },
+            })
+            return {
+                data: result.data.todos,
+                nextCursor: result.data.nextCursor,
+            }
+        }
+    }
 
     // 해야 할 일
     const {
@@ -99,9 +93,11 @@ export default function GoalsPage() {
         ref: doneReference,
         isLoading: loadingDone,
         hasMore: haseMoreDone,
-        reset: resetTodosDone,
-    } = useInfiniteScroll<TodoResponse>({
-        fetchFn: GetTodoList(true, setNextCursorDone),
+        isError: doneIsError,
+        error: doneError,
+    } = useInfiniteScrollQuery<TodoResponse>({
+        queryKey: ['todos', true],
+        fetchFn: GetTodoList(true),
     })
 
     // 한 일
@@ -110,9 +106,11 @@ export default function GoalsPage() {
         ref: notDoneReference,
         isLoading: loadingNotDone,
         hasMore: hasMoreNotDone,
-        reset: resetTodosNotDone,
-    } = useInfiniteScroll<TodoResponse>({
-        fetchFn: GetTodoList(false, setNextCursorNotDone),
+        isError: notDoneIsError,
+        error: notDoneError,
+    } = useInfiniteScrollQuery<TodoResponse>({
+        queryKey: ['todos', false],
+        fetchFn: GetTodoList(false),
     })
 
     /** 목표 수정&삭제 */
@@ -135,11 +133,9 @@ export default function GoalsPage() {
         router.push('/')
     }
 
-    // 할일 주영님꺼
-    const [error, setError] = useState<string>('')
-    const handleToggleTodo = async (todoId: number, newDone: boolean) => {
-        try {
-            await patch({
+    const updateTodo = useMutation({
+        mutationFn: async ({todoId, newDone}: {todoId: number; newDone: boolean}) => {
+            const response = await patch<TodoResponse>({
                 endpoint: `${TEAM_ID}/todos/${todoId}`,
                 data: {done: newDone},
                 options: {
@@ -148,32 +144,47 @@ export default function GoalsPage() {
                     },
                 },
             })
-            if (newDone) {
-                resetTodosDone()
-            } else {
-                resetTodosNotDone()
-            }
-        } catch {
-            setError('할 일 상태를 변경하는 중 오류가 발생했습니다.')
-        }
-    }
 
-    const handleDeleteTodo = async (todoId: number) => {
-        try {
-            const confirmDelete = globalThis.confirm('정말로 이 할 일을 삭제하시겠습니까?')
-            if (!confirmDelete) return
+            return response.data
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ['todos']})
+        },
+    })
 
-            await del({
-                endpoint: `todos/${todoId}`,
+    const deleteTodo = useMutation({
+        mutationFn: async (todoId: number) => {
+            if (!confirm('정말로 이 할 일을 삭제하시겠습니까?')) return
+
+            const response = await del({
+                endpoint: `${TEAM_ID}/todos/${todoId}`,
                 options: {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${TOKEN}`,
                     },
                 },
             })
-        } catch {
-            setError('할 일을 삭제하는 중 오류가 발생했습니다.')
-        }
+
+            return response
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ['todos']})
+        },
+    })
+
+    let error
+    if (doneIsError) {
+        error = doneError
+    } else if (notDoneIsError) {
+        error = notDoneError
+    }
+
+    if (error) {
+        return (
+            <div className="flex items-center justify-center w-full h-full text-sm text-red-500">
+                {error instanceof Error ? error.message : '할 일을 불러오는 중 오류가 발생했습니다.'}
+            </div>
+        )
     }
 
     return (
@@ -209,20 +220,18 @@ export default function GoalsPage() {
                         <ProgressBar progress={progress} />
                     </div>
                 </div>
-                <div className="mt-6 py-4 px-6 bg-custom_blue-100 flex items-center justify-between rounded-xl">
+                <div
+                    className="mt-6 py-4 px-6 bg-custom_blue-100 flex items-center justify-between rounded-xl cursor-pointer"
+                    onClick={() => goNoteList()}
+                >
                     <div className="flex gap-2 items-center">
                         <Image src="/goals/note.png" alt="노트" width={24} height={24} />
                         <div className="text-subTitle">노트 모아보기</div>
                     </div>
-                    <div onClick={() => goNoteList()}>
-                        <Image src="/goals/ic_arrow_right.png" alt="노트보기 페이지 이동" width={24} height={24} />
-                    </div>
+                    <Image src="/goals/ic_arrow_right.png" alt="노트보기 페이지 이동" width={24} height={24} />
                 </div>
                 <div className="mt-6 flex flex-col lg:flex-row gap-6 justify-between">
-                    <div
-                        className={`py-4 px-6 h-[228px] flex-grow bg-white rounded-xl ${todosNotDone.length > 5 ? 'overflow-y-scroll scrollbar-custom' : ''}`}
-                    >
-                        {loadingNotDone && <LoadingSpinner />}
+                    <div className={`py-4 px-6 h-[228px] flex-1 bg-white rounded-xl overflow-y-auto scrollbar-custom`}>
                         <div className="flex items-center justify-between">
                             <div className="text-subTitle">To do</div>
                             <div className="flex items-center">
@@ -233,23 +242,33 @@ export default function GoalsPage() {
                         <div className="mt-4">
                             {todosNotDone.length > 0 ? (
                                 <>
-                                    {todosNotDone.map((todo) => (
-                                        <div key={`todoList_${todo.id}`} className="">
-                                            <TodoItem
-                                                key={todo.id}
-                                                todoDetail={todo}
-                                                onToggle={handleToggleTodo} // 콜백 전달
-                                                onDelete={handleDeleteTodo}
-                                            />
-                                        </div>
-                                    ))}
+                                    {loadingNotDone ? (
+                                        <LoadingSpinner />
+                                    ) : (
+                                        <>
+                                            {todosNotDone.map((todo: TodoResponse) => (
+                                                <div key={`todoList_${todo.id}`} className="mb-2">
+                                                    <TodoItem
+                                                        key={todo.id}
+                                                        todoDetail={todo}
+                                                        onToggle={(todoId: number, newDone: boolean) =>
+                                                            updateTodo.mutate({todoId, newDone})
+                                                        }
+                                                        onDelete={(todoId: number) => deleteTodo.mutate(todoId)}
+                                                    />
+                                                </div>
+                                            ))}
 
-                                    {hasMoreNotDone && !loadingNotDone && todosNotDone.length > 0 && (
-                                        <div ref={notDoneReference} />
-                                    )}
+                                            {hasMoreNotDone && !loadingNotDone && todosNotDone.length > 0 && (
+                                                <div ref={notDoneReference} />
+                                            )}
 
-                                    {nextCursorNotDone === null && todosNotDone.length > 0 && (
-                                        <div className="mt-4 text-gray-400 text-sm">모든 할일을 다 불러왔어요</div>
+                                            {!hasMoreNotDone && todosNotDone.length > 0 && (
+                                                <div className="mt-4 text-gray-400 text-sm">
+                                                    모든 할일을 다 불러왔어요
+                                                </div>
+                                            )}
+                                        </>
                                     )}
                                 </>
                             ) : (
@@ -260,31 +279,40 @@ export default function GoalsPage() {
                         </div>
                     </div>
                     <div
-                        className={`py-4 px-6 h-[228px] flex-grow bg-custom_slate-200 rounded-xl ${todosDone.length > 5 ? 'overflow-y-scroll scrollbar-custom' : ''}`}
+                        className={`py-4 px-6 h-[228px] flex-1 bg-custom_slate-200 rounded-xl overflow-y-auto scrollbar-custom`}
                     >
-                        {loadingDone && <LoadingSpinner />}
                         <div className="text-subTitle">Done</div>
 
                         <div className="mt-4">
                             {todosDone.length > 0 ? (
                                 <>
-                                    {todosDone.map((todo) => (
-                                        <div key={`todoList_${todo.id}`} className="">
-                                            <TodoItem
-                                                key={todo.id}
-                                                todoDetail={todo}
-                                                onToggle={handleToggleTodo} // 콜백 전달
-                                                onDelete={handleDeleteTodo}
-                                            />
-                                        </div>
-                                    ))}
+                                    {loadingDone ? (
+                                        <LoadingSpinner />
+                                    ) : (
+                                        <>
+                                            {todosDone.map((todo: TodoResponse) => (
+                                                <div key={`todoList_${todo.id}`} className="mb-2">
+                                                    <TodoItem
+                                                        key={todo.id}
+                                                        todoDetail={todo}
+                                                        onToggle={(todoId: number, newDone: boolean) =>
+                                                            updateTodo.mutate({todoId, newDone})
+                                                        }
+                                                        onDelete={(todoId: number) => deleteTodo.mutate(todoId)}
+                                                    />
+                                                </div>
+                                            ))}
 
-                                    {haseMoreDone && !loadingDone && todosDone.length > 0 && (
-                                        <div ref={doneReference} />
-                                    )}
+                                            {haseMoreDone && !loadingDone && todosDone.length > 0 && (
+                                                <div ref={doneReference} />
+                                            )}
 
-                                    {nextCursorDone === null && todosDone.length > 0 && (
-                                        <div className="mt-4 text-gray-400 text-sm">모든 할일을 다 불러왔어요</div>
+                                            {!haseMoreDone && todosDone.length > 0 && (
+                                                <div className="mt-4 text-gray-400 text-sm">
+                                                    모든 할일을 다 불러왔어요
+                                                </div>
+                                            )}
+                                        </>
                                     )}
                                 </>
                             ) : (
@@ -295,7 +323,6 @@ export default function GoalsPage() {
                         </div>
                     </div>
                 </div>
-                {error && <div className="text-red-500">{error}</div>}
             </div>
         </div>
     )

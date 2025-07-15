@@ -10,6 +10,7 @@
     "tsc": "tsc"
   },
   "dependencies": {
+    "@svgr/webpack": "^8.1.0",
     "@tanstack/react-query": "^5.83.0",
     "@tiptap/extension-character-count": "^2.25.0",
     "@tiptap/extension-placeholder": "^2.25.0",
@@ -18,7 +19,6 @@
     "@tiptap/pm": "^2.25.0",
     "@tiptap/react": "^2.25.0",
     "@tiptap/starter-kit": "^2.25.0",
-    "@svgr/webpack": "^8.1.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.1",
@@ -26,6 +26,7 @@
     "next": "15.3.4",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
+    "react-hook-form": "^7.60.0",
     "react-intersection-observer": "^9.16.0",
     "tailwind-merge": "^3.3.1",
     "zustand": "^5.0.6"

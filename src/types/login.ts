@@ -30,5 +30,5 @@ export interface InputFormProperties<T extends object> {
 export interface LoginFormData {
     email: string
     password: string
-    [key: string]: any
+    [key: string]: string | undefined
 }

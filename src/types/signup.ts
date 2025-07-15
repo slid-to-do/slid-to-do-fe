@@ -3,5 +3,5 @@ export interface SignupFormData {
     email: string
     password: string
     confirmPassword?: string
-    [key: string]: any
+    [key: string]: string | undefined
 }

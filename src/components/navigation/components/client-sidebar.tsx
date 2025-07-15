@@ -4,8 +4,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-import {motion} from 'motion/react'
-
 import Expand from '@/../public/sidebar/ic_expand.svg'
 import HamburgerToggle from '@/components/style/hamburger-toggle'
 import useLayout from '@/hooks/use-layout'
@@ -13,20 +11,18 @@ import useLayout from '@/hooks/use-layout'
 import SidebarList from './goal-list'
 import SidebarProfile from './sidebar-profile'
 import ButtonStyle from '../../style/button-style'
-import {disappearAnimation, buttonAnimation} from '../util/motion-variants'
 
 import type {ClientInterface} from '@/types/sidebar'
 
 const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
     const isMobile = useLayout('mobile')
-    const isTablet = useLayout('tablet')
 
     return (
         <>
             <header className="  h-auto w-full border-b-[#E2E8F0] flex justify-between items-center mb-5">
                 <Link
                     href="/"
-                    className={` ${isOpen === null ? 'flex tablet:hidden mobile:hidden' : isOpen ? 'flex animate-opacity-open' : 'hidden animate-opacity-close '} w-auto h-[32px] min-w-[32px] 
+                    className={` ${isOpen === 'noState' ? 'flex tablet:hidden mobile:hidden' : isOpen ? 'flex animate-opacity-open' : 'hidden animate-opacity-close '} w-auto h-[32px] min-w-[32px] 
                   flex
                 `}
                 >
@@ -49,11 +45,11 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                 </Link>
                 {isMobile ? (
                     <button onClick={onClickHandler} className=" w-8 h-5 bg-red flex justify-center items-center ">
-                        <HamburgerToggle group={!isOpen} />
+                        <HamburgerToggle group={isOpen} />
                     </button>
                 ) : (
                     <button
-                        className={` mobile:hidden absolute right-2 top-2 group  rounded-lg w-8 h-8 flex justify-center items-center z-30  ${isOpen === null ? 'rotate-180 tablet:rotate-0 ' : isOpen ? 'rotate-180 ' : 'rotate-0 '} `}
+                        className={` mobile:hidden absolute right-2 top-2 group  rounded-lg w-8 h-8 flex justify-center items-center z-30  ${isOpen === 'noState' ? 'rotate-180 tablet:rotate-0 ' : isOpen ? 'rotate-180 ' : 'rotate-0 '} `}
                         onClick={onClickHandler}
                     >
                         <Expand className=" w-6 h-6 fill-white text-slate-400 group-hover:text-slate-300" />
@@ -61,7 +57,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                 )}
             </header>
             <div
-                className={` flex-1 min-h-0    flex-col w-full h-full  ${isOpen === null ? 'flex tablet:hidden mobile:hidden' : isOpen ? 'flex animate-opacity-open ' : ' animate-opacity-close mobile:hidden'}`}
+                className={` flex-1 min-h-0    flex-col w-full h-full  ${isOpen === 'noState' ? 'flex tablet:hidden mobile:hidden' : isOpen ? 'flex animate-opacity-open ' : ' animate-opacity-close mobile:hidden'}`}
             >
                 <SidebarProfile />
                 {!isMobile && <ButtonStyle size="full">+ 새 할일</ButtonStyle>}

@@ -2,7 +2,7 @@
 import {useState, useLayoutEffect} from 'react'
 
 const useLayout = (size: 'mobile' | 'tablet' | 'desktop') => {
-    const [isResponsive, setIsResponsive] = useState<boolean | null>(null)
+    const [isResponsive, setIsResponsive] = useState<boolean | 'noState'>('noState')
 
     useLayoutEffect(() => {
         const check = () => {

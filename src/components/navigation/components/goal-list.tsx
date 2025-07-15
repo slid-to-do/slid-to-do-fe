@@ -5,7 +5,7 @@ import React from 'react'
 
 import ButtonStyle from '../../style/button-style'
 
-const GoalList = ({isMobile}: {isMobile: boolean | null}) => {
+const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
     return (
         <section
             aria-labelledby="goals-heading"

@@ -1,51 +1,44 @@
-import {useCallback, useEffect, useState} from 'react'
+import {useEffect} from 'react'
 
+import {useInfiniteQuery} from '@tanstack/react-query'
 import {useInView} from 'react-intersection-observer'
 
-interface UseInfiniteScrollProperties<T> {
-    fetchFn: (cursor: number) => Promise<{
-        data: T[]
-        nextCursor: number | undefined
-    }>
-}
+import type {InfiniteScrollOptions} from '@/types/infinite-scroll'
+import type {InfiniteData} from '@tanstack/react-query'
 
-export function useInfiniteScroll<T>({fetchFn}: UseInfiniteScrollProperties<T>) {
-    const [data, setData] = useState<T[]>([])
-    const [cursor, setCursor] = useState<number | undefined>(1)
-    const [nextCursor, setNextCursor] = useState<number | undefined>()
-    const [isLoading, setIsLoading] = useState(false)
+export function useInfiniteScrollQuery<T>({queryKey, fetchFn}: InfiniteScrollOptions<T>) {
+    const {data, fetchNextPage, hasNextPage, isFetchingNextPage, isError, error, isLoading} = useInfiniteQuery<
+        {data: T[]; nextCursor: number | undefined},
+        Error,
+        {data: T[]; nextCursor: number | undefined},
+        (string | number | boolean)[],
+        number | undefined
+    >({
+        queryKey,
+        queryFn: ({pageParam}) => fetchFn(pageParam),
+        getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+        initialPageParam: undefined,
+    })
+
     const {ref, inView} = useInView({threshold: 0.5})
 
-    const fetchMore = useCallback(async () => {
-        if (isLoading || typeof cursor !== 'number') return
-
-        setIsLoading(true)
-        try {
-            const response = await fetchFn(cursor)
-            setData((previous) => [...previous, ...response.data])
-            setCursor(response.nextCursor)
-            setNextCursor(response.nextCursor)
-        } finally {
-            setIsLoading(false)
-        }
-    }, [cursor, fetchFn, isLoading])
-
     useEffect(() => {
-        if (data.length === 0) {
-            fetchMore()
+        if (inView && hasNextPage && !isFetchingNextPage) {
+            fetchNextPage()
         }
-    }, [data.length, fetchMore])
+    }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage])
 
-    useEffect(() => {
-        if (inView && nextCursor !== undefined) {
-            fetchMore()
-        }
-    }, [inView, nextCursor, fetchMore])
+    const flatData =
+        (data as InfiniteData<{data: T[]; nextCursor: number | undefined}> | undefined)?.pages.flatMap(
+            (page) => page.data,
+        ) ?? []
 
     return {
-        data,
+        data: flatData,
         ref,
         isLoading,
-        hasMore: nextCursor !== undefined,
+        hasMore: hasNextPage,
+        isError,
+        error,
     }
 }

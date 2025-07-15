@@ -18,6 +18,13 @@ const eslintConfig = [
     ...naverpay.configs.typescript,
     ...naverpay.configs.strict,
     ...pluginQuery.configs['flat/recommended'],
+    {
+        rules: {
+            'unicorn/no-useless-undefined': 'off',
+            'sonarjs/no-nested-conditional': 'off',
+            'unicorn/no-nested-ternary': 'off',
+        },
+    },
 ]
 
 export default eslintConfig

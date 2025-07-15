@@ -113,11 +113,13 @@ export default function GoalsPage() {
         fetchFn: GetTodoList(false),
     })
 
+    const [goalEdit, setGoalEdit] = useState<boolean>(false)
     /** 목표 수정&삭제 */
     const handleGoalAction = useCallback((mode: string) => {
         if (mode === 'edit') {
-            alert('수정되었습니다.')
+            setGoalEdit(true)
             // router.push(`/goals/${goalId}/edit`)
+            alert('수정되었습니다.')
         } else if (mode === 'delete' && confirm('정말 삭제하시겠습니까?')) {
             alert('삭제되었습니다.')
             /**  fetch(`/api/goals/${goalId}`, {
@@ -194,9 +196,15 @@ export default function GoalsPage() {
                 <div className="mt-4 py-4 px-6 bg-white rounded">
                     <div className="flex justify-between items-center">
                         <div className="flex gap-2 items-center">
-                            <Image src="/goals/flag-goal.png" alt="목표깃발" width={40} height={40} />
+                            <Image src="/goals/flag-goal.svg" alt="목표깃발" width={40} height={40} />
                             {posts ? (
-                                <div className="text-custom_slate-800 font-semibold">{posts.title}</div>
+                                <>
+                                    {goalEdit ? (
+                                        <div className="text-custom_slate-800 font-semibold">수정하세욧</div>
+                                    ) : (
+                                        <div className="text-custom_slate-800 font-semibold">{posts.title}</div>
+                                    )}
+                                </>
                             ) : (
                                 <div className="text-custom_slate-800 font-semibold">loading...</div>
                             )}
@@ -225,10 +233,10 @@ export default function GoalsPage() {
                     onClick={() => goNoteList()}
                 >
                     <div className="flex gap-2 items-center">
-                        <Image src="/goals/note.png" alt="노트" width={24} height={24} />
+                        <Image src="/goals/note.svg" alt="노트" width={24} height={24} />
                         <div className="text-subTitle">노트 모아보기</div>
                     </div>
-                    <Image src="/goals/ic_arrow_right.png" alt="노트보기 페이지 이동" width={24} height={24} />
+                    <Image src="/goals/ic_arrow_right.svg" alt="노트보기 페이지 이동" width={24} height={24} />
                 </div>
                 <div className="mt-6 flex flex-col lg:flex-row gap-6 justify-between">
                     <div className={`py-4 px-6 h-[228px] flex-1 bg-white rounded-xl overflow-y-auto scrollbar-custom`}>

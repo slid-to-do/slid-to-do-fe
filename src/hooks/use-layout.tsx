@@ -1,6 +1,20 @@
 'use client'
 import {useState, useLayoutEffect} from 'react'
 
+/**
+ * @param size: 'mobile' | 'tablet' | 'desktop'
+ * @returns
+ *  초기값: "noState"
+ *  boolean: "false", 'true'
+ *  초기값: "noState"
+ *
+ * 사용법
+ * const isTablet = useLayout('tablet')
+ * const isDesktop = useLayout('desktop')
+ * const isMobile = useLayout('mobile')
+ *
+ */
+
 const useLayout = (size: 'mobile' | 'tablet' | 'desktop') => {
     const [isResponsive, setIsResponsive] = useState<boolean | 'noState'>('noState')
 

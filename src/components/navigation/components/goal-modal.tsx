@@ -3,7 +3,7 @@
 import React, {useState} from 'react'
 import Image from 'next/image'
 
-import {useMutation} from '@tanstack/react-query'
+import {useQueryClient, useMutation} from '@tanstack/react-query'
 import {post} from '@/lib/api'
 
 import {useModalStore} from '@/store/use-modal-store'
@@ -13,6 +13,7 @@ import ButtonStyle from '@/components/style/button-style'
 const goalModal = () => {
     const [inputChange, setInputChange] = useState('')
     const [inputError, setErrorChange] = useState('')
+    const clientQuery = useQueryClient()
 
     const goalPost = useMutation({
         mutationFn: async () => {
@@ -30,6 +31,7 @@ const goalModal = () => {
             })
         },
         onSuccess: () => {
+            clientQuery.invalidateQueries({queryKey: ['goals']})
             alert('목표가 생성되었습니다.')
             clearModal()
         },

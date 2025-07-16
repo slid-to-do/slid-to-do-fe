@@ -71,21 +71,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                         </ButtonStyle>
                     )}
                 </div>
-                {/* <ul className=" p-4   space-y-4 flex-nowrap overflow-y-auto overflow-scroll mt-2 flex-1 min-h-0 ">
-                    {goals?.map((item: Goal, key) => {
-                        return (
-                            <li
-                                className=" flex  items-center whitespace-nowrap cursor-pointer group  overflow-hidden h-auto"
-                                key={key}
-                            >
-                                <span className=" text-custom_slate-700 text-body mr-1 group-hover:opacity-70">・</span>
-                                <span className="text-custom_slate-700 text-body-sm tracking-tight truncate group-hover:opacity-70">
-                                    {item.title}
-                                </span>
-                            </li>
-                        )
-                    })}
-                </ul> */}
+
                 <div className="p-4   space-y-4 flex-nowrap overflow-y-auto overflow-scroll  flex-1 min-h-0">
                     {goals.length > 0 ? (
                         <>

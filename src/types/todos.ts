@@ -1,5 +1,7 @@
 import type {Goal} from './goals'
 
+import {Goal} from './goal'
+
 export interface Todo {
     id: number
     title: string

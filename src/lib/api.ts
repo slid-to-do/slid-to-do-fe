@@ -53,14 +53,6 @@ const request = async <T>({method, endpoint, data, options}: RequestParameters):
 
     const payload = (await response.json()) as Partial<ApiPayload<T>>
 
-    /** 204 코드는 데이터가 없음을 의미하므로 데이터를 undefined로 설정 */
-    if (response.status === 204) {
-        return {
-            status: response.status,
-            data: undefined as unknown as T,
-        }
-    }
-
     /** 200번대 코드가 아니면 에러 발생  error.message , error.status로 접근하여 코드별 에러처리 가능*/
     if (!response.ok) {
         const message = payload.message || `HTTP error! status: ${status}`

@@ -2,11 +2,7 @@ import {create} from 'zustand'
 
 import type {JSX} from 'react'
 
-interface ModalState {
-    currentModal: JSX.Element | undefined
-    setModal: (modal: JSX.Element) => void
-    clearModal: () => void
-}
+import type {ModalState} from '@/types/store'
 
 export const useModalStore = create<ModalState>((set) => ({
     currentModal: undefined,

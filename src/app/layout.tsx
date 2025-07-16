@@ -7,6 +7,8 @@ import type {Metadata} from 'next'
 
 import './globals.css'
 
+import {ErrorBoundaryProvider} from './providers/error-boundary-provider'
+
 const geistSans = Geist({
     variable: '--font-geist-sans',
     subsets: ['latin'],
@@ -37,8 +39,10 @@ export default function RootLayout({
         <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
                 <QueryProvider>
-                    {children}
-                    <ModalProvider />
+                    <ErrorBoundaryProvider>
+                        {children}
+                        <ModalProvider />
+                    </ErrorBoundaryProvider>
                 </QueryProvider>
             </body>
         </html>

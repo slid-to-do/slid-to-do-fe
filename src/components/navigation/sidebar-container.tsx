@@ -36,7 +36,6 @@ const NavigationSidebar = () => {
             >
                 <Sidebar isOpen={isOpen} onClickHandler={onClickHandler} />
             </aside>
-
             <div
                 className={`w-full ${isOpen === true && isTablet && 'tablet:flex'} hidden h-screen opacity-75 bg-black absolute`}
                 onClick={onClickHandler}

@@ -1,6 +1,6 @@
-import {keyframes} from 'motion'
-import type {Config} from 'tailwindcss'
 import plugin from 'tailwindcss/plugin'
+
+import type {Config} from 'tailwindcss'
 
 const config: Config = {
     content: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
@@ -100,7 +100,7 @@ const config: Config = {
                 xxxl: '30px',
             }
 
-            Object.entries(defaults).forEach(([className, {size, weight}]) => {
+            for (const [className, {size, weight}] of Object.entries(defaults)) {
                 matchUtilities(
                     {
                         [className]: (value) => ({
@@ -116,7 +116,7 @@ const config: Config = {
                         type: 'length',
                     },
                 )
-            })
+            }
         }),
     ],
 }

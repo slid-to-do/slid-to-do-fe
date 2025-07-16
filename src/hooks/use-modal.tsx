@@ -76,10 +76,10 @@ type AnimationProperties = Pick<MotionProps, 'initial' | 'animate' | 'exit' | 't
  * })
  * ```
  */
-export function useModal<T = unknown>(
+export const useModal = <T = unknown,>(
     modal: JSX.Element | ((properties: T) => JSX.Element),
     options?: UseModalOptions,
-): UseModalReturn<T> {
+): UseModalReturn<T> => {
     const {currentModal, setModal, clearModal} = useModalStore()
 
     // 기본값 설정
@@ -196,12 +196,10 @@ export function useModal<T = unknown>(
 
     // body 스크롤 제어
     useEffect(() => {
-        const originalOverflow = document.body.style.overflow
-
-        document.body.style.overflow = currentModal ? 'hidden' : originalOverflow
+        document.body.style.overflow = currentModal ? 'hidden' : 'visible'
 
         return () => {
-            document.body.style.overflow = originalOverflow
+            document.body.style.overflow = 'visible'
         }
     }, [currentModal])
 
@@ -253,3 +251,5 @@ export function useModal<T = unknown>(
 
     return {openModal, closeModal}
 }
+
+export default useModal

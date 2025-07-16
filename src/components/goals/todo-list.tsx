@@ -26,7 +26,9 @@ export default function InfiniteTodoList({
     onAddClick?: () => void
 }) {
     return (
-        <div className="py-4 px-6 h-[228px] bg-white rounded-xl flex flex-col min-h-0 lg:flex-1">
+        <div
+            className={`py-4 px-6 h-[228px] rounded-xl flex flex-col min-h-0 lg:flex-1 ${title === 'To do' ? 'bg-white' : 'bg-custom_slate-200'}`}
+        >
             <div className="flex items-center justify-between">
                 <div className="text-subTitle">{title}</div>
                 {onAddClick && (

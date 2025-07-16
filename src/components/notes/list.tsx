@@ -10,29 +10,35 @@ import NotesSelect from '@/components/notes/select'
 
 
 import SideModal from '../common/modal/side-modal'
+import { post } from '@/lib/api'
+import { useEffect } from 'react'
 /**import {useEffect} from 'react'*/
 export const NoteList = ({notesData}: {notesData: NoteCommon[]}) => {
     const {openModal} = useModal((noteId: number) => <SideModal noteId={noteId} />, {
         modalAnimation: 'slideFromRight',
     })
 
-    // const fetchData = async () => {
-    //     const response = await post<NoteCommon[]>({
-    //         endpoint: 'notes',
-    //         options: {
-    //             headers: {
-    //                 Authorization: `Bearer ${localStorage.getItem('token')}`,
-    //             },
-    //         },
-    //         data: {
-    //             todoId: 5138,
-    //             title: '노트 테스트 37 테스트입니다',
-    //             content:
-    //                 '노트 테스트 37 테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트',
-    //         },
-    //     })
-    //     console.log('response', response)
-    // }
+    const fetchData = async () => {
+        const response = await post<NoteCommon[]>({
+            endpoint: 'notes',
+            options: {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                },
+            },
+            data: {
+                todoId: 5134,
+                title: '노트 테스트 34 테스트입니다',
+                content:
+                    '노트 테스트 34 테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트',
+            },
+        })
+        console.log('response', response)
+    }
+
+    useEffect(() => {
+        fetchData()
+    },[])
 
     /*노트 제목 클릭 시 사이드 모달 오픈* */
     const openNoteDetail = (noteId: number) => {

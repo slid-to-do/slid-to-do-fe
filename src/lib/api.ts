@@ -42,6 +42,15 @@ const request = async <T>({method, endpoint, data, options}: RequestParameters):
     })
 
     const status = response.status
+
+    /** 204 코드는 데이터가 없음을 의미하므로 데이터를 undefined로 설정 */
+    if (response.status === 204) {
+        return {
+            status: response.status,
+            data: undefined as unknown as T,
+        }
+    }
+
     const payload = (await response.json()) as Partial<ApiPayload<T>>
 
     /** 204 코드는 데이터가 없음을 의미하므로 데이터를 undefined로 설정 */
@@ -82,5 +91,6 @@ export const patch = <T>({endpoint, data, options}: PatchApiParameters): Promise
     return request<T>({method: 'PATCH', endpoint, data, options})
 }
 
-export const del = ({endpoint, options}: DeleteApiParameters): Promise<void> =>
-    request<void>({method: 'DELETE', endpoint, options}).then(() => {})
+export const del = async ({endpoint, options}: DeleteApiParameters): Promise<void> => {
+    await request<void>({method: 'DELETE', endpoint, options})
+}

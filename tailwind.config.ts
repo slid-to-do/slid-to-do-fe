@@ -45,6 +45,7 @@ const config: Config = {
             screens: {
                 mobile: {max: '374px'},
                 tablet: {min: '374px', max: '774px'},
+                desktop: {min: '774px'},
             },
 
             colors: {

@@ -1,17 +1,57 @@
 'use client'
 
 import Image from 'next/image'
-import React from 'react'
+import React, {useState} from 'react'
 
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import {useModal} from '@/hooks/use-modal'
-import AddTodoModal from '@/components/common/modal/add-todo-modal'
+import LoadingSpinner from '@/components/common/loading-spinner'
 
 import ButtonStyle from '../../style/button-style'
 import GoalModal from './goal-modal'
+import {get} from '@/lib/api'
+
+import type {Goal, GoalResponse} from '@/types/goals'
+import Link from 'next/link'
 
 const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
     const {openModal} = useModal(<GoalModal />)
+    const [goalData, setGoalData] = useState<GoalResponse>()
+    const [cursornextCursor, setNextCursor] = useState<number | undefined>(0)
+
+    const getGoalsData = () => {
+        return async (cursor: number | undefined) => {
+            try {
+                const urlParam = cursor === undefined ? '' : `&cursor=${cursor}`
+                const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
+                    endpoint: `goals?size=20&sortOrder=newest${urlParam}`,
+                    options: {
+                        headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
+                    },
+                })
+                setNextCursor(response.data.nextCursor)
+
+                return {
+                    data: response.data.goals,
+                    nextCursor: response.data.nextCursor,
+                }
+            } catch (error: unknown) {
+                if (error instanceof Error) {
+                    throw error
+                }
+                throw new Error(String(error))
+            }
+        }
+    }
+    const {
+        data: goals,
+        ref: doneReference,
+        isLoading: loadingDone,
+        hasMore: haseMoreDone,
+    } = useInfiniteScrollQuery<GoalResponse>({
+        queryKey: ['goals'],
+        fetchFn: getGoalsData(),
+    })
 
     return (
         <section
@@ -31,8 +71,8 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                         </ButtonStyle>
                     )}
                 </div>
-                <ul className=" p-4   space-y-4 flex-nowrap overflow-y-auto overflow-scroll mt-2 flex-1 min-h-0 ">
-                    {[1, 2, 3, 41, 1, 1, 1, 41, 1, 1, 1, 41, 1, 1, 1, 41, 1, 1, 1, 41, 1, 1, 1].map((item, key) => {
+                {/* <ul className=" p-4   space-y-4 flex-nowrap overflow-y-auto overflow-scroll mt-2 flex-1 min-h-0 ">
+                    {goals?.map((item: Goal, key) => {
                         return (
                             <li
                                 className=" flex  items-center whitespace-nowrap cursor-pointer group  overflow-hidden h-auto"
@@ -40,12 +80,48 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                             >
                                 <span className=" text-custom_slate-700 text-body mr-1 group-hover:opacity-70">・</span>
                                 <span className="text-custom_slate-700 text-body-sm tracking-tight truncate group-hover:opacity-70">
-                                    {'페이스북 팔로워 1만 달성하기 웹 서비스 만들기 뭐가 문제?'}
+                                    {item.title}
                                 </span>
                             </li>
                         )
                     })}
-                </ul>
+                </ul> */}
+                <div className="p-4   space-y-4 flex-nowrap overflow-y-auto overflow-scroll  flex-1 min-h-0">
+                    {goals.length > 0 ? (
+                        <>
+                            {loadingDone ? (
+                                <LoadingSpinner />
+                            ) : (
+                                <>
+                                    {goals.map((goal: Goal) => (
+                                        <Link
+                                            href={`goals/${goal.id}`}
+                                            className=" flex h-[23px]  items-center whitespace-nowrap cursor-pointer group  overflow-hidden "
+                                            key={goal.id}
+                                        >
+                                            <span className=" text-custom_slate-700 text-body mr-1 group-hover:opacity-70">
+                                                ・
+                                            </span>
+                                            <span className="text-custom_slate-700 text-body-sm tracking-tight truncate group-hover:opacity-70">
+                                                {goal.title}
+                                            </span>
+                                        </Link>
+                                    ))}
+
+                                    {haseMoreDone && !loadingDone && goals.length > 0 && <div ref={doneReference} />}
+
+                                    {!haseMoreDone && goals.length > 0 && (
+                                        <div className="mt-4 text-gray-400 text-sm">모든 할일을 다 불러왔어요</div>
+                                    )}
+                                </>
+                            )}
+                        </>
+                    ) : (
+                        <div className="flex items-center justify-center text-sm text-custom_slate-500 text-center h-[120px]">
+                            해야할 일이 아직 없어요
+                        </div>
+                    )}
+                </div>
             </div>
             {!isMobile && (
                 <ButtonStyle type="button" onClick={openModal} size="full" color="outline">

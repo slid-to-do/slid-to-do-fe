@@ -70,7 +70,6 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                 )}
                 <hr className=" mt-5 -mx-5 border-t-2 border-gray-200" />
                 {/* 주요 네비게이션 */}
-
                 <nav
                     aria-label="주요"
                     className=" w-full h-13 min-h-13 overflow-y-auto flex flex-col max-sm:flex-row max-sm:justify-between max-sm:items-center justify-center items-start "
@@ -91,7 +90,6 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                     {isMobile && <ButtonStyle size="small">+ 새 할일</ButtonStyle>}
                 </nav>
                 <hr className=" -mx-5  border-t-2 border-gray-200" />
-
                 {/* 목표 섹션 */}
                 <SidebarList isMobile={isMobile} />
             </div>

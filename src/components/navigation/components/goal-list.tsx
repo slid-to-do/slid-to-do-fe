@@ -11,7 +11,7 @@ import ButtonStyle from '../../style/button-style'
 import GoalModal from './goal-modal'
 
 const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
-    const {openModal, closeModal} = useModal(<GoalModal />)
+    const {openModal} = useModal(<GoalModal />)
 
     return (
         <section

@@ -6,14 +6,9 @@ import useLayout from '@/hooks/use-layout'
 
 import Sidebar from './components/client-sidebar'
 
-import useModal from '@/hooks/use-modal'
-
-import AddTodoModal from '../common/modal/add-todo-modal'
-
 const NavigationSidebar = () => {
     const [isOpen, setIsOpen] = useState<boolean | 'noState'>('noState')
 
-    const {openModal} = useModal(<AddTodoModal />)
     const isTablet = useLayout('tablet')
     const isDesktop = useLayout('desktop')
     const isMobile = useLayout('mobile')

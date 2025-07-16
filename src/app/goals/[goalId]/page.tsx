@@ -255,8 +255,8 @@ export default function GoalsPage() {
     }
 
     return (
-        <div className="min-h-screen bg-custom_slate-100">
-            <div className="py-6 px-4 mx-auto w-[1200px] tablet:w-[636px] mobile:w-[343px]">
+        <div className="w-full bg-custom_slate-100">
+            <div className={`p-6 xl:pl-20 xl:w-[1200px]`}>
                 <div className="text-subTitle">목표</div>
                 <div className="mt-4 py-4 px-6 bg-white rounded">
                     <div className="flex justify-between items-center">
@@ -276,6 +276,13 @@ export default function GoalsPage() {
                                             />
                                             <ButtonStyle size={'medium'} onClick={() => handleGoalAction('edit')}>
                                                 수정
+                                            </ButtonStyle>
+                                            <ButtonStyle
+                                                size={'medium'}
+                                                color={'outline'}
+                                                onClick={() => setGoalEdit(false)}
+                                            >
+                                                취소
                                             </ButtonStyle>
                                         </div>
                                     ) : (

@@ -196,12 +196,10 @@ export const useModal = <T = unknown,>(
 
     // body 스크롤 제어
     useEffect(() => {
-        const originalOverflow = document.body.style.overflow
-
-        document.body.style.overflow = currentModal ? 'hidden' : originalOverflow
+        document.body.style.overflow = currentModal ? 'hidden' : 'visible'
 
         return () => {
-            document.body.style.overflow = originalOverflow
+            document.body.style.overflow = 'visible'
         }
     }, [currentModal])
 

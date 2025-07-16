@@ -20,7 +20,7 @@ import type {TodoResponse} from '@/types/todos'
 const TOKEN = process.env.NEXT_PUBLIC_TEST_TOKEN
 const TEAM_ID = process.env.NEXT_PUBLIC_TEAM_ID
 
-export default function GoalsPage() {
+const GoalsPage = () => {
     const router = useRouter()
     const [posts, setPosts] = useState<Goal>()
     const [moreButton, setMoreButton] = useState<boolean>(false)
@@ -305,3 +305,4 @@ export default function GoalsPage() {
         </div>
     )
 }
+export default GoalsPage

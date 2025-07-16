@@ -1,35 +1,31 @@
 'use client'
 
 import Image from 'next/image'
-import React, {useState} from 'react'
+import Link from 'next/link'
 
+import LoadingSpinner from '@/components/common/loading-spinner'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import {useModal} from '@/hooks/use-modal'
-import LoadingSpinner from '@/components/common/loading-spinner'
-
-import ButtonStyle from '../../style/button-style'
-import GoalModal from './goal-modal'
 import {get} from '@/lib/api'
 
+import GoalModal from './goal-modal'
+import ButtonStyle from '../../style/button-style'
+
 import type {Goal, GoalResponse} from '@/types/goals'
-import Link from 'next/link'
 
 const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
     const {openModal} = useModal(<GoalModal />)
-    const [goalData, setGoalData] = useState<GoalResponse>()
-    const [cursornextCursor, setNextCursor] = useState<number | undefined>(0)
 
     const getGoalsData = () => {
         return async (cursor: number | undefined) => {
             try {
-                const urlParam = cursor === undefined ? '' : `&cursor=${cursor}`
+                const urlParameter = cursor === undefined ? '' : `&cursor=${cursor}`
                 const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
-                    endpoint: `goals?size=20&sortOrder=newest${urlParam}`,
+                    endpoint: `goals?size=20&sortOrder=newest${urlParameter}`,
                     options: {
                         headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                     },
                 })
-                setNextCursor(response.data.nextCursor)
 
                 return {
                     data: response.data.goals,
@@ -45,9 +41,9 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
     }
     const {
         data: goals,
-        ref: doneReference,
-        isLoading: loadingDone,
-        hasMore: haseMoreDone,
+        ref: goalReference,
+        isLoading: loadingGoals,
+        hasMore: hasMoreGoals,
     } = useInfiniteScrollQuery<GoalResponse>({
         queryKey: ['goals'],
         fetchFn: getGoalsData(),
@@ -75,7 +71,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                 <div className="p-4   space-y-4 flex-nowrap overflow-y-auto overflow-scroll  flex-1 min-h-0">
                     {goals.length > 0 ? (
                         <>
-                            {loadingDone ? (
+                            {loadingGoals ? (
                                 <LoadingSpinner />
                             ) : (
                                 <>
@@ -94,9 +90,9 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                                         </Link>
                                     ))}
 
-                                    {haseMoreDone && !loadingDone && goals.length > 0 && <div ref={doneReference} />}
+                                    {hasMoreGoals && !loadingGoals && goals.length > 0 && <div ref={goalReference} />}
 
-                                    {!haseMoreDone && goals.length > 0 && (
+                                    {!hasMoreGoals && goals.length > 0 && (
                                         <div className="mt-4 text-gray-400 text-sm">모든 할일을 다 불러왔어요</div>
                                     )}
                                 </>

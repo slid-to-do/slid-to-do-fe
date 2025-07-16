@@ -5,13 +5,13 @@ import Link from 'next/link'
 import React from 'react'
 
 import Expand from '@/../public/sidebar/ic_expand.svg'
+import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import HamburgerToggle from '@/components/style/hamburger-toggle'
 import useLayout from '@/hooks/use-layout'
 import useModal from '@/hooks/use-modal'
 
 import SidebarList from './goal-list'
 import SidebarProfile from './sidebar-profile'
-import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import ButtonStyle from '../../style/button-style'
 
 import type {ClientInterface} from '@/types/sidebar'

@@ -1,19 +1,20 @@
 'use client'
 
-import React, {useState} from 'react'
 import Image from 'next/image'
+import React, {useState} from 'react'
 
 import {useQueryClient, useMutation} from '@tanstack/react-query'
-import {post} from '@/lib/api'
 
-import {useModalStore} from '@/store/use-modal-store'
-import InputStyle from '@/components/style/input-style'
 import ButtonStyle from '@/components/style/button-style'
+import InputStyle from '@/components/style/input-style'
+import {post} from '@/lib/api'
+import {useModalStore} from '@/store/use-modal-store'
 
-const goalModal = () => {
+const GoalModal = () => {
     const [inputChange, setInputChange] = useState('')
     const [inputError, setErrorChange] = useState('')
     const clientQuery = useQueryClient()
+    const {clearModal} = useModalStore()
 
     const goalPost = useMutation({
         mutationFn: async () => {
@@ -40,10 +41,8 @@ const goalModal = () => {
         },
     })
 
-    const {clearModal} = useModalStore()
-
-    const inputOnChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-        setInputChange(e.target.value)
+    const inputOnChange = (changeEvent: React.ChangeEvent<HTMLInputElement>) => {
+        setInputChange(changeEvent.target.value)
     }
 
     return (
@@ -70,7 +69,7 @@ const goalModal = () => {
                     state={inputError ? 'error' : 'blue'}
                     placeholder="새 목표를 작성해주세요."
                     className="w-full"
-                    onChange={(e) => inputOnChange(e)}
+                    onChange={(changeEvent) => inputOnChange(changeEvent)}
                 />
                 <span className=" w-full px-2 text-subBody-sm font-medium text-red-500">{inputError}</span>
             </main>
@@ -81,4 +80,4 @@ const goalModal = () => {
     )
 }
 
-export default goalModal
+export default GoalModal

@@ -5,17 +5,16 @@ import {useEffect, useState} from 'react'
 
 import {useMutation, useQueryClient} from '@tanstack/react-query'
 
-import LoadingSpinner from '@/components/common/loading-spinner'
+import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import TwoButtonModal from '@/components/common/modal/two-buttom-modal'
-import TodoItem from '@/components/common/todo-item'
+import ProgressBar from '@/components/goals/prograss-motion'
+import InfiniteTodoList from '@/components/goals/todo-list'
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import useModal from '@/hooks/use-modal'
 import {del, get, patch} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
-
-import ProgressBar from './prograss-motion'
 
 import type {Goal, GoalProgress} from '@/types/goals'
 import type {TodoResponse} from '@/types/todos'
@@ -35,6 +34,10 @@ export default function GoalsPage() {
     const parameters = useParams()
     const goalId = parameters.goalId as string
 
+    /**모달 닫기 */
+    const {clearModal} = useModalStore()
+
+    /** [ S ] 목표 */
     /** 목표 API 호출 */
     useEffect(() => {
         const getGoalsData = async () => {
@@ -69,6 +72,75 @@ export default function GoalsPage() {
         }
     }, [goalId])
 
+    /** 목표 수정&삭제 */
+    const handleGoalAction = async (mode: string) => {
+        if (mode === 'edit') {
+            if (posts?.title === '') {
+                alert('제목을 입력해주세요.')
+                return
+            }
+            const response = await patch({
+                endpoint: `${TEAM_ID}/goals/${goalId}`,
+                data: {title: posts?.title},
+                options: {
+                    headers: {
+                        Authorization: `Bearer ${TOKEN}`,
+                    },
+                },
+            })
+            if (response.status === 200) {
+                alert('수정되었습니다.')
+            } else {
+                alert(response.message)
+            }
+
+            setGoalEdit(false)
+        } else if (mode === 'delete') {
+            const response = await del({
+                endpoint: `${TEAM_ID}/goals/${goalId}`,
+                options: {
+                    headers: {
+                        Authorization: `Bearer ${TOKEN}`,
+                    },
+                },
+            })
+            if (response === undefined) {
+                clearModal()
+                alert('삭제가 완료되었습니다.')
+                router.push('/')
+            }
+        }
+    }
+
+    /**목표 수정 시 input값 변경 */
+    const handleInputUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
+        const {value} = event.target
+
+        setPosts((previous) => ({
+            ...previous,
+            title: value,
+            id: previous?.id ?? 0,
+        }))
+    }
+
+    /** 목표 삭제 모달 */
+    const {openModal: goalDeleteModal} = useModal(
+        () => (
+            <TwoButtonModal
+                handleLeftBtn={clearModal}
+                handleRightBtn={() => handleGoalAction('delete')}
+                topText={'목표를 삭제하시겠어요?'}
+                bottomText={'삭제된 목표는 복구할 수 없습니다.'}
+                buttonText={'삭제'}
+            />
+        ),
+        {
+            modalAnimation: 'slideFromTop',
+            backdropAnimation: 'fade',
+        },
+    )
+
+    /** [ S ] 할일 */
     /** 할일 API 호출 */
     const GetTodoList = (done: boolean) => {
         return async (cursor: number | undefined) => {
@@ -119,70 +191,10 @@ export default function GoalsPage() {
         fetchFn: GetTodoList(false),
     })
 
-    /** 노트 모아보기 페이지 이동 */
-    const goNoteList = () => {
-        router.push('/')
-    }
+    /**할일 추가 모달 */
+    const {openModal: todoAddModal} = useModal(<AddTodoModal />)
 
-    const {clearModal} = useModalStore()
-
-    /** 목표 수정&삭제 */
-    const handleGoalAction = async (mode: string) => {
-        if (mode === 'edit') {
-            if (posts?.title === '') {
-                alert('제목을 입력해주세요.')
-                return
-            }
-            const response = await patch({
-                endpoint: `${TEAM_ID}/goals/${goalId}`,
-                data: {title: posts?.title},
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${TOKEN}`,
-                    },
-                },
-            })
-            if (response.status === 200) {
-                alert('수정되었습니다.')
-            } else {
-                alert(response.message)
-            }
-
-            setGoalEdit(false)
-        } else if (mode === 'delete') {
-            const response = await del({
-                endpoint: `${TEAM_ID}/goals/${goalId}`,
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${TOKEN}`,
-                    },
-                },
-            })
-            if (response === undefined) {
-                clearModal()
-                alert('삭제가 완료되었습니다.')
-                router.push('/')
-            }
-        }
-    }
-
-    /** 목표 삭제 모달 */
-    const {openModal: goalDeleteModal} = useModal(
-        () => (
-            <TwoButtonModal
-                handleLeftBtn={clearModal}
-                handleRightBtn={() => handleGoalAction('delete')}
-                topText={'목표를 삭제하시겠어요?'}
-                bottomText={'삭제된 목표는 복구할 수 없습니다.'}
-                buttonText={'삭제'}
-            />
-        ),
-        {
-            modalAnimation: 'slideFromTop',
-            backdropAnimation: 'fade',
-        },
-    )
-
+    /**할일 checkbox update */
     const updateTodo = useMutation({
         mutationFn: async ({todoId, newDone}: {todoId: number; newDone: boolean}) => {
             const response = await patch<TodoResponse>({
@@ -201,6 +213,7 @@ export default function GoalsPage() {
             queryClient.invalidateQueries({queryKey: ['todos']})
         },
     })
+    /**할일 삭제 */
     const deleteTodo = useMutation({
         mutationFn: async (todoId: number) => {
             if (!confirm('정말로 이 할 일을 삭제하시겠습니까?')) return
@@ -220,23 +233,7 @@ export default function GoalsPage() {
         },
     })
 
-    /** 할일 삭제 모달 */
-    const {openModal: todoDeleteModal} = useModal(
-        (todoId: number) => (
-            <TwoButtonModal
-                handleLeftBtn={clearModal}
-                handleRightBtn={() => deleteTodo.mutate(todoId)}
-                topText={'목표를 삭제하시겠어요?'}
-                bottomText={'삭제된 목표는 복구할 수 없습니다.'}
-                buttonText={'삭제'}
-            />
-        ),
-        {
-            modalAnimation: 'slideFromTop',
-            backdropAnimation: 'fade',
-        },
-    )
-
+    /**할일 에러 발생 구현 화면 */
     let error
     if (doneIsError) {
         error = doneError
@@ -251,23 +248,21 @@ export default function GoalsPage() {
             </div>
         )
     }
-    const handleInputUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const {value} = event.target
 
-        setPosts((previous) => ({
-            ...previous,
-            title: value,
-            id: previous?.id ?? 0,
-        }))
+    /** 노트 모아보기 페이지 이동 */
+    const goNoteList = () => {
+        router.push(`/notes?goalId=${goalId}`)
     }
+
     return (
-        <div className="min-h-screen bg-custom_slate-100 ">
-            <div className="p-4 mx-auto">
+        <div className="min-h-screen bg-custom_slate-100">
+            <div className="py-6 px-4 mx-auto w-[1200px] tablet:w-[636px] mobile:w-[343px]">
                 <div className="text-subTitle">목표</div>
                 <div className="mt-4 py-4 px-6 bg-white rounded">
                     <div className="flex justify-between items-center">
                         <div className="flex flex-grow gap-2 items-center">
                             <Image src="/goals/flag-goal.svg" alt="목표깃발" width={40} height={40} />
+
                             {posts ? (
                                 <>
                                     {goalEdit ? (
@@ -326,98 +321,28 @@ export default function GoalsPage() {
                     </div>
                     <Image src="/goals/ic_arrow_right.svg" alt="노트보기 페이지 이동" width={24} height={24} />
                 </div>
+
                 <div className="mt-6 flex flex-col lg:flex-row gap-6 justify-between">
-                    <div className={`py-4 px-6 h-[228px] flex-1 bg-white rounded-xl overflow-y-auto scrollbar-custom`}>
-                        <div className="flex items-center justify-between">
-                            <div className="text-subTitle">To do</div>
-                            <div className="flex items-center">
-                                <Image src="/goals/ic_plus.svg" alt="+" width={16} height={16} />
-                                <div className="text-custom_blue-500 text-sm font-semibold">할일 추가</div>
-                            </div>
-                        </div>
-                        <div className="mt-4">
-                            {todosNotDone.length > 0 ? (
-                                <>
-                                    {loadingNotDone ? (
-                                        <LoadingSpinner />
-                                    ) : (
-                                        <>
-                                            {todosNotDone.map((todo: TodoResponse) => (
-                                                <div key={`todoList_${todo.id}`} className="mb-2">
-                                                    <TodoItem
-                                                        key={todo.id}
-                                                        todoDetail={todo}
-                                                        onToggle={(todoId: number, newDone: boolean) =>
-                                                            updateTodo.mutate({todoId, newDone})
-                                                        }
-                                                        onDelete={(todoId: number) => todoDeleteModal(todoId)}
-                                                    />
-                                                </div>
-                                            ))}
+                    <InfiniteTodoList
+                        title="To do"
+                        todos={todosNotDone}
+                        isLoading={loadingNotDone}
+                        hasMore={hasMoreNotDone}
+                        refCallback={notDoneReference}
+                        onToggle={(todoId: number, newDone: boolean) => updateTodo.mutate({todoId, newDone})}
+                        onDelete={(todoId: number) => deleteTodo.mutate(todoId)}
+                        onAddClick={todoAddModal}
+                    />
 
-                                            {hasMoreNotDone && !loadingNotDone && todosNotDone.length > 0 && (
-                                                <div ref={notDoneReference} />
-                                            )}
-
-                                            {!hasMoreNotDone && todosNotDone.length > 0 && (
-                                                <div className="mt-4 text-gray-400 text-sm">
-                                                    모든 할일을 다 불러왔어요
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
-                                </>
-                            ) : (
-                                <div className="flex items-center justify-center text-sm text-custom_slate-500 text-center h-[120px]">
-                                    해야할 일이 아직 없어요
-                                </div>
-                            )}
-                        </div>
-                    </div>
-                    <div
-                        className={`py-4 px-6 h-[228px] flex-1 bg-custom_slate-200 rounded-xl overflow-y-auto scrollbar-custom`}
-                    >
-                        <div className="text-subTitle">Done</div>
-
-                        <div className="mt-4">
-                            {todosDone.length > 0 ? (
-                                <>
-                                    {loadingDone ? (
-                                        <LoadingSpinner />
-                                    ) : (
-                                        <>
-                                            {todosDone.map((todo: TodoResponse) => (
-                                                <div key={`todoList_${todo.id}`} className="mb-2">
-                                                    <TodoItem
-                                                        key={todo.id}
-                                                        todoDetail={todo}
-                                                        onToggle={(todoId: number, newDone: boolean) =>
-                                                            updateTodo.mutate({todoId, newDone})
-                                                        }
-                                                        onDelete={(todoId: number) => deleteTodo.mutate(todoId)}
-                                                    />
-                                                </div>
-                                            ))}
-
-                                            {haseMoreDone && !loadingDone && todosDone.length > 0 && (
-                                                <div ref={doneReference} />
-                                            )}
-
-                                            {!haseMoreDone && todosDone.length > 0 && (
-                                                <div className="mt-4 text-gray-400 text-sm">
-                                                    모든 할일을 다 불러왔어요
-                                                </div>
-                                            )}
-                                        </>
-                                    )}
-                                </>
-                            ) : (
-                                <div className="flex items-center justify-center text-sm text-custom_slate-500 text-center h-[120px]">
-                                    다 한 일이 아직 없어요
-                                </div>
-                            )}
-                        </div>
-                    </div>
+                    <InfiniteTodoList
+                        title="Done"
+                        todos={todosDone}
+                        isLoading={loadingDone}
+                        hasMore={haseMoreDone}
+                        refCallback={doneReference}
+                        onToggle={(todoId: number, newDone: boolean) => updateTodo.mutate({todoId, newDone})}
+                        onDelete={(todoId: number) => deleteTodo.mutate(todoId)}
+                    />
                 </div>
             </div>
         </div>

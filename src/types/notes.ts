@@ -22,7 +22,7 @@ export interface NoteListResponse {
 
 /**단일노트 조회 응답
  * & 노트 수정 응답
- * &노트 생성 응답 (응답 데이터 동일*/
+ * & 노트 생성 응답 (응답 데이터 동일*/
 export interface NoteItemResponse extends NoteCommon {
     linkUrl: string
     content: string

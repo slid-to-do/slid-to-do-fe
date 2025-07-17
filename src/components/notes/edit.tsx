@@ -13,7 +13,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
         const url = `notes/${noteId}`
         const response = await get<NoteItemResponse>({
             endpoint: url,
-            options: {headers: {Authorization: `Bearer ${localStorage.getItem('token')}`}},
+            options: {headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`}},
         })
         const noteDetailData = response.data
         setNote(noteDetailData)

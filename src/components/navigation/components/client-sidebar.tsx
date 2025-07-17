@@ -5,8 +5,10 @@ import Link from 'next/link'
 import React from 'react'
 
 import Expand from '@/../public/sidebar/ic_expand.svg'
+import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import HamburgerToggle from '@/components/style/hamburger-toggle'
 import useLayout from '@/hooks/use-layout'
+import useModal from '@/hooks/use-modal'
 
 import SidebarList from './goal-list'
 import SidebarProfile from './sidebar-profile'
@@ -16,6 +18,7 @@ import type {ClientInterface} from '@/types/sidebar'
 
 const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
     const isMobile = useLayout('mobile')
+    const {openModal} = useModal(<AddTodoModal />)
 
     return (
         <>
@@ -49,7 +52,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                     </button>
                 ) : (
                     <button
-                        className={` mobile:hidden absolute right-2 top-2 group  rounded-lg w-8 h-8 flex justify-center items-center z-30  ${isOpen === 'noState' ? 'rotate-180 tablet:rotate-0 ' : isOpen ? 'rotate-180 ' : 'rotate-0 '} `}
+                        className={` mobile:hidden absolute right-2 top-2 group  rounded-lg w-8 h-8 flex justify-center items-center z-10  ${isOpen === 'noState' ? 'rotate-180 tablet:rotate-0 ' : isOpen ? 'rotate-180 ' : 'rotate-0 '} `}
                         onClick={onClickHandler}
                     >
                         <Expand className=" w-6 h-6 fill-white text-slate-400 group-hover:text-slate-300" />
@@ -60,10 +63,13 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                 className={` flex-1 min-h-0    flex-col w-full h-full  ${isOpen === 'noState' ? 'flex tablet:hidden mobile:hidden' : isOpen ? 'flex animate-opacity-open ' : ' animate-opacity-close mobile:hidden'}`}
             >
                 <SidebarProfile />
-                {!isMobile && <ButtonStyle size="full">+ 새 할일</ButtonStyle>}
+                {!isMobile && (
+                    <ButtonStyle size="full" onClick={openModal}>
+                        + 새 할일
+                    </ButtonStyle>
+                )}
                 <hr className=" mt-5 -mx-5 border-t-2 border-gray-200" />
                 {/* 주요 네비게이션 */}
-
                 <nav
                     aria-label="주요"
                     className=" w-full h-13 min-h-13 overflow-y-auto flex flex-col max-sm:flex-row max-sm:justify-between max-sm:items-center justify-center items-start "
@@ -84,7 +90,6 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                     {isMobile && <ButtonStyle size="small">+ 새 할일</ButtonStyle>}
                 </nav>
                 <hr className=" -mx-5  border-t-2 border-gray-200" />
-
                 {/* 목표 섹션 */}
                 <SidebarList isMobile={isMobile} />
             </div>

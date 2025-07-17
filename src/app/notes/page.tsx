@@ -12,7 +12,7 @@ import {NoteList} from '../../components/notes/list'
 import type {InfiniteScrollOptions} from '@/types/infinite-scroll'
 import type {NoteCommon, NoteListResponse} from '@/types/notes'
 
-export const Page = () => {
+const Page = () => {
     const parameters = useSearchParams()
     const goalId = parameters.get('goalId')
     const fetchNoteList = async (cursor?: number) => {

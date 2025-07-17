@@ -24,7 +24,7 @@ const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
                 endpoint: `notes/${id}`,
                 options: {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
                     },
                 },
             }),

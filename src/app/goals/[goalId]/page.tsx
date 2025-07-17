@@ -17,9 +17,6 @@ import {useModalStore} from '@/store/use-modal-store'
 import type {Goal, GoalProgress} from '@/types/goals'
 import type {TodoResponse} from '@/types/todos'
 
-const TOKEN = process.env.NEXT_PUBLIC_TEST_TOKEN
-const TEAM_ID = process.env.NEXT_PUBLIC_TEAM_ID
-
 const GoalsPage = () => {
     const router = useRouter()
     const [posts, setPosts] = useState<Goal>()
@@ -39,21 +36,21 @@ const GoalsPage = () => {
     /** 목표 API 호출 */
     useEffect(() => {
         const getGoalsData = async () => {
-            const url = `${TEAM_ID}/goals/${goalId}`
+            const url = `goals/${goalId}`
             try {
                 const response = await get<Goal>({
                     endpoint: `${url}`,
                     options: {
-                        headers: {Authorization: `Bearer ${TOKEN}`},
+                        headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                     },
                 })
                 const goal = response.data
                 setPosts(goal)
 
                 const getProgress = await get<GoalProgress>({
-                    endpoint: `${TEAM_ID}/todos/progress`,
+                    endpoint: `todos/progress`,
                     options: {
-                        headers: {Authorization: `Bearer ${TOKEN}`},
+                        headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                     },
                 })
                 setProgress(getProgress.data.progress / 100)
@@ -78,11 +75,11 @@ const GoalsPage = () => {
                 return
             }
             const response = await patch({
-                endpoint: `${TEAM_ID}/goals/${goalId}`,
+                endpoint: `goals/${goalId}`,
                 data: {title: posts?.title},
                 options: {
                     headers: {
-                        Authorization: `Bearer ${TOKEN}`,
+                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
                     },
                 },
             })
@@ -95,10 +92,10 @@ const GoalsPage = () => {
             setGoalEdit(false)
         } else if (mode === 'delete') {
             const response = await del({
-                endpoint: `${TEAM_ID}/goals/${goalId}`,
+                endpoint: `goals/${goalId}`,
                 options: {
                     headers: {
-                        Authorization: `Bearer ${TOKEN}`,
+                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
                     },
                 },
             })
@@ -142,7 +139,7 @@ const GoalsPage = () => {
     /** 할일 API 호출 */
     const GetTodoList = (done: boolean) => {
         return async (cursor: number | undefined) => {
-            let endpoint = `${TEAM_ID}/todos?goalId=${goalId}&done=${done}&size=10`
+            let endpoint = `todos?goalId=${goalId}&done=${done}&size=10`
             if (cursor !== undefined) {
                 endpoint += `&cursor=${cursor}`
             }
@@ -153,7 +150,7 @@ const GoalsPage = () => {
             }>({
                 endpoint,
                 options: {
-                    headers: {Authorization: `Bearer ${TOKEN}`},
+                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
             })
             return {
@@ -196,11 +193,11 @@ const GoalsPage = () => {
     const updateTodo = useMutation({
         mutationFn: async ({todoId, newDone}: {todoId: number; newDone: boolean}) => {
             const response = await patch<TodoResponse>({
-                endpoint: `${TEAM_ID}/todos/${todoId}`,
+                endpoint: `todos/${todoId}`,
                 data: {done: newDone},
                 options: {
                     headers: {
-                        Authorization: `Bearer ${TOKEN}`,
+                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
                     },
                 },
             })
@@ -217,10 +214,10 @@ const GoalsPage = () => {
             if (!confirm('정말로 이 할 일을 삭제하시겠습니까?')) return
 
             const response = await del({
-                endpoint: `${TEAM_ID}/todos/${todoId}`,
+                endpoint: `todos/${todoId}`,
                 options: {
                     headers: {
-                        Authorization: `Bearer ${TOKEN}`,
+                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
                     },
                 },
             })

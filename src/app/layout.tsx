@@ -7,11 +7,6 @@ import type {Metadata} from 'next'
 
 import './globals.css'
 
-import {ErrorBoundaryProvider} from './providers/error-boundary-provider'
-import {Suspense} from 'react'
-
-import LoadingSpinner from '@/components/common/loading-spinner'
-
 const geistSans = Geist({
     variable: '--font-geist-sans',
     subsets: ['latin'],
@@ -42,12 +37,8 @@ export default function RootLayout({
         <html lang="en">
             <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
                 <QueryProvider>
-                    <ErrorBoundaryProvider>
-                        <Suspense fallback={<LoadingSpinner/>}>
-                            {children}
-                            <ModalProvider />
-                        </Suspense>
-                    </ErrorBoundaryProvider>
+                    {children}
+                    <ModalProvider />
                 </QueryProvider>
             </body>
         </html>

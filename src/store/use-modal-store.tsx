@@ -1,8 +1,7 @@
 import {create} from 'zustand'
 
-import type {JSX} from 'react'
-
 import type {ModalState} from '@/types/store'
+import type {JSX} from 'react'
 
 export const useModalStore = create<ModalState>((set) => ({
     currentModal: undefined,

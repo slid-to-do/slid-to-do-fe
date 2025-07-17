@@ -1,44 +1,23 @@
 'use client'
 
+import {useRouter} from 'next/navigation'
 import React, {useEffect, useRef, useState} from 'react'
 
-import {useRouter} from 'next/navigation'
-
 import {useMutation, useQueryClient} from '@tanstack/react-query'
+import clsx from 'clsx'
 
+import useModal from '@/hooks/use-modal'
 import {del} from '@/lib/api'
 
 import TwoButtonModal from '../common/modal/two-buttom-modal'
-import useModal from '@/hooks/use-modal'
-
-import {useModalStore} from '@/store/use-modal-store'
 
 const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
-    const clsx = require('clsx')
     const [isOpen, setIsOpen] = useState(false)
-    const containerRef = useRef<HTMLDivElement>(null)
-    const {clearModal} = useModalStore()
+    const containerReferance = useRef<HTMLDivElement>(null)
     const router = useRouter()
 
-    /**노트 삭제 확인 모달 */
-    const {openModal, closeModal} = useModal(
-        <TwoButtonModal
-            handleLeftBtn={() => {
-                /**closeModal()*/
-                clearModal()
-            }}
-            handleRightBtn={() => {
-                deleteMutation.mutate(noteId)
-                closeModal()
-            }}
-            topText="노트를 삭제하시겠어요?"
-            bottomText="삭제된 노트는 복구할 수 없어요"
-            buttonText="삭제"
-        />,
-    )
-
     const queryClient = useQueryClient()
-    // 삭제 mutation
+
     const deleteMutation = useMutation<void, Error, number>({
         mutationFn: (id) =>
             del({
@@ -54,14 +33,30 @@ const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
             queryClient.invalidateQueries({queryKey: ['notes']})
         },
         onError: () => {
-            console.error('노트 삭제 실패')
+            throw Error
         },
     })
+
+    /**노트 삭제 확인 모달 */
+    const {openModal, closeModal} = useModal(
+        <TwoButtonModal
+            handleLeftBtn={() => {
+                closeModal()
+            }}
+            handleRightBtn={() => {
+                deleteMutation.mutate(noteId)
+                closeModal()
+            }}
+            topText="노트를 삭제하시겠어요?"
+            bottomText="삭제된 노트는 복구할 수 없어요"
+            buttonText="삭제"
+        />,
+    )
 
     /** 바깥 클릭 시 닫기 */
     useEffect(() => {
         const handleClickOutside = (event: MouseEvent) => {
-            if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+            if (containerReferance.current && !containerReferance.current.contains(event.target as Node)) {
                 setIsOpen(false)
             }
         }
@@ -74,11 +69,11 @@ const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
     }, [isOpen])
 
     return (
-        <div className="relative inline-block text-left" ref={containerRef}>
+        <div className="relative inline-block text-left" ref={containerReferance}>
             <button
                 type="button"
                 aria-haspopup="true"
-                onClick={() => setIsOpen((prev) => !prev)}
+                onClick={() => setIsOpen((previous) => !previous)}
                 className="w-6 h-6 rounded-full bg-custom_slate-50  focus:outline-none relative"
             >
                 <div className="flex flex-col items-center justify-center space-y-0.5">

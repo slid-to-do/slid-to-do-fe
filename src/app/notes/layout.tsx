@@ -1,5 +1,4 @@
-import React, {Suspense} from 'react'
-import {ErrorBoundaryProvider} from '../providers/error-boundary-provider'
+import React from 'react'
 
 export const metadata = {
     title: 'notes',
@@ -10,13 +9,7 @@ const layout = ({
 }: Readonly<{
     children: React.ReactNode
 }>) => {
-    return (
-        <ErrorBoundaryProvider>
-            <Suspense>
-                <main>{children}</main>
-            </Suspense>
-        </ErrorBoundaryProvider>
-    )
+    return <main>{children}</main>
 }
 
 export default layout

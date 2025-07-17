@@ -2,43 +2,17 @@
 
 import Image from 'next/image'
 
-/**import {post} from '@/lib/api'*/
-import type {NoteCommon} from '@/types/notes'
-
-import {useModal} from '@/hooks/use-modal'
 import NotesSelect from '@/components/notes/select'
-
+import {useModal} from '@/hooks/use-modal'
 
 import SideModal from '../common/modal/side-modal'
-import { post } from '@/lib/api'
-import { useEffect } from 'react'
-/**import {useEffect} from 'react'*/
+
+import type {NoteCommon} from '@/types/notes'
+
 export const NoteList = ({notesData}: {notesData: NoteCommon[]}) => {
     const {openModal} = useModal((noteId: number) => <SideModal noteId={noteId} />, {
         modalAnimation: 'slideFromRight',
     })
-
-    const fetchData = async () => {
-        const response = await post<NoteCommon[]>({
-            endpoint: 'notes',
-            options: {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
-            },
-            data: {
-                todoId: 5134,
-                title: '노트 테스트 34 테스트입니다',
-                content:
-                    '노트 테스트 34 테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트테스트입니다노트',
-            },
-        })
-        console.log('response', response)
-    }
-
-    useEffect(() => {
-        fetchData()
-    },[])
 
     /*노트 제목 클릭 시 사이드 모달 오픈* */
     const openNoteDetail = (noteId: number) => {
@@ -47,7 +21,6 @@ export const NoteList = ({notesData}: {notesData: NoteCommon[]}) => {
 
     return (
         <div className="mt-4 w-full h-full flex-1">
-            {/* <button onClick={fetchData}>테스트 노트추가</button> */}
             {notesData.map((note) => (
                 <div key={note.id} className="mt-4 bg-white rounded-xl border border-custom_slate-100 p-6">
                     <div className="flex justify-between ">

@@ -1,41 +1,24 @@
 'use client'
 
-// import React from 'react';
-
 import Image from 'next/image'
+import {useSearchParams} from 'next/navigation'
 
 import LoadingSpinner from '@/components/common/loading-spinner'
-
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
-import {get, post} from '@/lib/api'
+import {get} from '@/lib/api'
+
 import {NoteList} from '../../components/notes/list'
+
+import type {InfiniteScrollOptions} from '@/types/infinite-scroll'
 import type {NoteCommon, NoteListResponse} from '@/types/notes'
 
-import React, {useEffect} from 'react'
-import type {LoginResponse} from '@/types/login'
-import type {InfiniteScrollOptions} from '@/types/infinite-scroll'
-
-export const Page = ({searchParams}: {searchParams: Promise<{goalId?: string}>}) => {
-    const {goalId} = React.use(searchParams)
-    //    const fetchLogin = async () => {
-    //         const response = await post<LoginResponse>({
-    //             endpoint: 'auth/login',
-    //             data: {
-    //                 email: 'email@nate.com',
-    //                 password: 'string123',
-    //             },
-    //         })
-    //         console.log('loginRes', response)
-    //         localStorage.setItem('token', response.data.refreshToken)
-    //     }
-
-    // useEffect(() => {
-    //   fetchLogin()
-    // }, [])
-
+export const Page = () => {
+    const parameters = useSearchParams()
+    const goalId = parameters.get('goalId')
     const fetchNoteList = async (cursor?: number) => {
-        console.log('goalId', goalId)
-        let endpoint = `notes?size=10`
+        let endpoint = 'notes?size=10'
+        goalId && (endpoint += `&goalId=${goalId}`)
+
         if (cursor !== undefined) endpoint += `&cursor=${cursor}`
         const result = await get<NoteListResponse>({
             endpoint: endpoint,
@@ -59,13 +42,10 @@ export const Page = ({searchParams}: {searchParams: Promise<{goalId?: string}>})
     } = useInfiniteScrollQuery({
         queryKey: ['notes'],
         fetchFn: fetchNoteList,
-        suspense: true,
-        useErrorBoundary: true,
     } as InfiniteScrollOptions<NoteCommon>)
 
-    // if (isLoading) return <LoadingSpinner />
+    if (isLoading) return <LoadingSpinner />
     if (isError && error) throw error
-    // if (isError || !notes) return <p>에러가 발생했습니다.</p>
     hasMore && !isLoading && notes.length > 0 && <div ref={ref} />
 
     return (

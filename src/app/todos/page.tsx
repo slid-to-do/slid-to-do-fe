@@ -4,10 +4,10 @@ import {useState} from 'react'
 
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 
+import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import {useModal} from '@/hooks/use-modal'
 import {del, get, patch} from '@/lib/api'
 
-import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import Filter from './filter'
 import TodoItem from '../../components/common/todo-item'
 

@@ -6,9 +6,7 @@ import {useInView} from 'react-intersection-observer'
 import type {InfiniteScrollOptions} from '@/types/infinite-scroll'
 import type {InfiniteData} from '@tanstack/react-query'
 
-export function useInfiniteScrollQuery<T>(options: InfiniteScrollOptions<T>) {
-    const {queryKey, fetchFn, ...queryOptions} = options
-
+export function useInfiniteScrollQuery<T>({queryKey, fetchFn}: InfiniteScrollOptions<T>) {
     const {data, fetchNextPage, hasNextPage, isFetchingNextPage, isError, error, isLoading} = useInfiniteQuery<
         {data: T[]; nextCursor: number | undefined},
         Error,
@@ -20,7 +18,6 @@ export function useInfiniteScrollQuery<T>(options: InfiniteScrollOptions<T>) {
         queryFn: ({pageParam}) => fetchFn(pageParam),
         getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
         initialPageParam: undefined,
-        ...queryOptions, // 옵션을 여기서 전달
     })
 
     const {ref, inView} = useInView({threshold: 0.5})

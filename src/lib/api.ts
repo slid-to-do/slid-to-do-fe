@@ -53,7 +53,7 @@ const request = async <T>({method, endpoint, data, options}: RequestParameters):
 
     const payload = (await response.json()) as Partial<ApiPayload<T>>
 
-    /** 200번대 코드가 아니면 에러 발생  error.message , error.status로 접근하여 코드별 에러처리 가능*/
+    /** 200번대 코드가 아니면 에러 발생 error.message , error.status로 접근하여 코드별 에러처리 가능*/
     if (!response.ok) {
         const message = payload.message || `HTTP error! status: ${status}`
         const error = new Error(message) as Error & {status: number}

@@ -1,4 +1,4 @@
-import axios, {AxiosError, AxiosRequestConfig} from 'axios'
+import axios from 'axios'
 
 import type {
     GetApiParameters,
@@ -9,6 +9,7 @@ import type {
     ApiResponse,
     ApiPayload,
 } from '@/types/api'
+import type {AxiosRequestConfig} from 'axios'
 
 /** 사용법
 import { get, post, patch, del } from '@/lib/api'

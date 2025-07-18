@@ -18,11 +18,11 @@ export interface ApiPayload<T> {
 
 export type HttpMethod = 'GET' | 'POST' | 'PATCH' | 'DELETE'
 
-type RequestOptions = {
+interface RequestOptions {
     headers?: Record<string, string>
 }
 
-export type RequestParameters = {
+export interface RequestParameters {
     method: HttpMethod
     endpoint: string
     data?: unknown

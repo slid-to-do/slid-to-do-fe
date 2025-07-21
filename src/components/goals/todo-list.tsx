@@ -52,7 +52,7 @@ export default function InfiniteTodoList({
                                         <TodoItem todoDetail={todo} onToggle={onToggle} onDelete={onDelete} />
                                     </div>
                                 ))}
-                                {hasMore && <div ref={refCallback} />}
+                                {hasMore && <div ref={refCallback} style={{height: '1px'}} />}
                                 {!hasMore && (
                                     <div className="mt-4 text-gray-400 text-sm">모든 할일을 다 불러왔어요</div>
                                 )}

@@ -1,10 +1,14 @@
-import React from 'react'
+'use client'
+
 import Image from 'next/image'
+import React from 'react'
+
+import {useMutation, useQueryClient} from '@tanstack/react-query'
 
 import TodoItem from '@/components/common/todo-item'
-import type {TodoResponse} from '@/types/todos'
-import {useMutation, useQueryClient} from '@tanstack/react-query'
 import {patch} from '@/lib/api'
+
+import type {TodoResponse} from '@/types/todos'
 
 const NewAddTodo = ({data}: {data: TodoResponse[] | undefined}) => {
     const queryClient = useQueryClient()
@@ -28,7 +32,7 @@ const NewAddTodo = ({data}: {data: TodoResponse[] | undefined}) => {
     })
 
     return (
-        <article className=" w-full h-auto p-3">
+        <article className=" w-full h-auto p-3 min-w-65">
             <header className="flex justify-between items-center mb-4">
                 <div className="flex justify-center items-center gap-2">
                     <Image src={'./dashboard/todo-recently.svg'} alt="최근 등록한 할일" width={40} height={40} />

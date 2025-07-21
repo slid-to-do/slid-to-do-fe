@@ -68,7 +68,7 @@ const GoalModal = () => {
                     custom_size="default"
                     state={inputError ? 'error' : 'blue'}
                     placeholder="새 목표를 작성해주세요."
-                    className="w-full"
+                    className="w-full outline"
                     onChange={(changeEvent) => inputOnChange(changeEvent)}
                 />
                 <span className=" w-full px-2 text-subBody-sm font-medium text-red-500">{inputError}</span>

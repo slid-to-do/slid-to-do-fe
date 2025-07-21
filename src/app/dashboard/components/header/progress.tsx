@@ -1,20 +1,22 @@
 'use client'
 
+import Image from 'next/image'
 import React from 'react'
 
-import Image from 'next/image'
 import {animate, useMotionValue, useTransform, motion} from 'framer-motion'
 
+const svgSize = 120
+const stroke = 30
+const radius = svgSize / 2 - stroke / 2
+const circumference = 2 * Math.PI * radius
+const animationDuration = 1
+
 const Progress = ({percent = 0}: {percent: number | undefined}) => {
-    const svgSize = 120
-    const stroke = 30
-    const radius = svgSize / 2 - stroke / 2
-    const circumference = 2 * Math.PI * radius
     const circleOffset = useMotionValue(circumference)
     const countValue = useMotionValue(0)
     const rounded = useTransform(countValue, (latest) => Math.floor(latest))
 
-    const countControls = animate(countValue, percent, {duration: 1.0})
+    const countControls = animate(countValue, percent, {duration: 1})
     const circleControls = animate(circleOffset, circumference * (1 - percent / 100), {
         duration: 1,
         ease: 'easeOut',
@@ -27,7 +29,7 @@ const Progress = ({percent = 0}: {percent: number | undefined}) => {
         circleControls.play()
     }
     return (
-        <div className="flex  p-6 w-full bg-custom_blue-500 relative justify-between rounded-lg min-w-80 max-w-120 max-h-63">
+        <div className="flex  p-6 w-full bg-custom_blue-500 relative justify-between rounded-lg min-w-68 max-w-120 max-h-63">
             <div className="flex flex-col gap-2">
                 <button onClick={handleStart}>
                     <Image src={'./dashboard/animation.svg'} alt="애니메이션 버튼" width={30} height={30} />
@@ -60,7 +62,7 @@ const Progress = ({percent = 0}: {percent: number | undefined}) => {
                             cy={svgSize / 2}
                             strokeDasharray={circumference}
                             strokeDashoffset={circleOffset}
-                            transition={{duration: 1.0, ease: 'easeOut'}}
+                            transition={{duration: animationDuration, ease: 'easeOut'}}
                             transform={`rotate(-90 ${svgSize / 2} ${svgSize / 2})`}
                         />
                     </g>

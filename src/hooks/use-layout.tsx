@@ -1,5 +1,5 @@
 'use client'
-import {useState, useLayoutEffect} from 'react'
+import {useState, useEffect} from 'react'
 
 /**
  * @param size: 'mobile' | 'tablet' | 'desktop'
@@ -18,7 +18,7 @@ import {useState, useLayoutEffect} from 'react'
 const useLayout = (size: 'mobile' | 'tablet' | 'desktop') => {
     const [isResponsive, setIsResponsive] = useState<boolean | 'noState'>('noState')
 
-    useLayoutEffect(() => {
+    useEffect(() => {
         const check = () => {
             if (size === 'mobile') setIsResponsive(window.innerWidth <= 374)
             else if (size === 'desktop') setIsResponsive(window.innerWidth > 774)

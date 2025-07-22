@@ -58,7 +58,7 @@ const NoteWritePage = () => {
         <div className="flex flex-col w-full min-h-screen p-6 desktop:px-20">
             <div className="mt-6">
                 {isEdit ? (
-                    <NoteEditCompo noteId={noteId!} goalTitle={goalsData?.title} todoTitle={todosData?.title} />
+                    <NoteEditCompo noteId={noteId!} goalTitle={''} todoTitle={''} />
                 ) : (
                     /**작성하기 */
                     <NoteWriteCompo

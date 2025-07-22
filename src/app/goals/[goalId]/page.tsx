@@ -14,7 +14,7 @@ import useModal from '@/hooks/use-modal'
 import {del, get, patch} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
-import type {Goal, GoalProgress} from '@/types/goals'
+import type {Goal} from '@/types/goals'
 import type {TodoResponse} from '@/types/todos'
 
 const GoalsPage = () => {
@@ -22,7 +22,6 @@ const GoalsPage = () => {
     const [posts, setPosts] = useState<Goal>()
     const [moreButton, setMoreButton] = useState<boolean>(false)
     const [goalEdit, setGoalEdit] = useState<boolean>(false)
-    const [progress, setProgress] = useState<number>(0)
 
     const queryClient = useQueryClient()
 
@@ -48,28 +47,11 @@ const GoalsPage = () => {
         },
     })
 
-    /** 목표 달성 API */
-    const {data: progressData} = useQuery<GoalProgress>({
-        queryKey: ['todos', goalId, 'progress'],
-        queryFn: async () => {
-            const response = await get<GoalProgress>({
-                endpoint: `todos/progress?goalId=${goalId}`,
-                options: {
-                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                },
-            })
-            return response.data
-        },
-    })
-
     useEffect(() => {
         if (goalsData) {
             setPosts(goalsData)
         }
-        if (progressData) {
-            setProgress(progressData.progress)
-        }
-    }, [goalsData, progressData])
+    }, [goalsData])
 
     /** 목표 수정 */
     const updateGoals = useMutation({
@@ -283,7 +265,6 @@ const GoalsPage = () => {
                     moreButton={moreButton}
                     setMoreButton={setMoreButton}
                     goalDeleteModal={goalDeleteModal}
-                    progress={progress}
                     handleInputUpdate={handleInputUpdate}
                     handleGoalAction={handleGoalAction}
                 />

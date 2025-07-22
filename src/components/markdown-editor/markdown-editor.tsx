@@ -12,10 +12,12 @@ const MarkdownEditor = ({
     value,
     onUpdate,
     className,
+    onChangeDetect,
 }: {
     value: string
     onUpdate: (content: string) => void
     className?: string
+    onChangeDetect?: (changed: boolean) => void
 }) => {
     const editorInstance = useEditor({
         extensions: [
@@ -31,8 +33,13 @@ const MarkdownEditor = ({
             }),
         ],
         content: value || '',
+
         onUpdate: ({editor}) => {
-            onUpdate(editor.getHTML())
+            const currentContent = editor.getHTML()
+            onUpdate(currentContent)
+
+            const hasChanged = currentContent !== value
+            onChangeDetect?.(hasChanged)
         },
         editorProps: {
             attributes: {
@@ -46,12 +53,15 @@ const MarkdownEditor = ({
     }
 
     return (
-        <div className={`relative min-h-64 min-w-64 ${className}`}>
+        <div className={`relative min-w-64 min-h-64 ${className}`}>
             <div className="text-xs font-medium">
                 글자 수 : {editorInstance.storage.characterCount.characters()} | 단어 수 :{' '}
                 {editorInstance.storage.characterCount.words()}
             </div>
-            <EditorContent editor={editorInstance} />
+            <div className="w-full mt-2 text-body text-custom_slate-700">
+                <EditorContent editor={editorInstance} className="max-w-full" />
+            </div>
+
             <Toolbar editorInstance={editorInstance} />
         </div>
     )
@@ -59,7 +69,7 @@ const MarkdownEditor = ({
 
 function Toolbar({editorInstance}: {editorInstance: ReturnType<typeof useEditor>}) {
     return (
-        <div className="absolute flex w-full gap-4 p-2 bg-white rounded-full shadow-sm bottom-4 border-slate-200">
+        <div className="absolute flex w-full gap-4 p-2 bg-white rounded-full shadow-sm -bottom-20 border-slate-200">
             <div className="flex gap-1">
                 <button
                     onClick={() => editorInstance?.chain().focus().toggleBold().run()}

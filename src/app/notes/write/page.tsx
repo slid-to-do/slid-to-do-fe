@@ -3,8 +3,14 @@
 import {useSearchParams} from 'next/navigation'
 import {useEffect} from 'react'
 
+import {useQuery} from '@tanstack/react-query'
+
 import NoteEditCompo from '@/components/notes/edit'
 import NoteWriteCompo from '@/components/notes/write'
+import {get} from '@/lib/api'
+
+import type {Goal} from '@/types/goals'
+import type {Todo} from '@/types/todos'
 
 const NoteWritePage = () => {
     const searchParameters = useSearchParams()
@@ -14,29 +20,52 @@ const NoteWritePage = () => {
 
     const isEdit = typeof noteId === 'string'
 
-    const goalTitle = 'notesData?.[0]?.goal.title'
-    const todoTitle = 'note.todo.title'
-
     useEffect(() => {
         if (todoId === undefined || goalId === undefined) {
             alert('확인 할 데이터가 없습니다.') // 에러페이지로 이동
         }
     }, [todoId, goalId])
 
-    /**여기서는 noteID 로 분기, goalId, todoId 확인해서 title넘겨주는거 어때요? */
+    const {data: goalsData} = useQuery<Goal>({
+        queryKey: ['goals', goalId],
+        queryFn: async () => {
+            const response = await get<Goal>({
+                endpoint: `goals/${goalId}`,
+                options: {
+                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
+                },
+            })
+
+            return response.data
+        },
+    })
+
+    const {data: todosData} = useQuery<Todo>({
+        queryKey: ['todos', todoId],
+        queryFn: async () => {
+            const response = await get<Todo>({
+                endpoint: `todos/${todoId}`,
+                options: {
+                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
+                },
+            })
+
+            return response.data
+        },
+    })
 
     return (
         <div className="flex flex-col w-full min-h-screen p-6 desktop:px-20">
             <div className="mt-6">
                 {isEdit ? (
-                    <NoteEditCompo noteId={noteId!} goalTitle={goalTitle} todoTitle={todoTitle} />
+                    <NoteEditCompo noteId={noteId!} goalTitle={goalsData?.title} todoTitle={todosData?.title} />
                 ) : (
                     /**작성하기 */
                     <NoteWriteCompo
                         goalId={String(goalId)}
                         todoId={String(todoId)}
-                        goalTitle={goalTitle}
-                        todoTitle={todoTitle}
+                        goalTitle={goalsData?.title}
+                        todoTitle={todosData?.title}
                     />
                 )}
             </div>

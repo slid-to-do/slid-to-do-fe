@@ -1,5 +1,4 @@
 'use client'
-import Image from 'next/image'
 
 import LoadingSpinner from '@/components/common/loading-spinner'
 import TodoItem from '@/components/common/todo-item'
@@ -14,7 +13,6 @@ const TodoList = ({
     refCallback,
     onToggle,
     onDelete,
-    onAddClick,
 }: {
     title: string
     todos: TodoResponse[]
@@ -23,7 +21,6 @@ const TodoList = ({
     refCallback: (node?: Element | null) => void
     onToggle: (todoId: number, newDone: boolean) => void
     onDelete: (todoId: number) => void
-    onAddClick?: () => void
 }) => {
     return (
         <div className=" bg-blue-50 py-4 px-6 h-[228px] flex flex-col min-h-0 lg:flex-1">

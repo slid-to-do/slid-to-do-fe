@@ -1,12 +1,17 @@
-import ProgressBar from '@/components/goals/prograss-motion'
-import {get} from '@/lib/api'
-import type {GoalProgress} from '@/types/goals'
-import {useQuery} from '@tanstack/react-query'
+'use client'
+
 import Link from 'next/link'
 import React from 'react'
 
+import {useQuery} from '@tanstack/react-query'
+
+import ProgressBar from '@/components/goals/prograss-motion'
+import {get} from '@/lib/api'
+
+import type {GoalProgress} from '@/types/goals'
+
 const GoalTitleHeader = ({goalId, title}: {goalId: number; title: string}) => {
-    const {data: progressData} = useQuery<GoalProgress>({
+    const {data: progressData} = useQuery<number>({
         queryKey: ['todos', goalId, 'progress'],
         queryFn: async () => {
             const response = await get<GoalProgress>({
@@ -15,10 +20,11 @@ const GoalTitleHeader = ({goalId, title}: {goalId: number; title: string}) => {
                     headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
             })
-            console.log(response.data)
-            return response.data
+
+            return response.data.progress
         },
     })
+
     return (
         <header className="w-full h-auto p-2 ">
             <div className="w-full h-auto p-2 flex justify-between items-center">
@@ -30,7 +36,7 @@ const GoalTitleHeader = ({goalId, title}: {goalId: number; title: string}) => {
                     +할일 추가
                 </Link>
             </div>
-            <ProgressBar progress={progressData?.progress ? progressData.progress : 0} />
+            <ProgressBar progress={progressData || 0} />
         </header>
     )
 }

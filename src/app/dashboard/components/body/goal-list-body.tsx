@@ -1,13 +1,12 @@
 import React from 'react'
 
-import {useInfiniteQuery, useMutation, useQueryClient} from '@tanstack/react-query'
+import {useMutation, useQueryClient} from '@tanstack/react-query'
 
 import InfiniteTodoList from '@/components/goals/todo-list'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import {del, get, patch} from '@/lib/api'
 
 import type {TodoResponse} from '@/types/todos'
-import TodoList from './todo-list'
 
 const PAGE_SIZE = 5
 const TEAM_ID = process.env.NEXT_PUBLIC_TEAM_ID
@@ -53,8 +52,7 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
 
             return response.data
         },
-        onSuccess: (data, value) => {
-            console.log(value)
+        onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ['todos']})
 
             queryClient.invalidateQueries({queryKey: ['allProgress']})
@@ -83,15 +81,6 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
         },
     })
 
-    // const {
-    //     data: todosDone,
-    //     ref: doneReference,
-    //     isLoading: loadingDone,
-    //     hasMore: haseMoreDone,
-    // } = useInfiniteQuery<TodoResponse>({
-    //     queryKey: ['todos', goalId, true],
-    //     fetchFn: GetTodoList(goalId,true),
-    // })
     const {
         data: todosNotDone,
         ref: notDoneReference,
@@ -106,10 +95,8 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
         ref: doneReference,
         isLoading: loadingDone,
         hasMore: haseMoreDone,
-        isError: doneIsError,
-        error: doneError,
     } = useInfiniteScrollQuery<TodoResponse>({
-        queryKey: ['todos', true],
+        queryKey: ['todos', goalId, true],
         fetchFn: GetTodoList(true),
     })
 

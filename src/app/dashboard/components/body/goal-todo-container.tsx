@@ -1,28 +1,20 @@
 'use client'
 
-import React, {useEffect, useState} from 'react'
+import Image from 'next/image'
+import React from 'react'
 
-import {useQuery} from '@tanstack/react-query'
-
-import GoalHeader from '@/components/goals/goal-header'
+import LoadingSpinner from '@/components/common/loading-spinner'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import {get} from '@/lib/api'
 
 import GoalListBody from './goal-list-body'
-
-import type {Goal, GoalResponse} from '@/types/goals'
-import LoadingSpinner from '@/components/common/loading-spinner'
-import Link from 'next/link'
-import Image from 'next/image'
 import GoalTitleHeader from './goal-title-header'
+
+import type {GoalResponse} from '@/types/goals'
 
 const TEAM_ID = process.env.NEXT_PUBLIC_TEAM_ID
 
 const GoalTodoContainer = () => {
-    const [goalsEdit, setGoalsEdit] = useState(false)
-    const [moreButton, setMoreButton] = useState<boolean>(false)
-    const [, setPosts] = useState<Goal>()
-
     const getGoalsData = () => {
         return async (cursor: number | undefined) => {
             try {
@@ -56,20 +48,6 @@ const GoalTodoContainer = () => {
         queryKey: ['myGoals'],
         fetchFn: getGoalsData(),
     })
-
-    // const {data: fetchGoals} = useQuery<{data: Goal[]}>({
-    //     queryKey: ['myGoals'],
-    //     queryFn: getGoalsData,
-    // })
-    const handleInputUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
-        const {value} = event.target
-
-        setPosts((previous) => ({
-            ...previous,
-            title: value,
-            id: previous?.id ?? 0,
-        }))
-    }
 
     return (
         <section className="w-full h-auto bg-white rounded-lg p-2">

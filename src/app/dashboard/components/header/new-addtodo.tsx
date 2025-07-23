@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import Link from 'next/link'
 import React from 'react'
 
 import {useMutation, useQueryClient} from '@tanstack/react-query'
@@ -9,7 +10,6 @@ import TodoItem from '@/components/common/todo-item'
 import {patch} from '@/lib/api'
 
 import type {TodoResponse} from '@/types/todos'
-import Link from 'next/link'
 
 const NewAddTodo = ({data}: {data: TodoResponse[] | undefined}) => {
     const queryClient = useQueryClient()
@@ -24,10 +24,10 @@ const NewAddTodo = ({data}: {data: TodoResponse[] | undefined}) => {
                     },
                 },
             })
-            console.log(response.data)
+
             return response.data
         },
-        onSuccess: (data, value) => {
+        onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ['todos']})
 
             queryClient.invalidateQueries({queryKey: ['newTodo']})

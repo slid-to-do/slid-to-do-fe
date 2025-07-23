@@ -68,3 +68,12 @@ button:disabled {
 .prose {
     max-width: 100%;
 }
+
+.Toastify__progress-bar--bg {
+    background: linear-gradient(
+        to right,
+        rgba(209, 213, 219, 0.5),
+        /* #D1D5DB - gray-300 */ rgba(96, 99, 103, 0.5),
+        rgba(23, 24, 24, 0.5)
+    ) !important;
+}

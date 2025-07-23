@@ -111,7 +111,7 @@ const NoteWriteCompo = ({
             () => {
                 saveToLocalStorage(content)
             },
-            1 * 60 * 1000,
+            5 * 60 * 1000,
         )
 
         return () => clearInterval(interval)

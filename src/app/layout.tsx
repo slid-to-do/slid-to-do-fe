@@ -2,13 +2,13 @@ import {Geist, Geist_Mono} from 'next/font/google'
 
 import ModalProvider from './providers/modal-provider'
 import QueryProvider from './providers/query-provider'
+import ToastProvider from './providers/toast-provider'
 
 import 'react-toastify/dist/ReactToastify.css'
 
 import type {Metadata} from 'next'
 
 import './globals.css'
-import ToastProvider from './providers/toast-provider'
 
 const geistSans = Geist({
     variable: '--font-geist-sans',

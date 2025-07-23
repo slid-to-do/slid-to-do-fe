@@ -5,6 +5,8 @@ import {useRouter} from 'next/navigation'
 import {useCallback, useEffect, useState} from 'react'
 
 import {useMutation} from '@tanstack/react-query'
+import {ToastContainer, toast} from 'react-toastify'
+import 'react-toastify/dist/ReactToastify.css'
 
 import TwoButtonModal from '@/components/common/modal/two-buttom-modal'
 import MarkdownEditor from '@/components/markdown-editor/markdown-editor'
@@ -36,7 +38,7 @@ const NoteWriteCompo = ({
     todoTitle: string | undefined
 }) => {
     const router = useRouter()
-    const [toast, setToast] = useState<boolean>(false)
+    const [saveToastOpen, setSaveToastOpen] = useState<boolean>(false)
     const [hasLocalNote, setHasLocalNote] = useState(false)
     const [content, setContent] = useState<string>('')
     const [subject, setSubject] = useState<string>('')
@@ -59,7 +61,7 @@ const NoteWriteCompo = ({
                 const parsed = JSON.parse(saved)
                 setSaveSubject(parsed.editSubject)
                 setSaveContent(parsed.editContent)
-                setToast(true)
+                setSaveToastOpen(true)
             }
         }
     }, [todoId, goalId, key])
@@ -79,7 +81,7 @@ const NoteWriteCompo = ({
                 editSubject: subject,
             })
             localStorage.setItem(key, value)
-            alert('임시 저장이 완료되었습니다')
+            toast('임시저장이 완료되었습니다')
         },
         [goalId, todoId, subject, content, key],
     )
@@ -94,7 +96,7 @@ const NoteWriteCompo = ({
             () => {
                 saveToLocalStorage(content)
             },
-            10 * 60 * 1000,
+            1 * 60 * 1000,
         )
 
         return () => clearInterval(interval)
@@ -201,7 +203,7 @@ const NoteWriteCompo = ({
                     </ButtonStyle>
                 </div>
             </div>
-            {toast && (
+            {saveToastOpen && (
                 <div className="mt-4 py-3 px-4 rounded-full bg-custom_blue-50 flex justify-between items-center gap-3">
                     <div className="flex items-center gap-4">
                         <Image
@@ -209,7 +211,7 @@ const NoteWriteCompo = ({
                             alt="닫기버튼"
                             width={24}
                             height={24}
-                            onClick={() => setToast(false)}
+                            onClick={() => setSaveToastOpen(false)}
                             className="cursor-pointer"
                         />
                         <div className="text-custom_blue-500">
@@ -249,6 +251,7 @@ const NoteWriteCompo = ({
                     />
                     <div className="text-xs font-medium">{subject.length}/30</div>
                 </div>
+                <ToastContainer />
                 <div className="mt-3">
                     <MarkdownEditor
                         key={content === '' ? 'note-original' : `note-${goalId}-${todoId}`}

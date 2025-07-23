@@ -78,7 +78,7 @@ const MarkdownEditor = ({
                         </a>
                     </div>
                     <button onClick={() => onSetLinkButton?.(undefined)} className="">
-                        <Image src="/markdown-editor/ic_delete.svg" alt="삭제" width={24} height={24} />
+                        <Image src="/todos/ic-delete.svg" alt="삭제" width={24} height={24} />
                     </button>
                 </div>
             )}

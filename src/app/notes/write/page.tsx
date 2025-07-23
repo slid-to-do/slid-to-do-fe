@@ -38,6 +38,7 @@ const NoteWritePage = () => {
 
             return response.data
         },
+        enabled: !noteId && !!goalId,
     })
 
     const {data: todosData} = useQuery<Todo>({
@@ -52,13 +53,14 @@ const NoteWritePage = () => {
 
             return response.data
         },
+        enabled: !noteId && !!todoId,
     })
 
     return (
         <div className="flex flex-col w-full min-h-screen p-6 desktop:px-20">
-            <div className="mt-6">
+            <div className="mt-6 w-full">
                 {isEdit ? (
-                    <NoteEditCompo noteId={noteId!} goalTitle={''} todoTitle={''} />
+                    <NoteEditCompo noteId={noteId!} />
                 ) : (
                     /**작성하기 */
                     <NoteWriteCompo

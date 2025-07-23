@@ -10,10 +10,11 @@ type InputInterface = React.ComponentProps<'input'> & {
     custom_size?: 'default' | 'medium'
     placeholder: string
     type: string
+    className?: string
 }
 
 const InputStyle = React.forwardRef<HTMLInputElement, InputInterface>(function InputStyle(
-    {placeholder, state = 'default', custom_size = 'default', type = 'text', ...restInputProperties},
+    {placeholder, state = 'default', custom_size = 'default', type = 'text', className, ...restInputProperties},
     reference,
 ) {
     const [showPassword, setShowPassword] = useState(false)
@@ -46,6 +47,7 @@ const InputStyle = React.forwardRef<HTMLInputElement, InputInterface>(function I
                 className={cn(
                     'w-full px-6 py-3 border placeholder:text-slate-400 text-black bg-slate-50 disabled:text-slate-400 rounded-md outline-none pr-12',
                     inputVariants({state, custom_size}),
+                    className,
                 )}
                 placeholder={placeholder}
             />

@@ -3,7 +3,7 @@ import Image from 'next/image'
 import {useParams, useRouter} from 'next/navigation'
 import {useEffect, useState} from 'react'
 
-import {useMutation, useQueryClient} from '@tanstack/react-query'
+import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 
 import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import TwoButtonModal from '@/components/common/modal/two-buttom-modal'
@@ -14,7 +14,7 @@ import useModal from '@/hooks/use-modal'
 import {del, get, patch} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
-import type {Goal, GoalProgress} from '@/types/goals'
+import type {Goal} from '@/types/goals'
 import type {TodoResponse} from '@/types/todos'
 
 const GoalsPage = () => {
@@ -22,7 +22,6 @@ const GoalsPage = () => {
     const [posts, setPosts] = useState<Goal>()
     const [moreButton, setMoreButton] = useState<boolean>(false)
     const [goalEdit, setGoalEdit] = useState<boolean>(false)
-    const [progress, setProgress] = useState<number>(0)
 
     const queryClient = useQueryClient()
 
@@ -33,48 +32,31 @@ const GoalsPage = () => {
     const {clearModal} = useModalStore()
 
     /** [ S ] 목표 */
-    /** 목표 API 호출 */
+    /** 목표 API */
+    const {data: goalsData} = useQuery<Goal>({
+        queryKey: ['goals', goalId],
+        queryFn: async () => {
+            const response = await get<Goal>({
+                endpoint: `goals/${goalId}`,
+                options: {
+                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
+                },
+            })
+
+            return response.data
+        },
+    })
+
     useEffect(() => {
-        const getGoalsData = async () => {
-            const url = `goals/${goalId}`
-            try {
-                const response = await get<Goal>({
-                    endpoint: `${url}`,
-                    options: {
-                        headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                    },
-                })
-                const goal = response.data
-                setPosts(goal)
-
-                const getProgress = await get<GoalProgress>({
-                    endpoint: `todos/progress`,
-                    options: {
-                        headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                    },
-                })
-                setProgress(getProgress.data.progress / 100)
-            } catch (error: unknown) {
-                if (error instanceof Error) {
-                    return <div>{error.message}</div>
-                }
-                return <div>{String(error)}</div>
-            }
+        if (goalsData) {
+            setPosts(goalsData)
         }
+    }, [goalsData])
 
-        if (goalId) {
-            getGoalsData()
-        }
-    }, [goalId])
-
-    /** 목표 수정&삭제 */
-    const handleGoalAction = async (mode: string) => {
-        if (mode === 'edit') {
-            if (posts?.title === '') {
-                alert('제목을 입력해주세요.')
-                return
-            }
-            const response = await patch({
+    /** 목표 수정 */
+    const updateGoals = useMutation({
+        mutationFn: async () => {
+            const response = await patch<TodoResponse>({
                 endpoint: `goals/${goalId}`,
                 data: {title: posts?.title},
                 options: {
@@ -83,14 +65,22 @@ const GoalsPage = () => {
                     },
                 },
             })
+
             if (response.status === 200) {
                 alert('수정되었습니다.')
             } else {
                 alert(response.message)
             }
 
-            setGoalEdit(false)
-        } else if (mode === 'delete') {
+            return response.data
+        },
+        onSuccess: () => {
+            queryClient.invalidateQueries({queryKey: ['goals']})
+        },
+    })
+    /** 목표 삭제 */
+    const deleteGoals = useMutation({
+        mutationFn: async () => {
             const response = await del({
                 endpoint: `goals/${goalId}`,
                 options: {
@@ -104,6 +94,21 @@ const GoalsPage = () => {
                 alert('삭제가 완료되었습니다.')
                 router.push('/')
             }
+        },
+    })
+
+    /** 목표 수정&삭제 분기 함수 */
+    const handleGoalAction = async (mode: string) => {
+        if (mode === 'edit') {
+            if (posts?.title === '') {
+                alert('제목을 입력해주세요.')
+                return
+            }
+            updateGoals.mutate()
+
+            setGoalEdit(false)
+        } else if (mode === 'delete') {
+            deleteGoals.mutate()
         }
     }
 
@@ -260,7 +265,6 @@ const GoalsPage = () => {
                     moreButton={moreButton}
                     setMoreButton={setMoreButton}
                     goalDeleteModal={goalDeleteModal}
-                    progress={progress}
                     handleInputUpdate={handleInputUpdate}
                     handleGoalAction={handleGoalAction}
                 />

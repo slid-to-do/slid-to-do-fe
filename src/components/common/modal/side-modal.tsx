@@ -74,10 +74,13 @@ export default function SideModal({noteId}: {noteId?: number}) {
                 {note?.title}
             </h2>
 
-            {note?.todo.linkUrl && (
-                <div className="flex items-center justify-between px-4 py-1 mb-4 rounded-full bg-custom_slate-200 text-custom_slate-800">
-                    <div className="overflow-hidden text-custom_slate-800 whitespace-nowrap text-ellipsis">
-                        {note?.todo.linkUrl}
+            {note?.linkUrl && (
+                <div className="my-4 bg-custom_slate-200 p-1 rounded-full flex justify-between items-center">
+                    <div className="flex items-end gap-2">
+                        <Image src="/markdown-editor/ic-save-iink.svg" alt="링크이동" width={24} height={24} />
+                        <a href={note?.linkUrl} target="_blank" className="inline-block" rel="noreferrer">
+                            {note?.linkUrl}
+                        </a>
                     </div>
                 </div>
             )}

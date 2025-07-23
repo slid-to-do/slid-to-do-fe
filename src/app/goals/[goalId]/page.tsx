@@ -277,7 +277,7 @@ const GoalsPage = () => {
                         <Image src="/goals/note.svg" alt="노트" width={24} height={24} />
                         <div className="text-subTitle">노트 모아보기</div>
                     </div>
-                    <Image src="/goals/ic_arrow_right.svg" alt="노트보기 페이지 이동" width={24} height={24} />
+                    <Image src="/goals/ic-arrow-right.svg" alt="노트보기 페이지 이동" width={24} height={24} />
                 </div>
 
                 <div className="mt-6 flex flex-col lg:flex-row gap-6 justify-between">

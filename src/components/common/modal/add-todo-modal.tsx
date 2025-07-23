@@ -58,7 +58,7 @@ const AddTodoModal = () => {
                 endpoint: 'goals',
                 options: {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
                     },
                 },
             })
@@ -83,7 +83,7 @@ const AddTodoModal = () => {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
+                    Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
                 },
             })
 
@@ -118,7 +118,7 @@ const AddTodoModal = () => {
                 data: payload,
                 options: {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
                     },
                 },
             })

@@ -49,7 +49,7 @@ const Page = () => {
     hasMore && !isLoading && notes.length > 0 && <div ref={ref} />
 
     return (
-        <div className="bg-slate-100 flex flex-col w-full min-h-screen h-full p-6 desktop:px-20 ">
+        <div className="bg-slate-100 flex flex-col w-full min-h-screen h-full overflow-y-auto p-6 desktop:px-20 ">
             <header className=" ">
                 <h1 className="text-subTitle text-custom_slate-900 ">노트 모아보기</h1>
             </header>

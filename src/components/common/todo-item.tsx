@@ -16,7 +16,7 @@ export default function TodoItem({
     onDelete,
 }: {
     todoDetail: TodoResponse
-    onToggle: (todoId: number, newDone: boolean) => void
+    onToggle: (todoId: number, newDone: boolean, goalId?: number) => void
     onEdit?: (todoId: number) => void
     onDelete?: (todoId: number) => void
 }) {

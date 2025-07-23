@@ -1,5 +1,6 @@
 'use client'
 import Image from 'next/image'
+import {useEffect, useState} from 'react'
 
 import CharacterCount from '@tiptap/extension-character-count'
 import Link from '@tiptap/extension-link'
@@ -13,17 +14,21 @@ const MarkdownEditor = ({
     value,
     onUpdate,
     className,
-    onChangeDetect,
     linkButton,
     onSetLinkButton,
 }: {
     value: string
     onUpdate: (content: string) => void
     className?: string
-    onChangeDetect?: (changed: boolean) => void
     linkButton?: string | undefined
     onSetLinkButton?: (link: string | undefined) => void
 }) => {
+    const [internalLink, setInternalLink] = useState(linkButton ?? '')
+
+    useEffect(() => {
+        setInternalLink(linkButton ?? '')
+    }, [linkButton])
+
     const editorInstance = useEditor({
         extensions: [
             StarterKit,
@@ -43,13 +48,10 @@ const MarkdownEditor = ({
             }),
         ],
         content: value || '',
+        immediatelyRender: false,
 
         onUpdate: ({editor}) => {
-            const currentContent = editor.getHTML()
-            onUpdate(currentContent)
-
-            const hasChanged = currentContent !== value
-            onChangeDetect?.(hasChanged)
+            onUpdate(editor.getHTML())
         },
         editorProps: {
             attributes: {
@@ -63,21 +65,32 @@ const MarkdownEditor = ({
     }
 
     return (
-        <div className={`relative min-w-64 min-h-64 ${className}`}>
+        <div className={`relative max-w-screen min-w-64 min-h-64 ${className}`}>
             <div className="text-xs font-medium">
                 글자 수 : {editorInstance.storage.characterCount.characters()} | 단어 수 :{' '}
                 {editorInstance.storage.characterCount.words()}
             </div>
 
-            {linkButton && (
+            {internalLink && (
                 <div className="mt-2 bg-custom_slate-200 p-1 rounded-full flex justify-between items-center">
-                    <div className="flex items-end gap-2">
-                        <Image src="/markdown-editor/ic-save-iink.svg" alt="삭제" width={24} height={24} />
-                        <a href={linkButton} target="_blank" className="inline-block" rel="noreferrer">
-                            {linkButton}
+                    <div className="flex items-end gap-2 flex-1 min-w-0  p-1 max-w-fit ">
+                        <Image src="/markdown-editor/ic-save-link.svg" alt="링크아이콘" width={24} height={24} />
+                        <a
+                            href={internalLink}
+                            target="_blank"
+                            className="truncate whitespace-nowrap break-all text-ellipsis block text-body text-custom_slate-800"
+                            rel="noreferrer"
+                        >
+                            {internalLink}
                         </a>
                     </div>
-                    <button onClick={() => onSetLinkButton?.(undefined)} className="">
+                    <button
+                        onClick={() => {
+                            setInternalLink('')
+                            onSetLinkButton?.(undefined)
+                        }}
+                        className="shrink-0 ml-2"
+                    >
                         <Image src="/todos/ic-delete.svg" alt="삭제" width={24} height={24} />
                     </button>
                 </div>

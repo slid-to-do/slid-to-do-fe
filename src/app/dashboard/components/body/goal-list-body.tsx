@@ -1,24 +1,23 @@
 import React from 'react'
 
-import {useMutation, useQueryClient} from '@tanstack/react-query'
+import {useInfiniteQuery, useMutation, useQueryClient} from '@tanstack/react-query'
 
-import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import InfiniteTodoList from '@/components/goals/todo-list'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
-import useModal from '@/hooks/use-modal'
 import {del, get, patch} from '@/lib/api'
 
 import type {TodoResponse} from '@/types/todos'
+import TodoList from './todo-list'
 
+const PAGE_SIZE = 5
 const TEAM_ID = process.env.NEXT_PUBLIC_TEAM_ID
 
-const GoalListBody = () => {
+const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
     const queryClient = useQueryClient()
-    const {openModal: todoAddModal} = useModal(<AddTodoModal />)
 
     const GetTodoList = (done: boolean) => {
         return async (cursor: number | undefined) => {
-            let endpoint = `${TEAM_ID}/todos?goalId=${2386}&done=${done}&size=5`
+            let endpoint = `${TEAM_ID}/todos?goalId=${goalId}&done=${done}&size=${PAGE_SIZE}`
             if (cursor !== undefined) {
                 endpoint += `&cursor=${cursor}`
             }
@@ -32,6 +31,7 @@ const GoalListBody = () => {
                     headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
             })
+
             return {
                 data: result.data.todos,
                 nextCursor: result.data.nextCursor,
@@ -53,9 +53,12 @@ const GoalListBody = () => {
 
             return response.data
         },
-        onSuccess: () => {
+        onSuccess: (data, value) => {
+            console.log(value)
             queryClient.invalidateQueries({queryKey: ['todos']})
-            queryClient.invalidateQueries({queryKey: ['progress']})
+
+            queryClient.invalidateQueries({queryKey: ['allProgress']})
+            queryClient.invalidateQueries({queryKey: ['newTodo']})
         },
     })
     /**할일 삭제 */
@@ -75,31 +78,43 @@ const GoalListBody = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ['todos']})
-            queryClient.invalidateQueries({queryKey: ['progress']})
+            queryClient.invalidateQueries({queryKey: ['allProgress']})
+            queryClient.invalidateQueries({queryKey: ['newTodo']})
         },
     })
 
-    const {
-        data: todosDone,
-        ref: doneReference,
-        isLoading: loadingDone,
-        hasMore: haseMoreDone,
-    } = useInfiniteScrollQuery<TodoResponse>({
-        queryKey: ['todos', true],
-        fetchFn: GetTodoList(true),
-    })
+    // const {
+    //     data: todosDone,
+    //     ref: doneReference,
+    //     isLoading: loadingDone,
+    //     hasMore: haseMoreDone,
+    // } = useInfiniteQuery<TodoResponse>({
+    //     queryKey: ['todos', goalId, true],
+    //     fetchFn: GetTodoList(goalId,true),
+    // })
     const {
         data: todosNotDone,
         ref: notDoneReference,
         isLoading: loadingNotDone,
         hasMore: hasMoreNotDone,
     } = useInfiniteScrollQuery<TodoResponse>({
-        queryKey: ['todos', false],
+        queryKey: ['todos', goalId, false],
         fetchFn: GetTodoList(false),
+    })
+    const {
+        data: todosDone,
+        ref: doneReference,
+        isLoading: loadingDone,
+        hasMore: haseMoreDone,
+        isError: doneIsError,
+        error: doneError,
+    } = useInfiniteScrollQuery<TodoResponse>({
+        queryKey: ['todos', true],
+        fetchFn: GetTodoList(true),
     })
 
     return (
-        <section className="flex w-full h-auto flex-col lg:flex-row">
+        <section className="flex w-full h-auto flex-col lg:flex-row bg-white">
             <InfiniteTodoList
                 title="To do"
                 todos={todosNotDone}
@@ -108,7 +123,6 @@ const GoalListBody = () => {
                 refCallback={notDoneReference}
                 onToggle={(todoId: number, newDone: boolean) => updateTodo.mutate({todoId, newDone})}
                 onDelete={(todoId: number) => deleteTodo.mutate(todoId)}
-                onAddClick={todoAddModal}
             />
             <InfiniteTodoList
                 title="Done"

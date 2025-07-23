@@ -49,7 +49,7 @@ const GoalModal = () => {
         <section className=" w-80 mobile:w-75 min-h-65 absolute   transform bg-white -translate-1/2 top-1/2 left-1/2 px-6 py-4 flex flex-col justify-between items-center rounded-xl">
             <header className="flex w-full items-center justify-between mb-2 ">
                 <div className={`flex justify-center items-center w-auto h-full `}>
-                    <Image src={'./ic_favicon.svg'} alt="Logo" width={32} height={32} className="w-[32px] " />
+                    <Image src={'./ic-favicon.svg'} alt="Logo" width={32} height={32} className="w-[32px] " />
                     <Image src={'./slid-to-do.svg'} alt="Logo" width={80} height={15} className="w-[80px] h-[15px]" />
                 </div>
                 <Image

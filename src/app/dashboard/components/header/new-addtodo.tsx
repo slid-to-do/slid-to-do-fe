@@ -27,9 +27,10 @@ const NewAddTodo = ({data}: {data: TodoResponse[] | undefined}) => {
             console.log(response.data)
             return response.data
         },
-        onSuccess: (_, value) => {
-            console.log(value)
+        onSuccess: (data, value) => {
             queryClient.invalidateQueries({queryKey: ['todos']})
+
+            queryClient.invalidateQueries({queryKey: ['newTodo']})
         },
     })
 

@@ -38,16 +38,18 @@ export default function GoalHeader({
         queryKey: ['todos', posts?.id, 'progress'],
         queryFn: async () => {
             const response = await get<GoalProgress>({
-                endpoint: `todos/progress?goalId=${posts?.id}`,
+                endpoint: `1060/todos/progress?goalId=${posts?.id}`,
                 options: {
                     headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
             })
+            console.log(response.data)
             return response.data
         },
     })
 
     useEffect(() => {
+        console.log(posts)
         if (progressData) {
             setProgress(progressData.progress)
         }
@@ -97,7 +99,7 @@ export default function GoalHeader({
             </div>
             <div className="mt-6 text-subBody font-semibold">Progress</div>
             <div className="mt-3.5">
-                <ProgressBar progress={progress} />
+                <ProgressBar progress={progress ? progress : 0} />
             </div>
         </div>
     )

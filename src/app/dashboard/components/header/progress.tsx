@@ -29,7 +29,7 @@ const Progress = ({percent = 0}: {percent: number | undefined}) => {
         circleControls.play()
     }
     return (
-        <div className="flex  p-6 w-full bg-custom_blue-500 relative justify-between rounded-lg min-w-68 max-w-120 max-h-63">
+        <div className="flex  p-6 w-full h-[200px] bg-custom_blue-500 relative justify-between rounded-lg min-w-68 max-w-120 max-h-63">
             <div className="flex flex-col gap-2">
                 <button onClick={handleStart}>
                     <Image src={'./dashboard/animation.svg'} alt="애니메이션 버튼" width={30} height={30} />
@@ -70,7 +70,7 @@ const Progress = ({percent = 0}: {percent: number | undefined}) => {
             </div>
 
             <Image
-                src={'./dashboard/opacity_circle.svg'}
+                src={'./dashboard/opacity-circle.svg'}
                 width={50}
                 height={50}
                 alt="opacity_circle "

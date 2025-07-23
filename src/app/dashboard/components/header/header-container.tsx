@@ -61,21 +61,22 @@ const getGoalsData = async () => {
 
 const Header = () => {
     const {data: todoData} = useQuery<TodoPage>({
-        queryKey: ['todo'],
+        queryKey: ['newTodo'],
         queryFn: getGoalsData,
         select: (data: TodoPage): TodoPage => ({
             data: data.data
                 .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+                .filter((item) => !item.done)
                 .slice(0, 5),
         }),
     })
     const {data: progress} = useQuery({
-        queryKey: ['progress'],
+        queryKey: ['allProgress'],
         queryFn: getProgressData,
     })
 
     return (
-        <header className="w-full desktop:flex-row flex-col h-auto flex justify-center items-center gap-4">
+        <header className="w-full h-auto min-w-[200px]  desktop:flex-row flex-col mb-4  flex justify-center items-start gap-4">
             <NewAddTodo data={todoData?.data} />
             <NoSsrProgress percent={typeof progress?.data === 'number' ? progress.data : 0} />
         </header>

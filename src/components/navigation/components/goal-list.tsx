@@ -13,6 +13,8 @@ import ButtonStyle from '../../style/button-style'
 
 import type {Goal, GoalResponse} from '@/types/goals'
 
+const TEAM_ID = process.env.NEXT_PUBLIC_TEAM_ID
+
 const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
     const {openModal} = useModal(<GoalModal />)
 
@@ -21,7 +23,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
             try {
                 const urlParameter = cursor === undefined ? '' : `&cursor=${cursor}`
                 const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
-                    endpoint: `goals?size=20&sortOrder=newest${urlParameter}`,
+                    endpoint: `${TEAM_ID}/goals?size=10&sortOrder=newest${urlParameter}`,
                     options: {
                         headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                     },
@@ -77,7 +79,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                                 <>
                                     {goals.map((goal: Goal) => (
                                         <Link
-                                            href={`goals/${goal.id}`}
+                                            href={`/goals/${goal.id}`}
                                             className=" flex h-[23px]  items-center whitespace-nowrap cursor-pointer group  overflow-hidden "
                                             key={goal.id}
                                         >

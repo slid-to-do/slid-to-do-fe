@@ -2,6 +2,7 @@
 import Image from 'next/image'
 
 import CharacterCount from '@tiptap/extension-character-count'
+import Link from '@tiptap/extension-link'
 import Placeholder from '@tiptap/extension-placeholder'
 import TextAlign from '@tiptap/extension-text-align'
 import Underline from '@tiptap/extension-underline'
@@ -13,16 +14,25 @@ const MarkdownEditor = ({
     onUpdate,
     className,
     onChangeDetect,
+    linkButton,
+    onSetLinkButton,
 }: {
     value: string
     onUpdate: (content: string) => void
     className?: string
     onChangeDetect?: (changed: boolean) => void
+    linkButton?: string | undefined
+    onSetLinkButton?: (link: string | undefined) => void
 }) => {
     const editorInstance = useEditor({
         extensions: [
             StarterKit,
             Underline,
+            Link.configure({
+                openOnClick: false,
+                autolink: false,
+                linkOnPaste: false,
+            }),
             TextAlign.configure({types: ['heading', 'paragraph']}),
             Placeholder.configure({
                 placeholder: '이 곳을 클릭해 노트 작성을 시작해주세요',
@@ -58,16 +68,39 @@ const MarkdownEditor = ({
                 글자 수 : {editorInstance.storage.characterCount.characters()} | 단어 수 :{' '}
                 {editorInstance.storage.characterCount.words()}
             </div>
+
+            {linkButton && (
+                <div className="mt-2 bg-custom_slate-200 p-1 rounded-full flex justify-between items-center">
+                    <div className="flex items-end gap-2">
+                        <Image src="/markdown-editor/ic-save-iink.svg" alt="삭제" width={24} height={24} />
+                        <a href={linkButton} target="_blank" className="inline-block" rel="noreferrer">
+                            {linkButton}
+                        </a>
+                    </div>
+                    <button onClick={() => onSetLinkButton?.(undefined)} className="">
+                        <Image src="/markdown-editor/ic_delete.svg" alt="삭제" width={24} height={24} />
+                    </button>
+                </div>
+            )}
+
             <div className="w-full mt-2 text-body text-custom_slate-700">
                 <EditorContent editor={editorInstance} className="max-w-full" />
             </div>
 
-            <Toolbar editorInstance={editorInstance} />
+            <Toolbar editorInstance={editorInstance} linkButton={linkButton} onSetLinkButton={onSetLinkButton} />
         </div>
     )
 }
 
-function Toolbar({editorInstance}: {editorInstance: ReturnType<typeof useEditor>}) {
+function Toolbar({
+    editorInstance,
+    linkButton,
+    onSetLinkButton,
+}: {
+    editorInstance: ReturnType<typeof useEditor>
+    linkButton?: string | undefined
+    onSetLinkButton?: (link: string | undefined) => void
+}) {
     return (
         <div className="absolute flex w-full gap-4 p-2 bg-white rounded-full shadow-sm -bottom-20 border-slate-200">
             <div className="flex gap-1">
@@ -126,6 +159,23 @@ function Toolbar({editorInstance}: {editorInstance: ReturnType<typeof useEditor>
                     <Image src="/markdown-editor/ic-ordered-list.svg" alt="Ordered List" width={24} height={24} />
                 </button>
             </div>
+
+            {!linkButton && (
+                <button
+                    onClick={() => {
+                        let url = prompt('링크 주소 입력')
+                        if (!url) return
+
+                        if (!/^https?:\/\//i.test(url)) {
+                            url = 'https://' + url
+                        }
+                        onSetLinkButton?.(url)
+                    }}
+                    className="rounded-full hover:bg-blue-500 size-6 font-bold transition bg-white"
+                >
+                    <Image src="/markdown-editor/ic-link.svg" alt="Link Button" width={24} height={24} />
+                </button>
+            )}
         </div>
     )
 }

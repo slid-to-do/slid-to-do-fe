@@ -11,7 +11,7 @@ export default function ProgressBar({progress}: GoalProgress) {
 
     useEffect(() => {
         controls.start({
-            scaleX: progress,
+            scaleX: progress * 0.01,
             transition: {
                 duration: 0.8,
                 ease: 'easeOut',
@@ -24,7 +24,7 @@ export default function ProgressBar({progress}: GoalProgress) {
             <div className="bg-custom_slate-50 overflow-hidden rounded-sm h-1 w-full">
                 <motion.div initial={{scaleX: 0}} animate={controls} className="h-full bg-black origin-left" />
             </div>
-            <div className="flex-shrink font-semibold text-subBody">{progress * 100}%</div>
+            <div className="flex-shrink font-semibold text-subBody">{progress}%</div>
         </div>
     )
 }

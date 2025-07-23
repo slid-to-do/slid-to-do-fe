@@ -5,9 +5,11 @@ import {useRouter} from 'next/navigation'
 import {useCallback, useEffect, useState} from 'react'
 
 import {useMutation} from '@tanstack/react-query'
-import {ToastContainer, toast} from 'react-toastify'
+import {toast, ToastContainer, Zoom} from 'react-toastify'
+
 import 'react-toastify/dist/ReactToastify.css'
 
+import IcDelete from '@/../public/todos/ic-delete.svg'
 import TwoButtonModal from '@/components/common/modal/two-buttom-modal'
 import MarkdownEditor from '@/components/markdown-editor/markdown-editor'
 import ButtonStyle from '@/components/style/button-style'
@@ -66,7 +68,7 @@ const NoteWriteCompo = ({
         }
     }, [todoId, goalId, key])
 
-    /** 임시 작성 함수 */
+    /** 임시작성 함수 */
     const saveToLocalStorage = useCallback(
         (editContent: string) => {
             if ((content === '<p></p>' || content === '') && subject === '') {
@@ -79,14 +81,27 @@ const NoteWriteCompo = ({
                 todoId,
                 editContent,
                 editSubject: subject,
+                editLink: linkButton,
             })
             localStorage.setItem(key, value)
-            toast('임시저장이 완료되었습니다')
+            /** 임시저장 toast open */
+            toast(
+                <div className="bg-custom_blue-50 px-6 py-2 rounded-full flex gap-1 w-full">
+                    <Image src="/notes/ic-check.svg" alt="check" width={24} height={24} />
+                    <div className="text-custom_blue-500 font-semibold">임시 작성이 완료되었습니다</div>
+                </div>,
+                {
+                    autoClose: 300,
+                    closeButton: false,
+                    hideProgressBar: true,
+                    position: 'top-center',
+                },
+            )
         },
-        [goalId, todoId, subject, content, key],
+        [goalId, todoId, subject, content, key, linkButton],
     )
 
-    /** 5분에 한번 임시저장 */
+    /** 5분에 한번 임시작성 */
     useEffect(() => {
         if (!goalId || !todoId) return
         if ((content === '<p></p>' || content === '') && subject === '') return
@@ -96,13 +111,13 @@ const NoteWriteCompo = ({
             () => {
                 saveToLocalStorage(content)
             },
-            1 * 60 * 1000,
+            5 * 60 * 1000,
         )
 
         return () => clearInterval(interval)
     }, [goalId, todoId, content, subject, saveToLocalStorage, saveContent, saveSubject])
 
-    /** 임시저장 불러오기 모달 */
+    /** 임시작성 불러오기 모달 */
     const comeSave = () => {
         setHasLocalNote(true)
         clearModal()
@@ -123,7 +138,7 @@ const NoteWriteCompo = ({
         },
     )
 
-    /** 임시저장 불러오기 클릭 시 내용저장 */
+    /** 임시작성 불러오기 클릭 시 내용저장 */
     useEffect(() => {
         if (hasLocalNote) {
             const saved = localStorage.getItem(`note-draft-${goalId}-${todoId}`)
@@ -131,9 +146,12 @@ const NoteWriteCompo = ({
                 const parsed = JSON.parse(saved)
                 setContent(parsed.editContent || '')
                 setSubject(parsed.editSubject || '')
+                setLinkButton(parsed.editLink || undefined)
             }
+
+            setSaveToastOpen(false)
         }
-    }, [hasLocalNote, goalId, todoId, setContent, setSubject])
+    }, [hasLocalNote, goalId, todoId, setContent, setSubject, setLinkButton])
 
     /** 제목 confirm */
     const handleInputUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -150,17 +168,17 @@ const NoteWriteCompo = ({
         setContent(html)
     }
 
-    const payload = {
-        todoId: Number(todoId),
-        title: subject,
-        content: getTextFromHtml(content),
-        ...(linkButton && {linkUrl: linkButton}),
-    }
-
-    /** 저장하기 */
+    /** 작성 완료하기 */
     const saveNotes = useMutation({
         mutationFn: async () => {
             if (!confirm('작성을 완료하시겠습니까?')) return
+
+            const payload = {
+                todoId: Number(todoId),
+                title: subject,
+                content: getTextFromHtml(content),
+                ...(linkButton && {linkUrl: linkButton}),
+            }
 
             const response = await post<NoteCommon>({
                 endpoint: `notes`,
@@ -181,7 +199,6 @@ const NoteWriteCompo = ({
             return response.data
         },
     })
-
     return (
         <>
             <div className="w-full flex justify-between items-center">
@@ -206,16 +223,15 @@ const NoteWriteCompo = ({
             {saveToastOpen && (
                 <div className="mt-4 py-3 px-4 rounded-full bg-custom_blue-50 flex justify-between items-center gap-3">
                     <div className="flex items-center gap-4">
-                        <Image
-                            src="/notes/ic_delete.svg"
-                            alt="닫기버튼"
-                            width={24}
-                            height={24}
+                        <IcDelete
+                            className="w-6 h-6"
+                            style={{
+                                '--circle-fill': '#3b82f6',
+                            }}
                             onClick={() => setSaveToastOpen(false)}
-                            className="cursor-pointer"
                         />
                         <div className="text-custom_blue-500">
-                            임시 저장된 노트가 있어요. 저장된 노트를 불러오시겠어요?
+                            임시 작성된 노트가 있어요. 작성된 노트를 불러오시겠어요?
                         </div>
                     </div>
                     <ButtonStyle
@@ -251,7 +267,6 @@ const NoteWriteCompo = ({
                     />
                     <div className="text-xs font-medium">{subject.length}/30</div>
                 </div>
-                <ToastContainer />
                 <div className="mt-3">
                     <MarkdownEditor
                         key={content === '' ? 'note-original' : `note-${goalId}-${todoId}`}
@@ -259,6 +274,19 @@ const NoteWriteCompo = ({
                         onUpdate={handleEditorUpdate}
                         linkButton={linkButton}
                         onSetLinkButton={setLinkButton}
+                    />
+                </div>
+                <div id="noteWrite" className="relative">
+                    <ToastContainer
+                        transition={Zoom}
+                        style={{
+                            width: '100%',
+                            left: '50%',
+                            right: 'auto',
+                            transform: 'translateX(-50%)',
+                            position: 'absolute',
+                            top: '-30px',
+                        }}
                     />
                 </div>
             </div>

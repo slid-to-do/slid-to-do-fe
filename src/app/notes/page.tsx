@@ -15,18 +15,14 @@ import type {NoteCommon, NoteListResponse} from '@/types/notes'
 const Page = () => {
     const parameters = useSearchParams()
     const goalId = parameters.get('goalId')
+
     const fetchNoteList = async (cursor?: number) => {
-        // let endpoint = '/notes?size=10'
-        // goalId && (endpoint += `&goalId=${goalId}`)
+        const urlParameter = new URLSearchParams()
+        urlParameter.set('size', '10')
+        if (goalId) urlParameter.set('goalId', goalId)
+        if (cursor !== undefined) urlParameter.set('cursor', String(cursor))
 
-        // if (cursor !== undefined) endpoint += `&cursor=${cursor}`
-
-        const urlParam = new URLSearchParams()
-        urlParam.set('size', '10')
-        if (goalId) urlParam.set('goalId', goalId)
-        if (cursor !== undefined) urlParam.set('cursor', String(cursor))
-
-        const endpoint = `/notes?${urlParam.toString()}`
+        const endpoint = `/notes?${urlParameter.toString()}`
         const result = await get<NoteListResponse>({
             endpoint: endpoint,
             options: {
@@ -56,11 +52,9 @@ const Page = () => {
     if (isError && error) throw error
     hasMore && !isLoading && notes.length > 0 && <div ref={ref} />
 
-    notes
-
     return (
         <div className="bg-slate-100 flex flex-col w-full min-h-screen h-full overflow-y-auto p-6 desktop:px-20 ">
-            <header className=" ">
+            <header>
                 <h1 className="text-subTitle text-custom_slate-900 ">노트 모아보기</h1>
             </header>
 

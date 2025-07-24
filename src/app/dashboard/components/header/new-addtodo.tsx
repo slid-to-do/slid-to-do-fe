@@ -29,7 +29,7 @@ const NewAddTodo = ({data}: {data: TodoResponse[] | undefined}) => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ['todos']})
-
+            queryClient.invalidateQueries({queryKey: ['allProgress']})
             queryClient.invalidateQueries({queryKey: ['newTodo']})
         },
     })

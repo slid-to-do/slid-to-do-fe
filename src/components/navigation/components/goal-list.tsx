@@ -13,8 +13,6 @@ import ButtonStyle from '../../style/button-style'
 
 import type {Goal, GoalResponse} from '@/types/goals'
 
-const TEAM_ID = process.env.NEXT_PUBLIC_TEAM_ID
-
 const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
     const {openModal} = useModal(<GoalModal />)
 

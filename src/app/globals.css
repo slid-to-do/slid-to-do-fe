@@ -68,3 +68,27 @@ button:disabled {
 .prose {
     max-width: 100%;
 }
+
+.Toastify__progress-bar--bg {
+    background: linear-gradient(
+        to right,
+        rgba(209, 213, 219, 0.5),
+        /* #D1D5DB - gray-300 */ rgba(96, 99, 103, 0.5),
+        rgba(23, 24, 24, 0.5)
+    ) !important;
+}
+
+/* note 임시작성 toast custom */
+#noteWrite .Toastify__toast {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    margin: 0 auto !important;
+    width: 100%;
+}
+#noteWrite .Toastify__toast-body {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100%;
+}

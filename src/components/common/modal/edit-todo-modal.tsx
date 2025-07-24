@@ -8,8 +8,10 @@ import clsx from 'clsx'
 
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
-import {get, post} from '@/lib/api'
+import {get, patch} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
+
+import type {TodoResponse} from '@/types/todos'
 
 interface AddTodoData {
     title: string
@@ -33,16 +35,26 @@ interface Goal {
     teamId: string
 }
 
-const AddTodoModal = () => {
+interface TodoRequest {
+    title?: string
+    done?: boolean
+    goalId?: number
+    linkUrl?: string
+    fileUrl?: string
+}
+
+const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
     const queryClient = useQueryClient()
 
     const [inputs, setInputs] = useState<AddTodoData>({
-        title: '',
-        goalId: undefined,
+        title: todoDetail.title,
+        goalId: todoDetail.goal.id,
+        fileUrl: todoDetail.fileUrl || '',
+        linkUrl: todoDetail.linkUrl || '',
     })
 
-    const [isCheckedFile, setIsCheckedFile] = useState<boolean>(false)
-    const [isCheckedLink, setIsCheckedLink] = useState<boolean>(false)
+    const [isCheckedFile, setIsCheckedFile] = useState<boolean>(!!todoDetail.fileUrl)
+    const [isCheckedLink, setIsCheckedLink] = useState<boolean>(!!todoDetail.linkUrl)
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [error, setError] = useState<string>('')
     const [file, setFile] = useState<File | undefined>()
@@ -58,7 +70,7 @@ const AddTodoModal = () => {
                 endpoint: 'goals',
                 options: {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
                     },
                 },
             })
@@ -83,7 +95,7 @@ const AddTodoModal = () => {
                 method: 'POST',
                 body: formData,
                 headers: {
-                    Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
+                    Authorization: `Bearer ${localStorage.getItem('token')}`,
                 },
             })
 
@@ -102,7 +114,10 @@ const AddTodoModal = () => {
 
     const submitForm = useMutation({
         mutationFn: async () => {
-            const payload = {...inputs}
+            const payload: TodoRequest = {
+                title: inputs.title,
+                goalId: inputs.goalId,
+            }
 
             if (isCheckedFile && file) {
                 const fileUrl = await uploadFileMutation.mutateAsync()
@@ -113,12 +128,12 @@ const AddTodoModal = () => {
                 payload.linkUrl = inputs.linkUrl
             }
 
-            return await post({
-                endpoint: 'todos',
+            return await patch({
+                endpoint: `todos/${todoDetail.id}`,
                 data: payload,
                 options: {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
+                        Authorization: `Bearer ${localStorage.getItem('token')}`,
                     },
                 },
             })
@@ -165,7 +180,7 @@ const AddTodoModal = () => {
     return (
         <div className="absolute p-6 transform bg-white -translate-1/2 top-1/2 left-1/2 rounded-xl">
             <div className="flex items-center justify-between">
-                <div className="text-lg font-bold">할 일 생성</div>
+                <div className="text-lg font-bold">할 일 수정</div>
                 <Image
                     src="/todos/ic-close.svg"
                     alt="Close Icon"
@@ -247,20 +262,27 @@ const AddTodoModal = () => {
                     />
                 )}
 
-                {isCheckedFile && (
+                {(isCheckedFile || inputs.fileUrl) && (
                     <div
                         className="flex flex-col items-center justify-center gap-2 py-16 bg-custom_slate-50 rounded-xl"
                         onClick={() => {
                             fileInputReference.current?.click()
                         }}
                     >
-                        {file ? (
+                        {file || inputs.fileUrl ? (
                             <Image src="/todos/ic-uploaded.svg" alt="Uploaded Icon" width={24} height={24} />
                         ) : (
                             <Image src="/todos/ic-plus.svg" alt="Plus Icon" width={24} height={24} />
                         )}
 
-                        <div className="text-custom_slate-400">{file ? file.name : '파일을 업로드해주세요'}</div>
+                        {file ? (
+                            <div className="max-w-xs px-2 text-center truncate text-custom_slate-400">{file.name}</div>
+                        ) : (
+                            <div className="w-full max-w-xs px-4 text-center truncate text-custom_slate-400">
+                                {inputs.fileUrl || '파일을 업로드해주세요'}
+                            </div>
+                        )}
+
                         <input type="file" hidden ref={fileInputReference} onChange={handleFileChange} />
                     </div>
                 )}
@@ -322,11 +344,11 @@ const AddTodoModal = () => {
             {/* 확인 버튼 */}
             <div className="mt-6">
                 <ButtonStyle disabled={!inputs.title.trim() || !inputs.goalId} onClick={() => submitForm.mutate()}>
-                    확인
+                    수정하기
                 </ButtonStyle>
             </div>
         </div>
     )
 }
 
-export default AddTodoModal
+export default EditTodoModal

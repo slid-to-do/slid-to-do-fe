@@ -51,6 +51,7 @@ const GoalModal = () => {
                 <div className={`flex justify-center items-center w-auto h-full `}>
                     <Image src={'/ic-favicon.svg'} alt="Logo" width={32} height={32} className="w-[32px] " />
                     <Image src={'/slid-to-do.svg'} alt="Logo" width={80} height={15} className="w-[80px] h-[15px]" />
+
                 </div>
                 <Image
                     src="/todos/ic-close.svg"

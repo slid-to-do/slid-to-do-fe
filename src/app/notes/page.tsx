@@ -24,7 +24,7 @@ const Page = () => {
 
         const endpoint = `/notes?${urlParameter.toString()}`
         const result = await get<NoteListResponse>({
-            endpoint: endpoint,
+            endpoint,
             options: {
                 headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
             },

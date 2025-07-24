@@ -11,35 +11,16 @@ import {del, get, patch} from '@/lib/api'
 import Filter from './filter'
 import TodoItem from '../../components/common/todo-item'
 
-type FilterValue = 'ALL' | 'TODO' | 'DONE'
+import type {TodoListDetailResponse} from '@/types/todos'
 
-interface TodoListDetail {
-    totalCount: number
-    nextCursor: number | null
-    todos: {
-        noteId: number
-        done: boolean
-        linkUrl: string
-        fileUrl: string
-        title: string
-        id: number
-        goal: {
-            id: number
-            title: string
-        }
-        userId: number
-        teamId: string
-        updatedAt: string
-        createdAt: string
-    }[]
-}
+type FilterValue = 'ALL' | 'TODO' | 'DONE'
 
 const Page = () => {
     const queryClient = useQueryClient()
 
     const [selectedFilter, setSelectedFilter] = useState<FilterValue>('ALL')
 
-    const {data, isLoading, isError, error} = useQuery<TodoListDetail>({
+    const {data, isLoading, isError, error} = useQuery<TodoListDetailResponse>({
         queryKey: ['todos', selectedFilter],
         queryFn: async () => {
             const parameter = new URLSearchParams()
@@ -47,11 +28,11 @@ const Page = () => {
             if (selectedFilter === 'TODO') parameter.append('done', 'false')
             else if (selectedFilter === 'DONE') parameter.append('done', 'true')
 
-            const response = await get<TodoListDetail>({
+            const response = await get<TodoListDetailResponse>({
                 endpoint: `todos?${parameter.toString()}`,
                 options: {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
                     },
                 },
             })
@@ -62,12 +43,12 @@ const Page = () => {
 
     const updateTodo = useMutation({
         mutationFn: async ({todoId, newDone}: {todoId: number; newDone: boolean}) => {
-            const response = await patch<TodoListDetail>({
+            const response = await patch<TodoListDetailResponse>({
                 endpoint: `todos/${todoId}`,
                 data: {done: newDone},
                 options: {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
                     },
                 },
             })
@@ -87,7 +68,7 @@ const Page = () => {
                 endpoint: `todos/${todoId}`,
                 options: {
                     headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
+                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
                     },
                 },
             })
@@ -112,7 +93,7 @@ const Page = () => {
     }
 
     return (
-        <>
+        <div className='bg-slate-100 flex flex-col w-full min-h-screen h-full overflow-y-auto p-6 desktop:px-20'>
             <div className="flex items-center justify-between">
                 <h1 className="text-lg font-semibold">모든 할 일 ({data?.totalCount})</h1>
                 <button className="text-sm font-semibold text-custom_blue-500" onClick={openModal}>
@@ -188,7 +169,7 @@ const Page = () => {
                     </>
                 )}
             </div>
-        </>
+        </div>
     )
 }
 

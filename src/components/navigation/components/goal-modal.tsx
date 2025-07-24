@@ -18,11 +18,11 @@ const GoalModal = () => {
 
     const goalPost = useMutation({
         mutationFn: async () => {
-            if (inputChange.length === 0) {
+            if (inputChange.length === 0 || !inputChange) {
                 throw new Error('목표를 입력해주세요.')
             }
             return await post({
-                endpoint: 'goals',
+                endpoint: `goals`,
                 data: {title: inputChange},
                 options: {
                     headers: {
@@ -46,11 +46,12 @@ const GoalModal = () => {
     }
 
     return (
-        <section className=" w-80 mobile:w-75 min-h-65 absolute   transform bg-white -translate-1/2 top-1/2 left-1/2 px-6 py-4 flex flex-col justify-between items-center rounded-xl">
+        <section className=" w-80 mobile:w-75 min-h-65 absolute  transform bg-white -translate-1/2 top-1/2 left-1/2 px-6 py-4 flex flex-col justify-between items-center rounded-xl">
             <header className="flex w-full items-center justify-between mb-2 ">
                 <div className={`flex justify-center items-center w-auto h-full `}>
-                    <Image src={'./ic_favicon.svg'} alt="Logo" width={32} height={32} className="w-[32px] " />
-                    <Image src={'./slid-to-do.svg'} alt="Logo" width={80} height={15} className="w-[80px] h-[15px]" />
+                    <Image src={'/ic-favicon.svg'} alt="Logo" width={32} height={32} className="w-[32px] " />
+                    <Image src={'/slid-to-do.svg'} alt="Logo" width={80} height={15} className="w-[80px] h-[15px]" />
+
                 </div>
                 <Image
                     src="/todos/ic-close.svg"
@@ -68,7 +69,7 @@ const GoalModal = () => {
                     custom_size="default"
                     state={inputError ? 'error' : 'blue'}
                     placeholder="새 목표를 작성해주세요."
-                    className="w-full"
+                    className="w-full outline"
                     onChange={(changeEvent) => inputOnChange(changeEvent)}
                 />
                 <span className=" w-full px-2 text-subBody-sm font-medium text-red-500">{inputError}</span>

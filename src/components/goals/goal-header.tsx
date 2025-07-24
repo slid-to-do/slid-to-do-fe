@@ -1,13 +1,17 @@
 'use client'
 
 import Image from 'next/image'
+import {useEffect, useState} from 'react'
+
+import {useQuery} from '@tanstack/react-query'
 
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
+import {get} from '@/lib/api'
 
 import ProgressBar from './prograss-motion'
 
-import type {Goal} from '@/types/goals'
+import type {Goal, GoalProgress} from '@/types/goals'
 
 export default function GoalHeader({
     posts,
@@ -16,7 +20,6 @@ export default function GoalHeader({
     moreButton,
     setMoreButton,
     goalDeleteModal,
-    progress,
     handleInputUpdate,
     handleGoalAction,
 }: {
@@ -26,10 +29,31 @@ export default function GoalHeader({
     moreButton: boolean
     setMoreButton: (open: boolean) => void
     goalDeleteModal: () => void
-    progress: number
     handleInputUpdate: (event: React.ChangeEvent<HTMLInputElement>) => void
     handleGoalAction: (mode: string) => void
 }) {
+    const [progress, setProgress] = useState<number>(0)
+    /** 목표 달성 API */
+    const {data: progressData} = useQuery<GoalProgress>({
+        queryKey: ['todos', posts?.id, 'progress'],
+        queryFn: async () => {
+            const response = await get<GoalProgress>({
+                endpoint: `todos/progress?goalId=${posts?.id}`,
+                options: {
+                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
+                },
+            })
+
+            return response.data
+        },
+    })
+
+    useEffect(() => {
+        if (progressData) {
+            setProgress(progressData.progress)
+        }
+    }, [progressData])
+
     return (
         <div className="mt-4 py-4 px-6 bg-white rounded">
             <div className="flex justify-between items-center">
@@ -58,7 +82,7 @@ export default function GoalHeader({
                 </div>
                 {!goalEdit && (
                     <div className="flex-shrink-0 cursor-pointer relative" onClick={() => setMoreButton(!moreButton)}>
-                        <Image src="/goals/Meatballs_menu.svg" alt="더보기버튼" width={24} height={24} />
+                        <Image src="/goals/ic-more.svg" alt="더보기버튼" width={24} height={24} />
                         {moreButton && (
                             <div className="w-24 py-2 absolute right-0 top-7 flex gap-2 flex-col rounded text-center shadow-md z-10 bg-white">
                                 <button type="button" onClick={() => setGoalEdit(true)}>

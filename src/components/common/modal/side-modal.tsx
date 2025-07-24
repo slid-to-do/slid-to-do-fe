@@ -6,30 +6,10 @@ import {useEffect, useState} from 'react'
 import {get} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
-interface NoteDetail {
-    todo: {
-        done: true
-        fileUrl: string
-        linkUrl: string
-        title: string
-        id: number
-    }
-    linkUrl: string
-    content: string
-    updatedAt: string
-    createdAt: string
-    title: string
-    id: number
-    goal: {
-        title: string
-        id: number
-    }
-    userId: number
-    teamId: string
-}
+import type {NoteItemResponse} from '@/types/notes'
 
 export default function SideModal({noteId}: {noteId?: number}) {
-    const [note, setNote] = useState<NoteDetail>()
+    const [note, setNote] = useState<NoteItemResponse>()
     const [loading, setLoading] = useState<boolean>(true)
     const [error, setError] = useState<string>('')
 
@@ -41,11 +21,11 @@ export default function SideModal({noteId}: {noteId?: number}) {
         const getNoteDetail = async (id: number) => {
             try {
                 setLoading(true)
-                const response = await get<NoteDetail>({
+                const response = await get<NoteItemResponse>({
                     endpoint: `notes/${id}`,
                     options: {
                         headers: {
-                            Authorization: `Bearer ${localStorage.getItem('token')}`,
+                            Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
                         },
                     },
                 })
@@ -94,12 +74,16 @@ export default function SideModal({noteId}: {noteId?: number}) {
                 {note?.title}
             </h2>
 
-            <div className="flex items-center justify-between px-4 py-1 mb-4 rounded-full bg-custom_slate-200 text-custom_slate-800">
-                <div className="overflow-hidden text-custom_slate-800 whitespace-nowrap text-ellipsis">
-                    {note?.todo.linkUrl}
+            {note?.linkUrl && (
+                <div className="my-4 bg-custom_slate-200 p-1 rounded-full flex justify-between items-center">
+                    <div className="flex items-end gap-2">
+                        <Image src="/markdown-editor/ic-save-link.svg" alt="링크이동" width={24} height={24} />
+                        <a href={note?.linkUrl} target="_blank" className="inline-block" rel="noreferrer">
+                            {note?.linkUrl}
+                        </a>
+                    </div>
                 </div>
-                <Image src="/todos/ic-delete.svg" alt="Delete Icon" width={24} height={24} />
-            </div>
+            )}
 
             <p className="text-custom_slate-700">{note?.content}</p>
         </div>

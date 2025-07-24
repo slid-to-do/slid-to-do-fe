@@ -11,6 +11,7 @@ export default function InfiniteTodoList({
     todos,
     isLoading,
     hasMore,
+    isBlue,
     refCallback,
     onToggle,
     onDelete,
@@ -20,6 +21,7 @@ export default function InfiniteTodoList({
     todos: TodoResponse[]
     isLoading: boolean
     hasMore: boolean
+    isBlue?: boolean
     refCallback: (node?: Element | null) => void
     onToggle: (todoId: number, newDone: boolean) => void
     onDelete: (todoId: number) => void
@@ -27,7 +29,9 @@ export default function InfiniteTodoList({
 }) {
     return (
         <div
-            className={`py-4 px-6 h-[228px] rounded-xl flex flex-col min-h-0 lg:flex-1 ${title === 'To do' ? 'bg-white' : 'bg-custom_slate-200'}`}
+            className={`py-4 px-6 h-[228px] rounded-xl flex flex-col min-h-0 lg:flex-1 ${
+                isBlue ? 'bg-custom_blue-50' : title === 'To do' ? 'bg-white' : 'bg-custom_slate-200'
+            }`}
         >
             <div className="flex items-center justify-between">
                 <div className="text-subTitle">{title}</div>

@@ -18,12 +18,11 @@ const GoalModal = () => {
 
     const goalPost = useMutation({
         mutationFn: async () => {
-            console.log(inputChange)
             if (inputChange.length === 0 || !inputChange) {
                 throw new Error('목표를 입력해주세요.')
             }
             return await post({
-                endpoint: `/goals`,
+                endpoint: `goals`,
                 data: {title: inputChange},
                 options: {
                     headers: {
@@ -43,7 +42,6 @@ const GoalModal = () => {
     })
 
     const inputOnChange = (changeEvent: React.ChangeEvent<HTMLInputElement>) => {
-        console.log(changeEvent.target.value)
         setInputChange(changeEvent.target.value)
     }
 

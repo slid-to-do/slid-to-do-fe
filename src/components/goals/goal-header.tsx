@@ -38,7 +38,7 @@ export default function GoalHeader({
         queryKey: ['todos', posts?.id, 'progress'],
         queryFn: async () => {
             const response = await get<GoalProgress>({
-                endpoint: `1060/todos/progress?goalId=${posts?.id}`,
+                endpoint: `/todos/progress?goalId=${posts?.id}`,
                 options: {
                     headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },

@@ -21,7 +21,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
             try {
                 const urlParameter = cursor === undefined ? '' : `&cursor=${cursor}`
                 const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
-                    endpoint: `/goals?size=10&sortOrder=newest${urlParameter}`,
+                    endpoint: `goals?size=10&sortOrder=newest${urlParameter}`,
                     options: {
                         headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                     },

@@ -18,7 +18,7 @@ const GoalTodoContainer = () => {
             try {
                 const urlParameter = cursor === undefined ? '' : `&cursor=${cursor}`
                 const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
-                    endpoint: `/goals?size=3&sortOrder=newest${urlParameter}`,
+                    endpoint: `goals?size=3&sortOrder=newest${urlParameter}`,
                     options: {
                         headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                     },

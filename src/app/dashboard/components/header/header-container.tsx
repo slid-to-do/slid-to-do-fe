@@ -21,7 +21,7 @@ interface TodoPage {
 const getProgressData = async () => {
     try {
         const response = await get<{progress: number}>({
-            endpoint: `/todos/progress`,
+            endpoint: `todos/progress`,
             options: {
                 headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
             },
@@ -41,7 +41,7 @@ const getProgressData = async () => {
 const getGoalsData = async () => {
     try {
         const response = await get<{todos: TodoResponse[]}>({
-            endpoint: `/todos`,
+            endpoint: `todos`,
             options: {
                 headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
             },

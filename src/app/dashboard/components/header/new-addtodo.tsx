@@ -16,7 +16,7 @@ const NewAddTodo = ({data}: {data: TodoResponse[] | undefined}) => {
     const updateTodo = useMutation({
         mutationFn: async ({todoId, newDone}: {todoId: number; newDone: boolean}) => {
             const response = await patch<TodoResponse>({
-                endpoint: `/todos/${todoId}`,
+                endpoint: `todos/${todoId}`,
                 data: {done: newDone},
                 options: {
                     headers: {

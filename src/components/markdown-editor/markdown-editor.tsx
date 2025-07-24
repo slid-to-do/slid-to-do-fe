@@ -10,6 +10,10 @@ import Underline from '@tiptap/extension-underline'
 import {EditorContent, useEditor} from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 
+import useModal from '@/hooks/use-modal'
+
+import LinkModal from '../common/modal/link-modal'
+
 const MarkdownEditor = ({
     value,
     onUpdate,
@@ -114,6 +118,22 @@ function Toolbar({
     linkButton?: string | undefined
     onSetLinkButton?: (link: string | undefined) => void
 }) {
+    /** 링크 modal */
+    const {openModal, closeModal} = useModal(
+        () => (
+            <LinkModal
+                onSetButton={(url) => {
+                    onSetLinkButton?.(url)
+                    closeModal()
+                }}
+            />
+        ),
+        {
+            modalAnimation: 'slideFromTop',
+            backdropAnimation: 'fade',
+        },
+    )
+
     return (
         <div className="absolute flex w-full gap-4 p-2 bg-white rounded-full shadow-sm -bottom-20 border-slate-200">
             <div className="flex gap-1">
@@ -175,15 +195,7 @@ function Toolbar({
 
             {!linkButton && (
                 <button
-                    onClick={() => {
-                        let url = prompt('링크 주소 입력')
-                        if (!url) return
-
-                        if (!/^https?:\/\//i.test(url)) {
-                            url = 'https://' + url
-                        }
-                        onSetLinkButton?.(url)
-                    }}
+                    onClick={openModal}
                     className="rounded-full hover:bg-blue-500 size-6 font-bold transition bg-white"
                 >
                     <Image src="/markdown-editor/ic-link.svg" alt="Link Button" width={24} height={24} />

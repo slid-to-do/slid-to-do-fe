@@ -54,19 +54,15 @@ const NoteWriteCompo = ({
 
     /** 작성페이지 검사 */
     useEffect(() => {
-        if (todoId === undefined || goalId === undefined) {
-            alert('확인 할 데이터가 없습니다.') // 에러페이지로 이동
-        } else {
-            const saved = localStorage.getItem(key)
+        const saved = localStorage.getItem(key)
 
-            if (saved) {
-                const parsed = JSON.parse(saved)
-                setSaveSubject(parsed.editSubject)
-                setSaveContent(parsed.editContent)
-                setSaveToastOpen(true)
-            }
+        if (saved) {
+            const parsed = JSON.parse(saved)
+            setSaveSubject(parsed.editSubject)
+            setSaveContent(parsed.editContent)
+            setSaveToastOpen(true)
         }
-    }, [todoId, goalId, key])
+    }, [key, router])
 
     /** 임시작성 함수 */
     const saveToLocalStorage = useCallback(

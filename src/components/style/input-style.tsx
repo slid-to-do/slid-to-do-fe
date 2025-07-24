@@ -24,8 +24,8 @@ const InputStyle = React.forwardRef<HTMLInputElement, InputInterface>(function I
         variants: {
             state: {
                 default: ' border-transparent ',
-                blue: 'border-custom_blue-300 border-1',
-                error: 'border-red-700 border-2',
+                blue: 'border-custom_blue-300 ',
+                error: 'border-red-700 ',
             },
             custom_size: {
                 default: 'w-full',
@@ -39,13 +39,13 @@ const InputStyle = React.forwardRef<HTMLInputElement, InputInterface>(function I
     })
 
     return (
-        <div className={cn('relative', inputVariants({state, custom_size}))}>
+        <div className={cn('relative outline-none', inputVariants({state, custom_size}))}>
             <input
                 {...restInputProperties}
                 ref={reference}
                 type={isPassword && showPassword ? 'text' : type}
                 className={cn(
-                    'w-full px-6 py-3 border placeholder:text-slate-400 text-black bg-slate-50 disabled:text-slate-400 rounded-md outline-none pr-12',
+                    'w-full px-6 py-3 border-1  placeholder:text-slate-400 text-black bg-slate-50 disabled:text-slate-400 rounded-md outline-none pr-12',
                     inputVariants({state, custom_size}),
                     className,
                 )}

@@ -2,6 +2,9 @@ import {Geist, Geist_Mono} from 'next/font/google'
 
 import ModalProvider from './providers/modal-provider'
 import QueryProvider from './providers/query-provider'
+import ToastProvider from './providers/toast-provider'
+
+import 'react-toastify/dist/ReactToastify.css'
 
 import type {Metadata} from 'next'
 
@@ -24,7 +27,7 @@ export const metadata: Metadata = {
     },
     description: 'Slid-to-do',
     icons: {
-        icon: '/ic_favicon.svg',
+        icon: '/ic-favicon.svg',
     },
 }
 
@@ -39,6 +42,7 @@ export default function RootLayout({
                 <QueryProvider>
                     {children}
                     <ModalProvider />
+                    <ToastProvider />
                 </QueryProvider>
             </body>
         </html>

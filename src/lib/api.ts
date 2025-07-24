@@ -1,3 +1,5 @@
+import axios from 'axios'
+
 import type {
     GetApiParameters,
     PostApiParameters,
@@ -7,6 +9,7 @@ import type {
     ApiResponse,
     ApiPayload,
 } from '@/types/api'
+import type {AxiosRequestConfig} from 'axios'
 
 /** 사용법
 import { get, post, patch, del } from '@/lib/api'
@@ -28,46 +31,42 @@ const response = await del({ endpoint: 'url' })
 
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 
-/** 통합된 HTTP 요청 함수 */
+/** axios 인스턴스 생성 */
+const axiosInstance = axios.create({
+    baseURL: API_BASE_URL,
+    headers: {
+        'Content-Type': 'application/json',
+    },
+})
+
+/** 통합 HTTP 요청 함수 - axios 버전 */
 const request = async <T>({method, endpoint, data, options}: RequestParameters): Promise<ApiResponse<T>> => {
-    const url = `${API_BASE_URL}/${endpoint}`
-
-    const response = await fetch(url, {
-        method,
-        headers: {
-            'Content-Type': 'application/json',
-            ...options?.headers,
-        },
-        body: data ? JSON.stringify(data) : undefined,
-    })
-
-    const status = response.status
-
-    /** 204 코드는 데이터가 없음을 의미하므로 데이터를 undefined로 설정 */
-    if (response.status === 204) {
-        return {
-            status: response.status,
-            data: undefined as unknown as T,
+    try {
+        const config: AxiosRequestConfig = {
+            url: endpoint,
+            method,
+            data,
+            headers: options?.headers,
         }
-    }
 
-    const payload = (await response.json()) as Partial<ApiPayload<T>>
+        const response = await axiosInstance.request<ApiPayload<T>>(config)
 
-    /** 200번대 코드가 아니면 에러 발생  error.message , error.status로 접근하여 코드별 에러처리 가능*/
-    if (!response.ok) {
-        const message = payload.message || `HTTP error! status: ${status}`
-        const error = new Error(message) as Error & {status: number}
-        error.status = status
+        return {
+            data: response.data.data ?? (response.data as unknown as T),
+            status: response.status,
+            message: response.data.message,
+        }
+    } catch (error) {
+        if (axios.isAxiosError(error)) {
+            const status = error.response?.status ?? 500
+            const message = error.response?.data?.message || error.message || '에러 발생'
+            const customError = new Error(message) as Error & {status: number}
+            customError.status = status
+            throw customError
+        }
+
         throw error
     }
-
-    /** data가 null or undefined 이면 status 반환 */
-    const apiResponse: ApiResponse<T> = {
-        data: payload.data ?? (payload as unknown as T),
-        status,
-        message: payload.message,
-    }
-    return apiResponse
 }
 
 /** HTTP 메서드별 함수 */

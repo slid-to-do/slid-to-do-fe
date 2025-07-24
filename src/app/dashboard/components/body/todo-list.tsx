@@ -1,12 +1,11 @@
 'use client'
-import Image from 'next/image'
 
 import LoadingSpinner from '@/components/common/loading-spinner'
 import TodoItem from '@/components/common/todo-item'
 
 import type {TodoResponse} from '@/types/todos'
 
-export default function InfiniteTodoList({
+const TodoList = ({
     title,
     todos,
     isLoading,
@@ -14,7 +13,6 @@ export default function InfiniteTodoList({
     refCallback,
     onToggle,
     onDelete,
-    onAddClick,
 }: {
     title: string
     todos: TodoResponse[]
@@ -23,23 +21,10 @@ export default function InfiniteTodoList({
     refCallback: (node?: Element | null) => void
     onToggle: (todoId: number, newDone: boolean) => void
     onDelete: (todoId: number) => void
-    onAddClick?: () => void
-}) {
+}) => {
     return (
-        <div
-            className={`py-4 px-6 h-[228px] rounded-xl flex flex-col min-h-0 lg:flex-1 ${title === 'To do' ? 'bg-white' : 'bg-custom_slate-200'}`}
-        >
-            <div className="flex items-center justify-between">
-                <div className="text-subTitle">{title}</div>
-                {onAddClick && (
-                    <div className="flex items-center">
-                        <Image src="/goals/ic-plus.svg" alt="+" width={16} height={16} />
-                        <div className="text-custom_blue-500 text-sm font-semibold cursor-pointer" onClick={onAddClick}>
-                            할일 추가
-                        </div>
-                    </div>
-                )}
-            </div>
+        <div className=" bg-blue-50 py-4 px-6 h-[228px] flex flex-col min-h-0 lg:flex-1">
+            <h1 className="text-subTitle">{title}</h1>
             <div className="mt-4 flex-1 min-h-0 overflow-y-auto scrollbar-custom">
                 {todos.length > 0 ? (
                     <>
@@ -68,3 +53,5 @@ export default function InfiniteTodoList({
         </div>
     )
 }
+
+export default TodoList

@@ -16,8 +16,8 @@ export default function TodoItem({
     onDelete,
 }: {
     todoDetail: TodoResponse
-    onToggle: (todoId: number, newDone: boolean) => void
-    onEdit?: (todoId: TodoResponse) => void
+    onToggle: (todoId: number, newDone: boolean, goalId?: number) => void
+    onEdit?: (todoId: number) => void
     onDelete?: (todoId: number) => void
 }) {
     const [isGoalTitleOpen, setIsGoalTitleOpen] = useState<boolean>(false)

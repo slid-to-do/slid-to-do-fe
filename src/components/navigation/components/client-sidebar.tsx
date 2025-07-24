@@ -31,7 +31,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                 >
                     <div className={`flex justify-center items-center w-auto h-full `}>
                         <Image
-                            src={'./ic_favicon.svg'}
+                            src={'./ic-favicon.svg'}
                             alt="Logo"
                             width={32}
                             height={32}

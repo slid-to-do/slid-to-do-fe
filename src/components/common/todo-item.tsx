@@ -17,7 +17,7 @@ export default function TodoItem({
 }: {
     todoDetail: TodoResponse
     onToggle: (todoId: number, newDone: boolean) => void
-    onEdit?: (todoId: number) => void
+    onEdit?: (todoId: TodoResponse) => void
     onDelete?: (todoId: number) => void
 }) {
     const [isGoalTitleOpen, setIsGoalTitleOpen] = useState<boolean>(false)
@@ -108,7 +108,7 @@ export default function TodoItem({
                             <div className="absolute right-0 flex flex-col overflow-hidden text-sm bg-white shadow-lg top-8 rounded-xl min-w-max z-10">
                                 <div
                                     className="px-4 py-2 transition cursor-pointer hover:bg-gray-100"
-                                    onClick={() => onEdit?.(todoDetail.id)}
+                                    onClick={() => onEdit?.(todoDetail)}
                                 >
                                     수정하기
                                 </div>

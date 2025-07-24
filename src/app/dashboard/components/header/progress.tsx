@@ -29,10 +29,12 @@ const Progress = ({percent = 0}: {percent: number | undefined}) => {
         circleControls.play()
     }
     return (
-        <div className="flex  p-6 w-full h-[200px] bg-custom_blue-500 relative justify-between rounded-lg min-w-68 max-w-120 max-h-63">
+
+        <div className="flex  p-6 w-full h-[200px] bg-custom_blue-500 relative justify-between rounded-lg min-w-68 max-h-63">
             <div className="flex flex-col gap-2">
                 <button onClick={handleStart}>
-                    <Image src={'./dashboard/animation.svg'} alt="애니메이션 버튼" width={30} height={30} />
+                    <Image src={'/dashboard/animation.svg'} alt="애니메이션 버튼" width={30} height={30} />
+
                 </button>
                 <span className=" text-white text-title-xl font-extrabold">내 진행 상황</span>
                 <div className="flex gap-1 text-white text-[30px] items-center  font-extrabold">

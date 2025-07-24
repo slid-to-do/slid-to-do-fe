@@ -251,7 +251,7 @@ const GoalsPage = () => {
     }
 
     return (
-        <div className="w-full bg-custom_slate-100">
+        <div className="w-full bg-custom_slate-100 overflow-y-auto">
             <div className={`p-6 desktop:px-20`}>
                 <div className="text-subTitle">목표</div>
                 <GoalHeader

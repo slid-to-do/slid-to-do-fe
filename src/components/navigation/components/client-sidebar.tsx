@@ -31,14 +31,15 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                 >
                     <div className={`flex justify-center items-center w-auto h-full `}>
                         <Image
-                            src={'./ic-favicon.svg'}
+                            src={'/ic-favicon.svg'}
+
                             alt="Logo"
                             width={32}
                             height={32}
                             className="w-[32px] hover:opacity-80"
                         />
                         <Image
-                            src={'./slid-to-do.svg'}
+                            src={'/slid-to-do.svg'}
                             alt="Logo"
                             width={80}
                             height={15}
@@ -79,7 +80,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                         className=" py-2 p-2 w-full h-auto  text-subTitle-base text-custom_slate-700 flex items-center gap-3 hover:opacity-80  "
                     >
                         <Image
-                            src={'./sidebar/home.svg'}
+                            src={'/sidebar/home.svg'}
                             width={15}
                             height={15}
                             alt="Subtract"

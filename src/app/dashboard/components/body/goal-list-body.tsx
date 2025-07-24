@@ -8,15 +8,12 @@ import {del, get, patch} from '@/lib/api'
 
 import type {TodoResponse} from '@/types/todos'
 
-const PAGE_SIZE = 5
-const TEAM_ID = process.env.NEXT_PUBLIC_TEAM_ID
-
 const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
     const queryClient = useQueryClient()
 
     const GetTodoList = (done: boolean) => {
         return async (cursor: number | undefined) => {
-            let endpoint = `${TEAM_ID}/todos?goalId=${goalId}&done=${done}&size=${PAGE_SIZE}`
+            let endpoint = `/todos?goalId=${goalId}&done=${done}&size=5`
             if (cursor !== undefined) {
                 endpoint += `&cursor=${cursor}`
             }
@@ -41,7 +38,7 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
     const updateTodo = useMutation({
         mutationFn: async ({todoId, newDone}: {todoId: number; newDone: boolean}) => {
             const response = await patch<TodoResponse>({
-                endpoint: `${TEAM_ID}/todos/${todoId}`,
+                endpoint: `/todos/${todoId}`,
                 data: {done: newDone},
                 options: {
                     headers: {
@@ -65,7 +62,7 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
             if (!confirm('정말로 이 할 일을 삭제하시겠습니까?')) return
 
             const response = await del({
-                endpoint: `${TEAM_ID}/todos/${todoId}`,
+                endpoint: `/todos/${todoId}`,
                 options: {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
@@ -101,9 +98,10 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
     })
 
     return (
-        <section className="flex w-full h-auto flex-col lg:flex-row bg-white">
+        <section className="flex w-full h-auto flex-col lg:flex-row">
             <InfiniteTodoList
                 title="To do"
+                isBlue={true}
                 todos={todosNotDone}
                 isLoading={loadingNotDone}
                 hasMore={hasMoreNotDone}
@@ -113,6 +111,7 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
             />
             <InfiniteTodoList
                 title="Done"
+                isBlue={true}
                 todos={todosDone}
                 isLoading={loadingDone}
                 hasMore={haseMoreDone}

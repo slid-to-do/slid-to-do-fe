@@ -10,8 +10,6 @@ import InputStyle from '@/components/style/input-style'
 import {post} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
-const TEAM_ID = process.env.NEXT_PUBLIC_TEAM_ID
-
 const GoalModal = () => {
     const [inputChange, setInputChange] = useState('')
     const [inputError, setErrorChange] = useState('')
@@ -25,7 +23,7 @@ const GoalModal = () => {
                 throw new Error('목표를 입력해주세요.')
             }
             return await post({
-                endpoint: `${TEAM_ID}/goals`,
+                endpoint: `/goals`,
                 data: {title: inputChange},
                 options: {
                     headers: {
@@ -50,7 +48,7 @@ const GoalModal = () => {
     }
 
     return (
-        <section className=" w-80 mobile:w-75 min-h-65 absolute   transform bg-white -translate-1/2 top-1/2 left-1/2 px-6 py-4 flex flex-col justify-between items-center rounded-xl">
+        <section className=" w-80 mobile:w-75 min-h-65 absolute  transform bg-white -translate-1/2 top-1/2 left-1/2 px-6 py-4 flex flex-col justify-between items-center rounded-xl">
             <header className="flex w-full items-center justify-between mb-2 ">
                 <div className={`flex justify-center items-center w-auto h-full `}>
                     <Image src={'/ic-favicon.svg'} alt="Logo" width={32} height={32} className="w-[32px] " />

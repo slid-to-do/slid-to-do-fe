@@ -46,7 +46,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
         isLoading: loadingGoals,
         hasMore: hasMoreGoals,
     } = useInfiniteScrollQuery<GoalResponse>({
-        queryKey: ['goals'],
+        queryKey: ['navMygoals'],
         fetchFn: getGoalsData(),
     })
 

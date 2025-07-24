@@ -16,10 +16,17 @@ const Page = () => {
     const parameters = useSearchParams()
     const goalId = parameters.get('goalId')
     const fetchNoteList = async (cursor?: number) => {
-        let endpoint = 'notes?size=10'
-        goalId && (endpoint += `&goalId=${goalId}`)
+        // let endpoint = '/notes?size=10'
+        // goalId && (endpoint += `&goalId=${goalId}`)
 
-        if (cursor !== undefined) endpoint += `&cursor=${cursor}`
+        // if (cursor !== undefined) endpoint += `&cursor=${cursor}`
+
+        const urlParam = new URLSearchParams()
+        urlParam.set('size', '10')
+        if (goalId) urlParam.set('goalId', goalId)
+        if (cursor !== undefined) urlParam.set('cursor', String(cursor))
+
+        const endpoint = `/notes?${urlParam.toString()}`
         const result = await get<NoteListResponse>({
             endpoint: endpoint,
             options: {
@@ -42,11 +49,14 @@ const Page = () => {
     } = useInfiniteScrollQuery({
         queryKey: ['notes'],
         fetchFn: fetchNoteList,
+        enabled: goalId !== null,
     } as InfiniteScrollOptions<NoteCommon>)
 
     if (isLoading) return <LoadingSpinner />
     if (isError && error) throw error
     hasMore && !isLoading && notes.length > 0 && <div ref={ref} />
+
+    notes
 
     return (
         <div className="bg-slate-100 flex flex-col w-full min-h-screen h-full overflow-y-auto p-6 desktop:px-20 ">
@@ -55,12 +65,10 @@ const Page = () => {
             </header>
 
             <div className="w-full mt-4 flex-1 flex flex-col">
-                {notes.length > 0 && (
-                    <div className="flex gap-2 items-center bg-white rounded-xl border border-custom_slate-100 py-3.5 px-6">
-                        <Image src="/goals/flag-goal.png" alt="목표깃발" width={28} height={28} />
-                        <h2 className="text-subTitle-sm">{notes?.[0]?.goal.title}</h2>
-                    </div>
-                )}
+                <div className="flex gap-2 items-center bg-white rounded-xl border border-custom_slate-100 py-3.5 px-6">
+                    <Image src="/goals/flag-goal.png" alt="목표깃발" width={28} height={28} />
+                    <h2 className="text-subTitle-sm">{notes?.[0]?.goal.title}</h2>
+                </div>
 
                 {notes.length > 0 ? (
                     <>

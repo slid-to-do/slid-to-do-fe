@@ -1,4 +1,5 @@
+import LoadingSpinner from '@/components/common/loading-spinner'
+
 export default function Loading() {
-    // Or a custom loading skeleton component
-    return <p>Loading...</p>
+    return <LoadingSpinner />
 }

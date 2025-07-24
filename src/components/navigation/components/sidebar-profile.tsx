@@ -8,7 +8,7 @@ const SidebarProfile = () => {
     return (
         <div className="flex w-full h-auto  gap-2 mb-4 justify-between items-center ">
             <Image
-                src={'./sidebar/profile.svg'}
+                src={'/sidebar/profile.svg'}
                 alt="profile"
                 width={24}
                 height={24}

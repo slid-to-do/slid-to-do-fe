@@ -93,7 +93,7 @@ const Page = () => {
     }
 
     return (
-        <>
+        <div className='bg-slate-100 flex flex-col w-full min-h-screen h-full overflow-y-auto p-6 desktop:px-20'>
             <div className="flex items-center justify-between">
                 <h1 className="text-lg font-semibold">모든 할 일 ({data?.totalCount})</h1>
                 <button className="text-sm font-semibold text-custom_blue-500" onClick={openModal}>
@@ -169,7 +169,7 @@ const Page = () => {
                     </>
                 )}
             </div>
-        </>
+        </div>
     )
 }
 

@@ -226,7 +226,7 @@ const NoteWriteCompo = ({
                             }}
                             onClick={() => setSaveToastOpen(false)}
                         />
-                        <div className="text-custom_blue-500">
+                        <div className="text-custom_blue-500 text-sm font-semibold">
                             임시 작성된 노트가 있어요. 작성된 노트를 불러오시겠어요?
                         </div>
                     </div>

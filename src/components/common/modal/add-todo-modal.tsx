@@ -3,34 +3,22 @@
 import Image from 'next/image'
 import {useRef, useState} from 'react'
 
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import {useMutation, useQueryClient} from '@tanstack/react-query'
 import clsx from 'clsx'
 
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
+import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import {get, post} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
+
+import type {GoalResponse} from '@/types/goals'
 
 interface AddTodoData {
     title: string
     fileUrl?: string
     linkUrl?: string
     goalId: number | undefined
-}
-
-interface GoalsResponse {
-    nextCursor: number | undefined
-    totalCount: number
-    goals: Goal[]
-}
-
-interface Goal {
-    updatedAt: string
-    createdAt: string
-    title: string
-    id: number
-    userId: number
-    teamId: string
 }
 
 const AddTodoModal = () => {
@@ -51,19 +39,37 @@ const AddTodoModal = () => {
 
     const {clearModal} = useModalStore()
 
-    const {data: goals, isLoading} = useQuery({
-        queryKey: ['goals'],
-        queryFn: async () => {
-            const response = await get<GoalsResponse>({
-                endpoint: 'goals',
+    const getGoalsData = async (cursor: number | undefined) => {
+        try {
+            const urlParameter = cursor === undefined ? '' : `&cursor=${cursor}`
+            const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
+                endpoint: `goals?size=3&sortOrder=newest${urlParameter}`,
+
                 options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
+                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
             })
-            return response.data
-        },
+
+            return {
+                data: response.data.goals,
+                nextCursor: response.data.nextCursor,
+            }
+        } catch (fetchError) {
+            if (fetchError instanceof Error) {
+                throw fetchError
+            }
+            throw new Error(String(fetchError))
+        }
+    }
+
+    const {
+        data: fetchGoals,
+        ref: goalReference,
+        isLoading: loadingGoals,
+        hasMore: hasMoreGoals,
+    } = useInfiniteScrollQuery<GoalResponse>({
+        queryKey: ['myGoals'],
+        fetchFn: getGoalsData,
     })
 
     const uploadFileMutation = useMutation({
@@ -271,49 +277,64 @@ const AddTodoModal = () => {
             <div className="mt-6">
                 <div className="text-base font-semibold">목표</div>
 
-                <div className="relative px-5 py-3 bg-custom_slate-50">
+                <div className="relative px-5 py-3 bg-custom_slate-50 rounded-md">
                     <div
-                        className={clsx('text-custom_slate-400', {'text-custom_slate-800': inputs.goalId})}
+                        className={clsx('text-custom_slate-400 cursor-pointer', {
+                            'text-custom_slate-800': inputs.goalId,
+                        })}
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
                         {inputs.goalId
-                            ? goals?.goals.find((goal) => goal.id === inputs.goalId)?.title
+                            ? fetchGoals.find((goal) => goal.id === inputs.goalId)?.title
                             : '목표를 선택해주세요'}
                     </div>
 
                     {isDropdownOpen && (
-                        <div
-                            className="absolute left-0 w-full h-full cursor-pointer top-12"
-                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                        >
-                            <div className="bg-white">
-                                {isLoading ? (
-                                    <div className="flex items-center justify-center w-full h-full text-sm text-custom_slate-400">
-                                        로딩 중...
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col">
-                                        {goals?.goals.length === 0 ? (
-                                            <div className="px-3 py-2 text-sm text-custom_slate-400">
-                                                등록된 목표가 없어요
-                                            </div>
-                                        ) : (
-                                            goals?.goals.map((goal) => (
+                        <div className="absolute left-0 w-full top-12 h-72 overflow-auto bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                            {loadingGoals && fetchGoals.length === 0 ? (
+                                <div className="flex items-center justify-center w-full h-full text-sm text-custom_slate-400">
+                                    로딩 중...
+                                </div>
+                            ) : (
+                                <div className="flex flex-col">
+                                    {fetchGoals.length === 0 ? (
+                                        <div className="px-3 py-2 text-sm text-custom_slate-400">
+                                            등록된 목표가 없어요
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {fetchGoals.map((goal, index) => (
                                                 <div
                                                     key={goal.id}
-                                                    className="px-3 py-2 text-sm rounded-lg hover:bg-custom_slate-100"
-                                                    onClick={() => {
+                                                    ref={index === fetchGoals.length - 1 ? goalReference : undefined} // 마지막 요소에 ref 연결
+                                                    className="px-3 py-2 text-sm cursor-pointer hover:bg-custom_slate-100"
+                                                    onClick={(event_) => {
+                                                        event_.stopPropagation()
                                                         setInputs((previous) => ({...previous, goalId: goal.id}))
                                                         setIsDropdownOpen(false)
                                                     }}
                                                 >
                                                     {goal.title}
                                                 </div>
-                                            ))
-                                        )}
-                                    </div>
-                                )}
-                            </div>
+                                            ))}
+
+                                            {/* 로딩 인디케이터 */}
+                                            {loadingGoals && (
+                                                <div className="px-3 py-2 text-sm text-center text-custom_slate-400">
+                                                    더 불러오는 중...
+                                                </div>
+                                            )}
+
+                                            {/* 더 이상 데이터가 없을 때 */}
+                                            {!hasMoreGoals && fetchGoals.length > 0 && (
+                                                <div className="px-3 py-2 text-sm text-center text-custom_slate-400">
+                                                    모든 목표를 불러왔습니다
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>

@@ -3,6 +3,8 @@
 import Image from 'next/image'
 import {useSearchParams} from 'next/navigation'
 
+import {useQuery} from '@tanstack/react-query'
+
 import LoadingSpinner from '@/components/common/loading-spinner'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import {get} from '@/lib/api'
@@ -11,7 +13,6 @@ import {NoteList} from '../../components/notes/list'
 
 import type {InfiniteScrollOptions} from '@/types/infinite-scroll'
 import type {NoteCommon, NoteListResponse} from '@/types/notes'
-import {useQuery} from '@tanstack/react-query'
 
 const Page = () => {
     const parameters = useSearchParams()

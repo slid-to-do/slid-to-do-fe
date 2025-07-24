@@ -11,6 +11,7 @@ import {NoteList} from '../../components/notes/list'
 
 import type {InfiniteScrollOptions} from '@/types/infinite-scroll'
 import type {NoteCommon, NoteListResponse} from '@/types/notes'
+import {useQuery} from '@tanstack/react-query'
 
 const Page = () => {
     const parameters = useSearchParams()
@@ -22,7 +23,7 @@ const Page = () => {
         if (goalId) urlParameter.set('goalId', goalId)
         if (cursor !== undefined) urlParameter.set('cursor', String(cursor))
 
-        const endpoint = `/notes?${urlParameter.toString()}`
+        const endpoint = `notes?${urlParameter.toString()}`
         const result = await get<NoteListResponse>({
             endpoint,
             options: {
@@ -48,7 +49,27 @@ const Page = () => {
         enabled: goalId !== null,
     } as InfiniteScrollOptions<NoteCommon>)
 
-    if (isLoading) return <LoadingSpinner />
+    const fetchGetGoalTitle = async (): Promise<{title: string}> => {
+        const fallbackEndpoint = `goals/${goalId}`
+        const fallbackResult = await get<{title: string}>({
+            endpoint: fallbackEndpoint,
+            options: {
+                headers: {
+                    Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
+                },
+            },
+        })
+
+        return fallbackResult.data
+    }
+
+    const {data: goalData, isLoading: isGoalLoading} = useQuery({
+        queryKey: ['goalTitle', goalId],
+        queryFn: fetchGetGoalTitle,
+        enabled: !!goalId && notes.length === 0,
+    })
+
+    if (isLoading || isGoalLoading) return <LoadingSpinner />
     if (isError && error) throw error
     hasMore && !isLoading && notes.length > 0 && <div ref={ref} />
 
@@ -61,7 +82,7 @@ const Page = () => {
             <div className="w-full mt-4 flex-1 flex flex-col">
                 <div className="flex gap-2 items-center bg-white rounded-xl border border-custom_slate-100 py-3.5 px-6">
                     <Image src="/goals/flag-goal.png" alt="목표깃발" width={28} height={28} />
-                    <h2 className="text-subTitle-sm">{notes?.[0]?.goal.title}</h2>
+                    <h2 className="text-subTitle-sm"> {notes.length > 0 ? notes?.[0]?.goal.title : goalData?.title}</h2>
                 </div>
 
                 {notes.length > 0 ? (

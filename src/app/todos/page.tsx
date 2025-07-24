@@ -13,8 +13,6 @@ import Filter from './filter'
 import TodoItem from '../../components/common/todo-item'
 
 import type {TodoResponse} from '@/types/todos'
-
-type FilterValue = 'ALL' | 'TODO' | 'DONE'
 import type {TodoListDetailResponse} from '@/types/todos'
 
 type FilterValue = 'ALL' | 'TODO' | 'DONE'

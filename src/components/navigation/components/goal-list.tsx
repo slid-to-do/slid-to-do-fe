@@ -58,7 +58,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
         >
             <div className="flex flex-col h-full min-h-0 flex-1 mb-3 ">
                 <div className="flex  pl-2 gap-3 h-6">
-                    <Image src={'./sidebar/flag.svg'} alt="flag" width={13} height={15} />
+                    <Image src={'/sidebar/flag.svg'} alt="flag" width={13} height={15} />
                     <h2 id="goals-heading" className=" text-left w-full   text-subTitle-base   text-custom_slate-700">
                         목표
                     </h2>

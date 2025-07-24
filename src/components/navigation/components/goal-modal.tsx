@@ -10,6 +10,8 @@ import InputStyle from '@/components/style/input-style'
 import {post} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
+const TEAM_ID = process.env.NEXT_PUBLIC_TEAM_ID
+
 const GoalModal = () => {
     const [inputChange, setInputChange] = useState('')
     const [inputError, setErrorChange] = useState('')
@@ -18,11 +20,12 @@ const GoalModal = () => {
 
     const goalPost = useMutation({
         mutationFn: async () => {
-            if (inputChange.length === 0) {
+            console.log(inputChange)
+            if (inputChange.length === 0 || !inputChange) {
                 throw new Error('목표를 입력해주세요.')
             }
             return await post({
-                endpoint: 'goals',
+                endpoint: `${TEAM_ID}/goals`,
                 data: {title: inputChange},
                 options: {
                     headers: {
@@ -42,6 +45,7 @@ const GoalModal = () => {
     })
 
     const inputOnChange = (changeEvent: React.ChangeEvent<HTMLInputElement>) => {
+        console.log(changeEvent.target.value)
         setInputChange(changeEvent.target.value)
     }
 
@@ -49,8 +53,8 @@ const GoalModal = () => {
         <section className=" w-80 mobile:w-75 min-h-65 absolute   transform bg-white -translate-1/2 top-1/2 left-1/2 px-6 py-4 flex flex-col justify-between items-center rounded-xl">
             <header className="flex w-full items-center justify-between mb-2 ">
                 <div className={`flex justify-center items-center w-auto h-full `}>
-                    <Image src={'./ic-favicon.svg'} alt="Logo" width={32} height={32} className="w-[32px] " />
-                    <Image src={'./slid-to-do.svg'} alt="Logo" width={80} height={15} className="w-[80px] h-[15px]" />
+                    <Image src={'/ic-favicon.svg'} alt="Logo" width={32} height={32} className="w-[32px] " />
+                    <Image src={'/slid-to-do.svg'} alt="Logo" width={80} height={15} className="w-[80px] h-[15px]" />
                 </div>
                 <Image
                     src="/todos/ic-close.svg"

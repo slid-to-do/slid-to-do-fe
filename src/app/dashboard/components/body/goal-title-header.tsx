@@ -16,6 +16,7 @@ const GoalTitleHeader = ({goalId, title}: {goalId: number; title: string}) => {
         queryFn: async () => {
             const response = await get<GoalProgress>({
                 endpoint: `todos/progress?goalId=${goalId}`,
+
                 options: {
                     headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },

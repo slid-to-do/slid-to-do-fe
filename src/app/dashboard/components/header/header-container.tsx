@@ -22,6 +22,7 @@ const getProgressData = async () => {
     try {
         const response = await get<{progress: number}>({
             endpoint: `todos/progress`,
+
             options: {
                 headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
             },
@@ -75,7 +76,9 @@ const Header = () => {
     })
 
     return (
+
         <header className="w-full h-auto min-w-[200px]  lg:flex-row flex-col mb-4  flex justify-center items-start gap-4">
+
             <NewAddTodo data={todoData?.data} />
             <NoSsrProgress percent={typeof progress?.data === 'number' ? progress.data : 0} />
         </header>

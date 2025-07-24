@@ -14,6 +14,7 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
     const GetTodoList = (done: boolean) => {
         return async (cursor: number | undefined) => {
             let endpoint = `todos?goalId=${goalId}&done=${done}&size=5`
+
             if (cursor !== undefined) {
                 endpoint += `&cursor=${cursor}`
             }
@@ -39,6 +40,7 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
         mutationFn: async ({todoId, newDone}: {todoId: number; newDone: boolean}) => {
             const response = await patch<TodoResponse>({
                 endpoint: `todos/${todoId}`,
+
                 data: {done: newDone},
                 options: {
                     headers: {
@@ -63,6 +65,7 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
 
             const response = await del({
                 endpoint: `todos/${todoId}`,
+
                 options: {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,

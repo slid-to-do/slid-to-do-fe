@@ -17,3 +17,17 @@ export interface TodoResponse extends Todo {
     updatedAt: string
     createdAt: string
 }
+
+export interface TodoListDetailResponse {
+    totalCount: number
+    nextCursor: number | null
+    todos: TodoResponse[]
+}
+
+export interface FilterProperties {
+    children: React.ReactNode
+    checked?: boolean
+    onChange?: (value: string) => void
+    value: string
+    name: string
+}

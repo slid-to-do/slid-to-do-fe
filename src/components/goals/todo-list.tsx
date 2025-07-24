@@ -37,7 +37,7 @@ export default function InfiniteTodoList({
                 <div className="text-subTitle">{title}</div>
                 {onAddClick && (
                     <div className="flex items-center">
-                        <Image src="/goals/ic_plus.svg" alt="+" width={16} height={16} />
+                        <Image src="/goals/ic-plus.svg" alt="+" width={16} height={16} />
                         <div className="text-custom_blue-500 text-sm font-semibold cursor-pointer" onClick={onAddClick}>
                             할일 추가
                         </div>

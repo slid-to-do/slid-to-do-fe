@@ -19,6 +19,7 @@ const GoalTodoContainer = () => {
                 const urlParameter = cursor === undefined ? '' : `&cursor=${cursor}`
                 const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
                     endpoint: `goals?size=3&sortOrder=newest${urlParameter}`,
+
                     options: {
                         headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                     },
@@ -51,6 +52,7 @@ const GoalTodoContainer = () => {
         <section className="w-full h-auto bg-white rounded-lg p-2">
             <header className="w-full h-auto mb-4 flex justify-start items-center pl-4 pt-4 gap-2">
                 <Image src={'/dashboard/goals-todo.svg'} alt="goal-todo" width={40} height={40} />
+
                 <h1 className=" text-title-base font-semibold">목표 별 할일</h1>
             </header>
             {loadingGoals ? (

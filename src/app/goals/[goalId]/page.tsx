@@ -1,5 +1,6 @@
 'use client'
 import Image from 'next/image'
+import Link from 'next/link'
 import {useParams, useRouter} from 'next/navigation'
 import {useEffect, useState} from 'react'
 
@@ -249,11 +250,6 @@ const GoalsPage = () => {
         )
     }
 
-    /** 노트 모아보기 페이지 이동 */
-    const goNoteList = () => {
-        router.push(`/notes?goalId=${goalId}`)
-    }
-
     return (
         <div className="w-full bg-custom_slate-100">
             <div className={`p-6 desktop:px-20`}>
@@ -269,16 +265,16 @@ const GoalsPage = () => {
                     handleGoalAction={handleGoalAction}
                 />
 
-                <div
+                <Link
                     className="mt-6 py-4 px-6 bg-custom_blue-100 flex items-center justify-between rounded-xl cursor-pointer"
-                    onClick={() => goNoteList()}
+                    href={`/notes?goalId=${goalId}`}
                 >
                     <div className="flex gap-2 items-center">
                         <Image src="/goals/note.svg" alt="노트" width={24} height={24} />
                         <div className="text-subTitle">노트 모아보기</div>
                     </div>
-                    <Image src="/goals/ic_arrow_right.svg" alt="노트보기 페이지 이동" width={24} height={24} />
-                </div>
+                    <Image src="/goals/ic-arrow-right.svg" alt="노트보기 페이지 이동" width={24} height={24} />
+                </Link>
 
                 <div className="mt-6 flex flex-col lg:flex-row gap-6 justify-between">
                     <InfiniteTodoList

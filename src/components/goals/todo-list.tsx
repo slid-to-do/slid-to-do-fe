@@ -3,6 +3,9 @@ import Image from 'next/image'
 
 import LoadingSpinner from '@/components/common/loading-spinner'
 import TodoItem from '@/components/common/todo-item'
+import useModal from '@/hooks/use-modal'
+
+import EditTodoModal from '../common/modal/edit-todo-modal'
 
 import type {TodoResponse} from '@/types/todos'
 
@@ -27,6 +30,11 @@ export default function InfiniteTodoList({
     onDelete: (todoId: number) => void
     onAddClick?: () => void
 }) {
+    /**할일 수정 모달 */
+    const {openModal: openEditTodoModal} = useModal((todoDetail: TodoResponse) => (
+        <EditTodoModal todoDetail={todoDetail} />
+    ))
+
     return (
         <div
             className={`py-4 px-6 h-[228px] rounded-xl flex flex-col min-h-0 lg:flex-1 ${
@@ -53,7 +61,12 @@ export default function InfiniteTodoList({
                             <>
                                 {todos.map((todo) => (
                                     <div key={`todoList_${todo.id}`} className="mb-2">
-                                        <TodoItem todoDetail={todo} onToggle={onToggle} onDelete={onDelete} />
+                                        <TodoItem
+                                            todoDetail={todo}
+                                            onToggle={onToggle}
+                                            onDelete={onDelete}
+                                            onEdit={() => openEditTodoModal(todo)}
+                                        />
                                     </div>
                                 ))}
                                 {hasMore && <div ref={refCallback} style={{height: '1px'}} />}

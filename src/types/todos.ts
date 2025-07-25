@@ -31,3 +31,18 @@ export interface FilterProperties {
     value: string
     name: string
 }
+
+export interface PostTodoRequest {
+    title: string
+    fileUrl?: string
+    linkUrl?: string
+    goalId: number | undefined
+}
+
+export interface PatchTodoRequest {
+    title?: string
+    done?: boolean
+    goalId?: number
+    linkUrl?: string
+    fileUrl?: string
+}

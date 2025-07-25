@@ -22,12 +22,10 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
 
     return (
         <>
-            <header className="  h-auto w-full border-b-[#E2E8F0] flex justify-between items-center mb-5">
+            <header className=" h-auto w-full border-b-[#E2E8F0] flex justify-between items-center mb-5">
                 <Link
                     href="/"
-                    className={` ${isOpen === 'noState' ? 'flex tablet:hidden mobile:hidden' : isOpen ? 'flex animate-opacity-open' : 'hidden animate-opacity-close '} w-auto h-[32px] min-w-[32px] 
-                  flex
-                `}
+                    className={`${isOpen === 'noState' ? 'flex tablet:hidden mobile:hidden' : isOpen ? 'flex animate-opacity-open' : 'hidden animate-opacity-close '} w-auto h-[32px] min-w-[32px] flex`}
                 >
                     <div className={`flex justify-center items-center w-auto h-full `}>
                         <Image
@@ -75,7 +73,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                     className=" w-full h-13 min-h-13 overflow-y-auto flex flex-col max-sm:flex-row max-sm:justify-between max-sm:items-center justify-center items-start "
                 >
                     <Link
-                        href={'/'}
+                        href={'/dashboard'}
                         className=" py-2 p-2 w-full h-auto  text-subTitle-base text-custom_slate-700 flex items-center gap-3 hover:opacity-80  "
                     >
                         <Image

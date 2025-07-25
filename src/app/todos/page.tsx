@@ -5,13 +5,14 @@ import {useState} from 'react'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 
 import AddTodoModal from '@/components/common/modal/add-todo-modal'
+import EditTodoModal from '@/components/common/modal/edit-todo-modal'
 import {useModal} from '@/hooks/use-modal'
 import {del, get, patch} from '@/lib/api'
 
-import Filter from './filter'
+import Filter from './components/filter'
 import TodoItem from '../../components/common/todo-item'
 
-import type {TodoListDetailResponse} from '@/types/todos'
+import type {TodoListDetailResponse, TodoResponse} from '@/types/todos'
 
 type FilterValue = 'ALL' | 'TODO' | 'DONE'
 
@@ -78,7 +79,10 @@ const Page = () => {
         },
     })
 
-    const {openModal} = useModal(<AddTodoModal />)
+    const {openModal: openAddTodoModal} = useModal(<AddTodoModal />)
+    const {openModal: openEditTodoModal} = useModal((todoDetail: TodoResponse) => (
+        <EditTodoModal todoDetail={todoDetail} />
+    ))
 
     const handleFilterChange = (value: string) => {
         setSelectedFilter(value as FilterValue)
@@ -93,10 +97,10 @@ const Page = () => {
     }
 
     return (
-        <div className='bg-slate-100 flex flex-col w-full min-h-screen h-full overflow-y-auto p-6 desktop:px-20'>
+        <div className="bg-slate-100 flex flex-col w-full min-h-screen h-full overflow-y-auto p-6 desktop:px-20">
             <div className="flex items-center justify-between">
                 <h1 className="text-lg font-semibold">모든 할 일 ({data?.totalCount})</h1>
-                <button className="text-sm font-semibold text-custom_blue-500" onClick={openModal}>
+                <button className="text-sm font-semibold text-custom_blue-500" onClick={openAddTodoModal}>
                     + 할 일 추가
                 </button>
             </div>
@@ -163,6 +167,7 @@ const Page = () => {
                                         updateTodo.mutate({todoId, newDone})
                                     }
                                     onDelete={(todoId: number) => deleteTodo.mutate(todoId)}
+                                    onEdit={() => openEditTodoModal(todo)}
                                 />
                             ))}
                         </div>

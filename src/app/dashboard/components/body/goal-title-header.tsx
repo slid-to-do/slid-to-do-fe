@@ -12,7 +12,7 @@ import type {GoalProgress} from '@/types/goals'
 
 const GoalTitleHeader = ({goalId, title}: {goalId: number; title: string}) => {
     const {data: progressData} = useQuery<number>({
-        queryKey: ['todos', goalId, 'progress'],
+        queryKey: ['todos', goalId, 'dashProgress'],
         queryFn: async () => {
             const response = await get<GoalProgress>({
                 endpoint: `todos/progress?goalId=${goalId}`,

@@ -1,6 +1,6 @@
 'use client'
 
-import {useSearchParams} from 'next/navigation'
+import {useRouter, useSearchParams} from 'next/navigation'
 import {useEffect} from 'react'
 
 import {useQuery} from '@tanstack/react-query'
@@ -19,12 +19,17 @@ const NoteWritePage = () => {
     const noteId = searchParameters.get('noteId')
 
     const isEdit = typeof noteId === 'string'
+    const router = useRouter()
 
     useEffect(() => {
-        if (todoId === undefined || goalId === undefined) {
+        if (
+            (todoId === undefined || todoId === null || goalId === undefined || goalId === null) &&
+            (noteId === undefined || noteId === null)
+        ) {
             alert('확인 할 데이터가 없습니다.') // 에러페이지로 이동
+            router.back()
         }
-    }, [todoId, goalId])
+    }, [todoId, goalId, router, noteId])
 
     const {data: goalsData} = useQuery<Goal>({
         queryKey: ['goals', goalId],

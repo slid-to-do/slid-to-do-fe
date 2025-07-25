@@ -32,7 +32,6 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                     <div className={`flex justify-center items-center w-auto h-full `}>
                         <Image
                             src={'/ic-favicon.svg'}
-
                             alt="Logo"
                             width={32}
                             height={32}
@@ -88,7 +87,11 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                         />
                         대시보드
                     </Link>
-                    {isMobile && <ButtonStyle size="small">+ 새 할일</ButtonStyle>}
+                    {isMobile && (
+                        <ButtonStyle onClick={openModal} size="small">
+                            + 새 할일
+                        </ButtonStyle>
+                    )}
                 </nav>
                 <hr className=" -mx-5  border-t-2 border-gray-200" />
                 {/* 목표 섹션 */}

@@ -32,14 +32,14 @@ const NavigationSidebar = () => {
             <aside
                 aria-label="사이드바 네비게이션"
 
-                className={` p-2 mobile:w-screen   ${isOpen === 'noState' ? 'w-64 tablet:w-12 mobile:w-screen mobile:h-10' : isOpen ? 'w-64  animate-sidebar-open mobile:animate-mobile-open mobile:fixed ' : 'w-12 animate-sidebar-close mobile:animate-mobile-close'} tablet:z-50 mobile:z-20 relative  bg-white shadow-md h-screen flex flex-col overflow-x-hidden  shrink-0 
+                className={` p-2 mobile:w-screen   ${isOpen === 'noState' ? 'w-64 tablet:w-12 mobile:w-screen mobile:h-10' : isOpen ? 'w-64  animate-sidebar-open mobile:animate-mobile-open mobile:fixed ' : 'w-12 animate-sidebar-close mobile:animate-mobile-close'} tablet:z-50 mobile:z-50 relative  bg-white shadow-md h-screen flex flex-col overflow-x-hidden  shrink-0 
 
         `}
             >
                 <Sidebar isOpen={isOpen} onClickHandler={onClickHandler} />
             </aside>
             <div
-                className={`w-full ${isOpen === true && isTablet && 'tablet:flex'} hidden h-screen opacity-75 bg-black absolute z-20 `}
+                className={`w-full ${isOpen === true && isTablet && 'tablet:flex'} hidden h-screen opacity-75 bg-black absolute z-20`}
                 onClick={onClickHandler}
             />
         </>

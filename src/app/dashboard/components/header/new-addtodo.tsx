@@ -4,35 +4,9 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-import {useMutation, useQueryClient} from '@tanstack/react-query'
-
-import TodoItem from '@/components/common/todo-item'
-import {patch} from '@/lib/api'
-
 import type {TodoResponse} from '@/types/todos'
 
 const NewAddTodo = ({data}: {data: TodoResponse[] | undefined}) => {
-    const queryClient = useQueryClient()
-    const updateTodo = useMutation({
-        mutationFn: async ({todoId, newDone}: {todoId: number; newDone: boolean}) => {
-            const response = await patch<TodoResponse>({
-                endpoint: `todos/${todoId}`,
-                data: {done: newDone},
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
-            })
-
-            return response.data
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['todos']})
-            queryClient.invalidateQueries({queryKey: ['allProgress']})
-            queryClient.invalidateQueries({queryKey: ['newTodo']})
-        },
-    })
 
     return (
 
@@ -52,15 +26,22 @@ const NewAddTodo = ({data}: {data: TodoResponse[] | undefined}) => {
             {data ? (
                 <ul className=" list-none space-y-0.5 h-[130px] overflow-y-scroll">
                     {data?.map((item) => (
-                        <TodoItem
+                        <li
                             key={item.id}
-                            todoDetail={item}
-                            onToggle={(todoId: number, newDone: boolean) => updateTodo.mutate({todoId, newDone})}
-                        />
+                            className="flex w-full h-auto text-body-sm text-custom_slate-700 hover:opacity-70"
+                        >
+                            <Link href={`/goals/${item.goal.id}`} className="w-full flex">
+                                <span className="mr-2 text-body-base">・</span>
+
+                                {item.title}
+                            </Link>
+                        </li>
                     ))}
                 </ul>
             ) : (
-                <div className="flex h-[100px] w-full justify-center items-center">최근 등록한 일이 없습니다.</div>
+                <div className="flex h-[100px] w-full text-sm justify-center items-center">
+                    최근 등록한 일이 없습니다.
+                </div>
             )}
 
         </article>

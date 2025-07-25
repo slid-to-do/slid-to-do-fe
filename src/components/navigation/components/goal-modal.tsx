@@ -7,6 +7,7 @@ import {useQueryClient, useMutation} from '@tanstack/react-query'
 
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
+import useToast from '@/hooks/use-toast'
 import {post} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
@@ -15,6 +16,7 @@ const GoalModal = () => {
     const [inputError, setErrorChange] = useState('')
     const clientQuery = useQueryClient()
     const {clearModal} = useModalStore()
+    const {showToast} = useToast()
 
     const goalPost = useMutation({
         mutationFn: async () => {
@@ -33,7 +35,10 @@ const GoalModal = () => {
         },
         onSuccess: () => {
             clientQuery.invalidateQueries({queryKey: ['goals']})
-            alert('목표가 생성되었습니다.')
+            clientQuery.invalidateQueries({queryKey: ['myGoals']})
+            clientQuery.invalidateQueries({queryKey: ['navMygoals']})
+
+            showToast('목표가 생성되었습니다.', {type: 'info'})
             clearModal()
         },
         onError: () => {
@@ -51,7 +56,6 @@ const GoalModal = () => {
                 <div className={`flex justify-center items-center w-auto h-full `}>
                     <Image src={'/ic-favicon.svg'} alt="Logo" width={32} height={32} className="w-[32px] " />
                     <Image src={'/slid-to-do.svg'} alt="Logo" width={80} height={15} className="w-[80px] h-[15px]" />
-
                 </div>
                 <Image
                     src="/todos/ic-close.svg"

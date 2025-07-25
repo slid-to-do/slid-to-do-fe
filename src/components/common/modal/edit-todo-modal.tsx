@@ -3,50 +3,22 @@
 import Image from 'next/image'
 import {useRef, useState} from 'react'
 
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import {useMutation, useQueryClient} from '@tanstack/react-query'
 import clsx from 'clsx'
 
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
+import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import {get, patch} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
-import type {TodoResponse} from '@/types/todos'
-
-interface AddTodoData {
-    title: string
-    fileUrl?: string
-    linkUrl?: string
-    goalId: number | undefined
-}
-
-interface GoalsResponse {
-    nextCursor: number | undefined
-    totalCount: number
-    goals: Goal[]
-}
-
-interface Goal {
-    updatedAt: string
-    createdAt: string
-    title: string
-    id: number
-    userId: number
-    teamId: string
-}
-
-interface TodoRequest {
-    title?: string
-    done?: boolean
-    goalId?: number
-    linkUrl?: string
-    fileUrl?: string
-}
+import type {GoalResponse} from '@/types/goals'
+import type {PatchTodoRequest, PostTodoRequest, TodoResponse} from '@/types/todos'
 
 const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
     const queryClient = useQueryClient()
 
-    const [inputs, setInputs] = useState<AddTodoData>({
+    const [inputs, setInputs] = useState<PostTodoRequest>({
         title: todoDetail.title,
         goalId: todoDetail.goal.id,
         fileUrl: todoDetail.fileUrl || '',
@@ -63,19 +35,37 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
 
     const {clearModal} = useModalStore()
 
-    const {data: goals, isLoading} = useQuery({
-        queryKey: ['goals'],
-        queryFn: async () => {
-            const response = await get<GoalsResponse>({
-                endpoint: 'goals',
+    // 무한 스크롤 목표 데이터
+    const getGoalsData = async (cursor: number | undefined) => {
+        try {
+            const urlParameter = cursor === undefined ? '' : `&cursor=${cursor}`
+            const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
+                endpoint: `goals?size=3&sortOrder=newest${urlParameter}`,
                 options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
+                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
             })
-            return response.data
-        },
+
+            return {
+                data: response.data.goals,
+                nextCursor: response.data.nextCursor,
+            }
+        } catch (fetchError) {
+            if (fetchError instanceof Error) {
+                throw fetchError
+            }
+            throw new Error(String(fetchError))
+        }
+    }
+
+    const {
+        data: fetchGoals,
+        ref: goalReference,
+        isLoading: loadingGoals,
+        hasMore: hasMoreGoals,
+    } = useInfiniteScrollQuery<GoalResponse>({
+        queryKey: ['myGoals'],
+        fetchFn: getGoalsData,
     })
 
     const uploadFileMutation = useMutation({
@@ -88,15 +78,10 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
 
             formData.append('file', file)
 
-            // 파일 업로드 API 호출
-            // 파일 호출하는 API 함수를 구현하는 것보다 직접 호출하는 것이 더 간단하여
-            // 직접 fetch를 사용합니다.
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/files`, {
                 method: 'POST',
                 body: formData,
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
+                headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
             })
 
             if (!response.ok) {
@@ -114,7 +99,7 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
 
     const submitForm = useMutation({
         mutationFn: async () => {
-            const payload: TodoRequest = {
+            const payload: PatchTodoRequest = {
                 title: inputs.title,
                 goalId: inputs.goalId,
             }
@@ -132,9 +117,7 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
                 endpoint: `todos/${todoDetail.id}`,
                 data: payload,
                 options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
+                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
             })
         },
@@ -143,7 +126,7 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
             clearModal()
         },
         onError: () => {
-            setError('할 일 생성에 실패했습니다.')
+            setError('할 일 수정에 실패했습니다.')
         },
     })
 
@@ -166,6 +149,10 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
             }
             setFile(selectedFile)
         }
+    }
+
+    const handleSubmit = () => {
+        submitForm.mutate()
     }
 
     if (error) {
@@ -288,54 +275,68 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
                 )}
             </div>
 
-            {/* 목표 드롭다운 */}
-            {/* goals API가 무한 스크롤 방식이기 때문에 input 태그 대신 div 태그로 구현 */}
+            {/* 목표 드롭다운 - 무한 스크롤 */}
             <div className="mt-6">
                 <div className="text-base font-semibold">목표</div>
 
-                <div className="relative px-5 py-3 bg-custom_slate-50">
+                <div className="relative px-5 py-3 bg-custom_slate-50 rounded-md">
                     <div
-                        className={clsx('text-custom_slate-400', {'text-custom_slate-800': inputs.goalId})}
+                        className={clsx('text-custom_slate-400 cursor-pointer', {
+                            'text-custom_slate-800': inputs.goalId,
+                        })}
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
                         {inputs.goalId
-                            ? goals?.goals.find((goal) => goal.id === inputs.goalId)?.title
+                            ? fetchGoals.find((goal) => goal.id === inputs.goalId)?.title
                             : '목표를 선택해주세요'}
                     </div>
 
                     {isDropdownOpen && (
-                        <div
-                            className="absolute left-0 w-full h-full cursor-pointer top-12"
-                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                        >
-                            <div className="bg-white">
-                                {isLoading ? (
-                                    <div className="flex items-center justify-center w-full h-full text-sm text-custom_slate-400">
-                                        로딩 중...
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col">
-                                        {goals?.goals.length === 0 ? (
-                                            <div className="px-3 py-2 text-sm text-custom_slate-400">
-                                                등록된 목표가 없어요
-                                            </div>
-                                        ) : (
-                                            goals?.goals.map((goal) => (
+                        <div className="absolute left-0 w-full top-12 h-72 overflow-auto bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                            {loadingGoals && fetchGoals.length === 0 ? (
+                                <div className="flex items-center justify-center w-full h-full text-sm text-custom_slate-400">
+                                    로딩 중...
+                                </div>
+                            ) : (
+                                <div className="flex flex-col">
+                                    {fetchGoals.length === 0 ? (
+                                        <div className="px-3 py-2 text-sm text-custom_slate-400">
+                                            등록된 목표가 없어요
+                                        </div>
+                                    ) : (
+                                        <>
+                                            {fetchGoals.map((goal, index) => (
                                                 <div
                                                     key={goal.id}
-                                                    className="px-3 py-2 text-sm rounded-lg hover:bg-custom_slate-100"
-                                                    onClick={() => {
+                                                    ref={index === fetchGoals.length - 1 ? goalReference : undefined}
+                                                    className="px-3 py-2 text-sm cursor-pointer hover:bg-custom_slate-100"
+                                                    onClick={(event_) => {
+                                                        event_.stopPropagation()
                                                         setInputs((previous) => ({...previous, goalId: goal.id}))
                                                         setIsDropdownOpen(false)
                                                     }}
                                                 >
                                                     {goal.title}
                                                 </div>
-                                            ))
-                                        )}
-                                    </div>
-                                )}
-                            </div>
+                                            ))}
+
+                                            {/* 로딩 인디케이터 */}
+                                            {loadingGoals && (
+                                                <div className="px-3 py-2 text-sm text-center text-custom_slate-400">
+                                                    더 불러오는 중...
+                                                </div>
+                                            )}
+
+                                            {/* 더 이상 데이터가 없을 때 */}
+                                            {!hasMoreGoals && fetchGoals.length > 0 && (
+                                                <div className="px-3 py-2 text-sm text-center text-custom_slate-400">
+                                                    모든 목표를 불러왔습니다
+                                                </div>
+                                            )}
+                                        </>
+                                    )}
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
@@ -343,7 +344,7 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
 
             {/* 확인 버튼 */}
             <div className="mt-6">
-                <ButtonStyle disabled={!inputs.title.trim() || !inputs.goalId} onClick={() => submitForm.mutate()}>
+                <ButtonStyle disabled={!inputs.title.trim() || !inputs.goalId} onClick={handleSubmit}>
                     수정하기
                 </ButtonStyle>
             </div>

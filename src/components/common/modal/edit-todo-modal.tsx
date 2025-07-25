@@ -13,27 +13,12 @@ import {get, patch} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
 import type {GoalResponse} from '@/types/goals'
-import type {TodoResponse} from '@/types/todos'
-
-interface AddTodoData {
-    title: string
-    fileUrl?: string
-    linkUrl?: string
-    goalId: number | undefined
-}
-
-interface TodoRequest {
-    title?: string
-    done?: boolean
-    goalId?: number
-    linkUrl?: string
-    fileUrl?: string
-}
+import type {PatchTodoRequest, PostTodoRequest, TodoResponse} from '@/types/todos'
 
 const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
     const queryClient = useQueryClient()
 
-    const [inputs, setInputs] = useState<AddTodoData>({
+    const [inputs, setInputs] = useState<PostTodoRequest>({
         title: todoDetail.title,
         goalId: todoDetail.goal.id,
         fileUrl: todoDetail.fileUrl || '',
@@ -57,7 +42,7 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
             const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
                 endpoint: `goals?size=3&sortOrder=newest${urlParameter}`,
                 options: {
-                    headers: {Authorization: `Bearer ${localStorage.getItem('token')}`},
+                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
             })
 
@@ -96,9 +81,7 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/files`, {
                 method: 'POST',
                 body: formData,
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('token')}`,
-                },
+                headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
             })
 
             if (!response.ok) {
@@ -116,7 +99,7 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
 
     const submitForm = useMutation({
         mutationFn: async () => {
-            const payload: TodoRequest = {
+            const payload: PatchTodoRequest = {
                 title: inputs.title,
                 goalId: inputs.goalId,
             }
@@ -134,9 +117,7 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
                 endpoint: `todos/${todoDetail.id}`,
                 data: payload,
                 options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('token')}`,
-                    },
+                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
             })
         },

@@ -13,18 +13,12 @@ import {get, post} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
 import type {GoalResponse} from '@/types/goals'
-
-interface AddTodoData {
-    title: string
-    fileUrl?: string
-    linkUrl?: string
-    goalId: number | undefined
-}
+import type {PostTodoRequest} from '@/types/todos'
 
 const AddTodoModal = () => {
     const queryClient = useQueryClient()
 
-    const [inputs, setInputs] = useState<AddTodoData>({
+    const [inputs, setInputs] = useState<PostTodoRequest>({
         title: '',
         goalId: undefined,
     })

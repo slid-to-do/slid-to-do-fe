@@ -139,7 +139,6 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
 
                     <div className="mt-3">
                         <MarkdownEditor
-                            key={data.content === '' ? 'note-original' : `note-${data.goal.id}-${data.todo.id}`}
                             value={data.content}
                             onUpdate={handleEditorUpdate}
                             linkButton={linkUrl}

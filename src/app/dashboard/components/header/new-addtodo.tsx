@@ -7,6 +7,7 @@ import React from 'react'
 import type {TodoResponse} from '@/types/todos'
 
 const NewAddTodo = ({data}: {data: TodoResponse[] | undefined}) => {
+
     return (
 
         <article className=" w-full h-[200px] p-3 min-w-65 bg-white rounded-lg    ">

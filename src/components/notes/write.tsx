@@ -187,7 +187,7 @@ const NoteWriteCompo = ({
             })
             if (response.status === 201) {
                 alert('작성이 완료되었습니다.')
-                router.push(`/notes/write?noteId=${response.data.id}`)
+                router.push(`/notes?goalId=${goalId}`)
             } else {
                 alert(response.message)
             }
@@ -208,7 +208,7 @@ const NoteWriteCompo = ({
                         임시작성
                     </ButtonStyle>
                     <ButtonStyle
-                        className="w-24 bg-custom_slate-400 !font-normal rounded-xl"
+                        className={`w-24 !font-normal rounded-xl ${!content || content === '<p></p>' || content === '' ? 'bg-custom_slate-400' : 'bg-blue-500'}`}
                         disabled={!content || content === '<p></p>' || content === ''}
                         onClick={() => saveNotes.mutate()}
                     >
@@ -217,7 +217,7 @@ const NoteWriteCompo = ({
                 </div>
             </div>
             {saveToastOpen && (
-                <div className="mt-4 py-3 px-4 rounded-full bg-custom_blue-50 flex justify-between items-center gap-3">
+                <div className="mt-4 py-2 px-4 rounded-full bg-custom_blue-50 flex justify-between items-center gap-3">
                     <div className="flex items-center gap-4">
                         <IcDelete
                             className="w-6 h-6"
@@ -226,15 +226,11 @@ const NoteWriteCompo = ({
                             }}
                             onClick={() => setSaveToastOpen(false)}
                         />
-                        <div className="text-custom_blue-500">
+                        <div className="text-custom_blue-500 text-sm font-semibold">
                             임시 작성된 노트가 있어요. 작성된 노트를 불러오시겠어요?
                         </div>
                     </div>
-                    <ButtonStyle
-                        color="outline"
-                        className="py-2 px-4 w-[84px] rounded-full text-sm"
-                        onClick={openModal}
-                    >
+                    <ButtonStyle color="outline" className="px-4 w-[84px] rounded-full text-sm h-8" onClick={openModal}>
                         불러오기
                     </ButtonStyle>
                 </div>
@@ -265,7 +261,6 @@ const NoteWriteCompo = ({
                 </div>
                 <div className="mt-3">
                     <MarkdownEditor
-                        key={content === '' ? 'note-original' : `note-${goalId}-${todoId}`}
                         value={content}
                         onUpdate={handleEditorUpdate}
                         linkButton={linkButton}

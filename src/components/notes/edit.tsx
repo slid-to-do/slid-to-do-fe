@@ -8,7 +8,6 @@ import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 import {useIsNoteChanged} from '@/hooks/use-is-note-changed'
 import {get, patch} from '@/lib/api'
 import {type NoteItemResponse} from '@/types/notes'
-import {getTextFromHtml} from '@/utils/text-from-html'
 
 import MarkdownEditor from '../markdown-editor/markdown-editor'
 import ButtonStyle from '../style/button-style'
@@ -63,7 +62,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
 
     const payload = {
         title,
-        content: getTextFromHtml(content),
+        content,
         linkUrl: linkUrl || undefined,
     }
 

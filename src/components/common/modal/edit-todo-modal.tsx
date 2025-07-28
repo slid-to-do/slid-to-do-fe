@@ -12,7 +12,7 @@ import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import {get, patch} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
-import type {GoalResponse} from '@/types/goals'
+import type {Goal, GoalResponse} from '@/types/goals'
 import type {PatchTodoRequest, PostTodoRequest, TodoResponse} from '@/types/todos'
 
 const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
@@ -25,6 +25,7 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
         linkUrl: todoDetail.linkUrl || '',
     })
 
+    const [selectedGoal, setSelectedGoal] = useState<Goal>(todoDetail.goal)
     const [isCheckedFile, setIsCheckedFile] = useState<boolean>(!!todoDetail.fileUrl)
     const [isCheckedLink, setIsCheckedLink] = useState<boolean>(!!todoDetail.linkUrl)
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
@@ -286,9 +287,7 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
                         })}
                         onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                     >
-                        {inputs.goalId
-                            ? fetchGoals.find((goal) => goal.id === inputs.goalId)?.title
-                            : '목표를 선택해주세요'}
+                        {inputs.goalId ? selectedGoal.title : '목표를 선택해주세요'}
                     </div>
 
                     {isDropdownOpen && (
@@ -313,6 +312,7 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
                                                     onClick={(event_) => {
                                                         event_.stopPropagation()
                                                         setInputs((previous) => ({...previous, goalId: goal.id}))
+                                                        setSelectedGoal(goal)
                                                         setIsDropdownOpen(false)
                                                     }}
                                                 >

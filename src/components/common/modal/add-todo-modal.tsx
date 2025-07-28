@@ -21,7 +21,6 @@ const AddTodoModal = () => {
     const [inputs, setInputs] = useState<PostTodoRequest>({
         title: '',
         goalId: undefined,
-        linkUrl: '', // 빈 문자열로 초기화
     })
 
     const [isCheckedFile, setIsCheckedFile] = useState<boolean>(false)
@@ -242,7 +241,7 @@ const AddTodoModal = () => {
                     <InputStyle
                         type="text"
                         placeholder="링크를 입력해주세요"
-                        value={inputs.linkUrl || ''} // undefined 방지
+                        value={inputs.linkUrl}
                         name="linkUrl"
                         onChange={handleInputUpdate}
                     />

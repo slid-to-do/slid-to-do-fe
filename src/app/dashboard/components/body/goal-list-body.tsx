@@ -175,9 +175,15 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
                             로딩중...
                         </div>
                     ) : (
-                        <div className="w-auto h-full flex gap-3">
+                        <div className="w-full h-full flex min-w-[65px]  gap-3">
                             {hasMoreData && (
-                                <Image src={'/dashboard/down-arrow.svg'} alt={'downArrow'} width={9} height={9} />
+                                <Image
+                                    src={'/dashboard/down-arrow.svg'}
+                                    alt={'downArrow'}
+                                    width={9}
+                                    height={9}
+                                    className=" w-2.5 h-auto"
+                                />
                             )}
                             {hasMoreData ? '더 보기' : '추가 할 일이 없습니다.'}
                         </div>

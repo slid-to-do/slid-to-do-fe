@@ -94,7 +94,7 @@ const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
             >
                 <button
                     role="menuitem"
-                    className="block w-full text-sm font-normal px-4 py-2 hover:bg-gray-100 text-custom_slate-700 focus:outline-none"
+                    className="block w-full text-sm font-normal py-2 hover:bg-gray-100 text-custom_slate-700 focus:outline-none"
                     onClick={() => {
                         setIsOpen(false)
                         router.push(`/notes/write?noteId=${noteId}`)
@@ -105,7 +105,7 @@ const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
 
                 <button
                     role="menuitem"
-                    className="block w-full text-sm font-normal px-4 py-2 hover:bg-gray-100 text-custom_slate-700 focus:outline-none"
+                    className="block w-full text-sm font-normal py-2 hover:bg-gray-100 text-custom_slate-700 focus:outline-none"
                     onClick={() => {
                         openModal()
                         setIsOpen(false)

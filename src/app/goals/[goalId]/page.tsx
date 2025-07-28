@@ -119,12 +119,6 @@ const GoalsPage = () => {
     const handleInputUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {value} = event.target
 
-        // setGoal((previous) => ({
-        //     ...previous,
-        //     title: value,
-        //     id: previous?.id ?? 0,
-        // }))
-
         setGoalTitle(value)
     }
 

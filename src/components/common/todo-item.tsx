@@ -15,11 +15,13 @@ export default function TodoItem({
     onToggle,
     onEdit,
     onDelete,
+    isGoal = false,
 }: {
     todoDetail: TodoResponse
     onToggle: (todoId: number, newDone: boolean, goalId?: number) => void
     onEdit?: (todoId: number) => void
     onDelete?: (todoId: number) => void
+    isGoal?: boolean
 }) {
     const [isGoalTitleOpen, setIsGoalTitleOpen] = useState<boolean>(false)
     const [isContextMenuOpen, setIsContextMenuOpen] = useState<boolean>(false)
@@ -73,7 +75,9 @@ export default function TodoItem({
                     </div>
                     <div
                         className={`text-sm cursor-pointer hover:underline ${todoDetail?.done ? 'line-through' : ''}`}
-                        onClick={() => setIsGoalTitleOpen(!isGoalTitleOpen)}
+                        onClick={() =>
+                            isGoal ? onToggle(todoDetail.id, !todoDetail.done) : setIsGoalTitleOpen(!isGoalTitleOpen)
+                        }
                     >
                         {todoDetail?.title}
                     </div>

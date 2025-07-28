@@ -36,7 +36,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                             className="w-[32px] hover:opacity-80"
                         />
                         <Image
-                            src={'/Slid-to-do.svg'}
+                            src={'/slid-to-do.svg'}
                             alt="Logo"
                             width={80}
                             height={15}

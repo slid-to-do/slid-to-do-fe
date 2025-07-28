@@ -1,7 +1,8 @@
 'use client'
 import Image from 'next/image'
+import Link from 'next/link'
 import {useRouter} from 'next/navigation'
-import {useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 
 import {useModal} from '@/hooks/use-modal'
 
@@ -23,12 +24,36 @@ export default function TodoItem({
     const [isGoalTitleOpen, setIsGoalTitleOpen] = useState<boolean>(false)
     const [isContextMenuOpen, setIsContextMenuOpen] = useState<boolean>(false)
 
+    const contextMenuReference = useRef<HTMLDivElement>(null)
+
+    // 바깥 클릭 감지 로직
+    useEffect(() => {
+        const handleClickOutside = (event: MouseEvent) => {
+            if (contextMenuReference.current && !contextMenuReference.current.contains(event.target as Node)) {
+                setIsContextMenuOpen(false)
+            }
+        }
+
+        if (isContextMenuOpen) {
+            document.addEventListener('mousedown', handleClickOutside)
+        }
+
+        return () => {
+            document.removeEventListener('mousedown', handleClickOutside)
+        }
+    }, [isContextMenuOpen])
+
     const router = useRouter()
 
     // 모달 열기 함수
     const {openModal} = useModal((noteId: number) => <SideModal noteId={noteId} />, {
         modalAnimation: 'slideFromRight',
     })
+
+    const handleMenuClick = (action: () => void) => {
+        action()
+        setIsContextMenuOpen(false) // 메뉴 항목 클릭 시 메뉴 닫기
+    }
 
     return (
         <div>
@@ -93,7 +118,7 @@ export default function TodoItem({
                     )}
 
                     {/* 메뉴 */}
-                    <div className="relative">
+                    <div className="relative" ref={contextMenuReference}>
                         <Image
                             src="/todos/ic-menu.svg"
                             alt="Menu Icon"
@@ -106,15 +131,24 @@ export default function TodoItem({
                         {/* 컨텍스트 메뉴 */}
                         {isContextMenuOpen && (
                             <div className="absolute right-0 flex flex-col overflow-hidden text-sm bg-white shadow-lg top-8 rounded-xl min-w-max z-10">
+                                {todoDetail?.noteId === null && (
+                                    <Link
+                                        className="px-4 py-2 transition cursor-pointer hover:bg-gray-100"
+                                        href={`/notes/write?goalId=${todoDetail.goal.id}&todoId=${todoDetail.id}`}
+                                    >
+                                        노트작성
+                                    </Link>
+                                )}
+
                                 <div
                                     className="px-4 py-2 transition cursor-pointer hover:bg-gray-100"
-                                    onClick={() => onEdit?.(todoDetail.id)}
+                                    onClick={() => handleMenuClick(() => onEdit?.(todoDetail.id))}
                                 >
                                     수정하기
                                 </div>
                                 <div
                                     className="px-4 py-2 transition cursor-pointer hover:bg-gray-100"
-                                    onClick={() => onDelete?.(todoDetail.id)}
+                                    onClick={() => handleMenuClick(() => onDelete?.(todoDetail.id))}
                                 >
                                     삭제하기
                                 </div>

@@ -51,7 +51,7 @@ const MarkdownEditor = ({
                 wordCounter: (text) => text.split(/\s+/).filter((word) => word !== '').length,
             }),
         ],
-        content: value || '',
+        content: '',
         immediatelyRender: false,
 
         onUpdate: ({editor}) => {
@@ -63,6 +63,12 @@ const MarkdownEditor = ({
             },
         },
     })
+
+    useEffect(() => {
+        if (editorInstance && value !== editorInstance.getHTML()) {
+            editorInstance.commands.setContent(value)
+        }
+    }, [value, editorInstance])
 
     if (!editorInstance) {
         return <div>Loading editor...</div>

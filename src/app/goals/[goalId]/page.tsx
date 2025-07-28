@@ -20,9 +20,10 @@ import type {TodoResponse} from '@/types/todos'
 
 const GoalsPage = () => {
     const router = useRouter()
-    const [posts, setPosts] = useState<Goal>()
+    const [goal, setGoal] = useState<Goal>()
     const [moreButton, setMoreButton] = useState<boolean>(false)
     const [goalEdit, setGoalEdit] = useState<boolean>(false)
+    const [goalTitle, setGoalTitle] = useState<string>('')
 
     const queryClient = useQueryClient()
 
@@ -50,7 +51,8 @@ const GoalsPage = () => {
 
     useEffect(() => {
         if (goalsData) {
-            setPosts(goalsData)
+            setGoal(goalsData)
+            setGoalTitle(goalsData.title)
         }
     }, [goalsData])
 
@@ -59,7 +61,7 @@ const GoalsPage = () => {
         mutationFn: async () => {
             const response = await patch<TodoResponse>({
                 endpoint: `goals/${goalId}`,
-                data: {title: posts?.title},
+                data: {title: goalTitle},
                 options: {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
@@ -101,7 +103,7 @@ const GoalsPage = () => {
     /** 목표 수정&삭제 분기 함수 */
     const handleGoalAction = async (mode: string) => {
         if (mode === 'edit') {
-            if (posts?.title === '') {
+            if (goal?.title === '') {
                 alert('제목을 입력해주세요.')
                 return
             }
@@ -117,11 +119,7 @@ const GoalsPage = () => {
     const handleInputUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {value} = event.target
 
-        setPosts((previous) => ({
-            ...previous,
-            title: value,
-            id: previous?.id ?? 0,
-        }))
+        setGoalTitle(value)
     }
 
     /** 목표 삭제 모달 */
@@ -255,7 +253,8 @@ const GoalsPage = () => {
             <div className={`p-6 desktop:px-20`}>
                 <div className="text-subTitle">목표</div>
                 <GoalHeader
-                    posts={posts}
+                    goal={goal}
+                    goalTitle={goalTitle}
                     goalEdit={goalEdit}
                     setGoalEdit={setGoalEdit}
                     moreButton={moreButton}

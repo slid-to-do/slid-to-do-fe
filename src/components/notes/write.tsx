@@ -21,13 +21,6 @@ import InputStyle from '../style/input-style'
 
 import type {NoteCommon} from '@/types/notes'
 
-const getTextFromHtml = (html: string): string => {
-    if (typeof globalThis === 'undefined') return html
-    const temporaryElement = document.createElement('div')
-    temporaryElement.innerHTML = html
-    return temporaryElement.textContent || ''
-}
-
 const NoteWriteCompo = ({
     goalId,
     todoId,
@@ -172,7 +165,7 @@ const NoteWriteCompo = ({
             const payload = {
                 todoId: Number(todoId),
                 title: subject,
-                content: getTextFromHtml(content),
+                content,
                 ...(linkButton && {linkUrl: linkButton}),
             }
 

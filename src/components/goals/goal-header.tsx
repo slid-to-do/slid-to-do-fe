@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import {useParams} from 'next/navigation'
 import {useEffect, useState} from 'react'
 
 import {useQuery} from '@tanstack/react-query'
@@ -35,12 +36,13 @@ export default function GoalHeader({
     handleGoalAction: (mode: string) => void
 }) {
     const [progress, setProgress] = useState<number>(0)
+    const {goalId} = useParams()
     /** 목표 달성 API */
     const {data: progressData} = useQuery<GoalProgress>({
-        queryKey: ['todos', goal?.id, 'progress'],
+        queryKey: ['todos', goalId, 'progress'],
         queryFn: async () => {
             const response = await get<GoalProgress>({
-                endpoint: `todos/progress?goalId=${goal?.id}`,
+                endpoint: `todos/progress?goalId=${goalId}`,
                 options: {
                     headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
@@ -51,10 +53,10 @@ export default function GoalHeader({
     })
 
     useEffect(() => {
-        if (progressData) {
+        if (goal && progressData) {
             setProgress(progressData.progress)
         }
-    }, [progressData])
+    }, [progressData, goal])
 
     return (
         <div className="mt-4 py-4 px-6 bg-white rounded">
@@ -104,7 +106,7 @@ export default function GoalHeader({
             </div>
             <div className="mt-6 text-subBody font-semibold">Progress</div>
             <div className="mt-3.5">
-                <ProgressBar progress={progress} />
+                <ProgressBar progress={progress || 0} />
             </div>
         </div>
     )

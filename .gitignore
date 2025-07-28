@@ -14,10 +14,13 @@
 
 # production
 /build
+/.gitignore
+/src/app/test
 
 # misc
 .DS_Store
 *.pem
+
 
 # debug
 npm-debug.log*

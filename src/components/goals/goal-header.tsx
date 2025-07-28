@@ -14,7 +14,8 @@ import ProgressBar from './prograss-motion'
 import type {Goal, GoalProgress} from '@/types/goals'
 
 export default function GoalHeader({
-    posts,
+    goal,
+    goalTitle,
     goalEdit,
     setGoalEdit,
     moreButton,
@@ -23,7 +24,8 @@ export default function GoalHeader({
     handleInputUpdate,
     handleGoalAction,
 }: {
-    posts?: Goal
+    goal?: Goal
+    goalTitle?: string
     goalEdit: boolean
     setGoalEdit: (edit: boolean) => void
     moreButton: boolean
@@ -35,10 +37,10 @@ export default function GoalHeader({
     const [progress, setProgress] = useState<number>(0)
     /** 목표 달성 API */
     const {data: progressData} = useQuery<GoalProgress>({
-        queryKey: ['todos', posts?.id, 'progress'],
+        queryKey: ['todos', goal?.id, 'progress'],
         queryFn: async () => {
             const response = await get<GoalProgress>({
-                endpoint: `todos/progress?goalId=${posts?.id}`,
+                endpoint: `todos/progress?goalId=${goal?.id}`,
                 options: {
                     headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
@@ -59,22 +61,26 @@ export default function GoalHeader({
             <div className="flex justify-between items-center">
                 <div className="flex flex-grow gap-2 items-center">
                     <Image src="/goals/flag-goal.svg" alt="목표깃발" width={40} height={40} />
-                    {posts ? (
+                    {goal ? (
                         goalEdit ? (
                             <div className="w-full flex gap-3 items-center">
                                 <InputStyle
                                     type="text"
                                     placeholder="할 일의 제목을 적어주세요"
-                                    value={posts.title}
+                                    value={goalTitle}
                                     name="title"
                                     onChange={handleInputUpdate}
                                 />
-                                <ButtonStyle size="medium" onClick={() => handleGoalAction('edit')}>
+                                <ButtonStyle
+                                    size="medium"
+                                    onClick={() => handleGoalAction('edit')}
+                                    disabled={goal.title === goalTitle}
+                                >
                                     수정
                                 </ButtonStyle>
                             </div>
                         ) : (
-                            <div className="text-custom_slate-800 font-semibold">{posts.title}</div>
+                            <div className="text-custom_slate-800 font-semibold">{goal.title}</div>
                         )
                     ) : (
                         <div className="text-custom_slate-800 font-semibold">loading...</div>

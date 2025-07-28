@@ -4,7 +4,7 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-import Expand from '@/../public/sidebar/ic_expand.svg'
+// import Expand from '@/../public/sidebar/ic_expand.svg'
 import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import HamburgerToggle from '@/components/style/hamburger-toggle'
 import useLayout from '@/hooks/use-layout'
@@ -36,7 +36,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                             className="w-[32px] hover:opacity-80"
                         />
                         <Image
-                            src={'/slid-to-do.svg'}
+                            src={'/Slid-to-do.svg'}
                             alt="Logo"
                             width={80}
                             height={15}
@@ -53,7 +53,13 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                         className={` mobile:hidden absolute right-2 top-2 group  rounded-lg w-8 h-8 flex justify-center items-center z-10  ${isOpen === 'noState' ? 'rotate-180 tablet:rotate-0 ' : isOpen ? 'rotate-180 ' : 'rotate-0 '} `}
                         onClick={onClickHandler}
                     >
-                        <Expand className=" w-6 h-6 fill-white text-slate-400 group-hover:text-slate-300" />
+                        <Image
+                            src={'/sidebar/ic-expand.svg'}
+                            alt="expand"
+                            width={26}
+                            height={25}
+                            className=" w-6 h-6 fill-white text-slate-400 group-hover:text-slate-300"
+                        />
                     </button>
                 )}
             </header>

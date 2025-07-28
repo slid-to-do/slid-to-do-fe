@@ -15,6 +15,7 @@
 # production
 /build
 /.gitignore
+/src/app/test
 
 # misc
 .DS_Store

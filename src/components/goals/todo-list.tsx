@@ -66,6 +66,7 @@ export default function InfiniteTodoList({
                                             onToggle={onToggle}
                                             onDelete={onDelete}
                                             onEdit={() => openEditTodoModal(todo)}
+                                            isGoal
                                         />
                                     </div>
                                 ))}

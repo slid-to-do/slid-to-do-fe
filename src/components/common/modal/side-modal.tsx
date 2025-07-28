@@ -85,7 +85,7 @@ export default function SideModal({noteId}: {noteId?: number}) {
                 </div>
             )}
 
-            <p className="text-custom_slate-700">{note?.content}</p>
+            <p className="text-custom_slate-700 prose" dangerouslySetInnerHTML={{__html: note?.content || ''}} />
         </div>
     )
 }

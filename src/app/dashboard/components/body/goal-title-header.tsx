@@ -1,6 +1,5 @@
 'use client'
 
-import Link from 'next/link'
 import React from 'react'
 
 import {useQuery} from '@tanstack/react-query'
@@ -32,9 +31,11 @@ const GoalTitleHeader = ({goalId, title}: {goalId: number; title: string}) => {
     return (
         <header className="w-full h-auto p-2 ">
             <div className="w-full h-auto p-2 flex justify-between items-center">
+
                 <Link href={`/goals/${goalId}`} className="text-title-base font-semibold cursor-pointer">
                     {title}
                 </Link>
+
                 <button
                     onClick={openModal}
                     className=" text-blue-500 text-subBody-sm font-bold w-auto h-auto cursor-pointer"

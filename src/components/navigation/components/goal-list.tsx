@@ -94,7 +94,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                                     {hasMoreGoals && !loadingGoals && goals.length > 0 && <div ref={goalReference} />}
 
                                     {!hasMoreGoals && goals.length > 0 && (
-                                        <div className="mt-4 text-gray-400 text-sm">모든 할일을 다 불러왔어요</div>
+                                        <div className="mt-4 text-gray-400 text-sm">모든 목표를 다 불러왔어요</div>
                                     )}
                                 </>
                             )}

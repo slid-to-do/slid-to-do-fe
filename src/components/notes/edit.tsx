@@ -6,6 +6,7 @@ import React, {useEffect, useState} from 'react'
 import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
 
 import {useIsNoteChanged} from '@/hooks/use-is-note-changed'
+import useToast from '@/hooks/use-toast'
 import {get, patch} from '@/lib/api'
 import {type NoteItemResponse} from '@/types/notes'
 
@@ -18,6 +19,8 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
     const [title, setTitle] = useState<string>('')
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [content, setContent] = useState('')
+
+    const {showToast} = useToast()
 
     const url = `notes/${noteId}`
     /** 노트 단일 조회 통신 */
@@ -77,10 +80,10 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
             return response.data
         },
         onError: (error) => {
-            alert(error)
+            showToast(error.message)
         },
         onSuccess: () => {
-            alert('수정이 완료되었습니다!')
+            showToast('수정이 완료되었습니다!')
             queryClient.invalidateQueries({queryKey: ['noteEdit', url]})
         },
     })

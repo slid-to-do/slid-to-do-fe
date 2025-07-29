@@ -9,6 +9,7 @@ import clsx from 'clsx'
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
+import useToast from '@/hooks/use-toast'
 import {get, post} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
@@ -21,6 +22,7 @@ const AddTodoModal = () => {
     const [inputs, setInputs] = useState<PostTodoRequest>({
         title: '',
         goalId: undefined,
+        linkUrl: '', // 빈 문자열로 초기화
     })
 
     const [isCheckedFile, setIsCheckedFile] = useState<boolean>(false)
@@ -32,6 +34,8 @@ const AddTodoModal = () => {
     const fileInputReference = useRef<HTMLInputElement>(null)
 
     const {clearModal} = useModalStore()
+
+    const {showToast} = useToast()
 
     const getGoalsData = async (cursor: number | undefined) => {
         try {
@@ -102,7 +106,12 @@ const AddTodoModal = () => {
 
     const submitForm = useMutation({
         mutationFn: async () => {
-            const payload = {...inputs}
+            const payload: {
+                title: string
+                goalId: number | undefined
+                fileUrl?: string
+                linkUrl?: string
+            } = {title: inputs.title, goalId: inputs.goalId}
 
             if (isCheckedFile && file) {
                 const fileUrl = await uploadFileMutation.mutateAsync()
@@ -125,6 +134,7 @@ const AddTodoModal = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ['todos']})
+            queryClient.invalidateQueries({queryKey: ['todo']})
             clearModal()
         },
         onError: () => {
@@ -146,7 +156,7 @@ const AddTodoModal = () => {
 
         if (selectedFile) {
             if (selectedFile.size > 3 * 1024 * 1024) {
-                alert('파일 크기는 3MB 이하로 제한됩니다.')
+                showToast('파일 크기는 3MB 이하로 제한됩니다.')
                 return
             }
             setFile(selectedFile)
@@ -241,7 +251,7 @@ const AddTodoModal = () => {
                     <InputStyle
                         type="text"
                         placeholder="링크를 입력해주세요"
-                        value={inputs.linkUrl}
+                        value={inputs.linkUrl || ''} // undefined 방지
                         name="linkUrl"
                         onChange={handleInputUpdate}
                     />

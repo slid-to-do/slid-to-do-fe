@@ -12,6 +12,7 @@ import GoalHeader from '@/components/goals/goal-header'
 import InfiniteTodoList from '@/components/goals/todo-list'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import useModal from '@/hooks/use-modal'
+import useToast from '@/hooks/use-toast'
 import {del, get, patch} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
@@ -24,6 +25,7 @@ const GoalsPage = () => {
     const [moreButton, setMoreButton] = useState<boolean>(false)
     const [goalEdit, setGoalEdit] = useState<boolean>(false)
     const [goalTitle, setGoalTitle] = useState<string>('')
+    const {showToast} = useToast()
 
     const queryClient = useQueryClient()
 
@@ -70,9 +72,9 @@ const GoalsPage = () => {
             })
 
             if (response.status === 200) {
-                alert('수정되었습니다.')
+                showToast('수정되었습니다.')
             } else {
-                alert(response.message)
+                showToast(response.message)
             }
 
             return response.data
@@ -94,7 +96,7 @@ const GoalsPage = () => {
             })
             if (response === undefined) {
                 clearModal()
-                alert('삭제가 완료되었습니다.')
+                showToast('삭제가 완료되었습니다.')
                 router.push('/')
             }
         },
@@ -104,7 +106,7 @@ const GoalsPage = () => {
     const handleGoalAction = async (mode: string) => {
         if (mode === 'edit') {
             if (goal?.title === '') {
-                alert('제목을 입력해주세요.')
+                showToast('제목을 입력해주세요.')
                 return
             }
             updateGoals.mutate()

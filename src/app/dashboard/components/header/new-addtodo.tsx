@@ -21,7 +21,7 @@ const NewAddTodo = ({data}: {data: TodoResponse[] | undefined}) => {
                 </Link>
             </header>
             {data ? (
-                <ul className=" list-none space-y-0.5 h-[130px] overflow-y-scroll">
+                <ul className=" list-none space-y-0.5 h-[130px] ">
                     {data?.map((item) => (
                         <li
                             key={item.id}

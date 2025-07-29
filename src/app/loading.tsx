@@ -1,5 +1,9 @@
 import LoadingSpinner from '@/components/common/loading-spinner'
 
 export default function Loading() {
-    return <LoadingSpinner />
+    return (
+        <div className="w-full h-screen">
+            <LoadingSpinner />
+        </div>
+    )
 }

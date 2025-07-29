@@ -9,6 +9,7 @@ import clsx from 'clsx'
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
+import useToast from '@/hooks/use-toast'
 import {get, patch} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
@@ -35,6 +36,8 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
     const fileInputReference = useRef<HTMLInputElement>(null)
 
     const {clearModal} = useModalStore()
+
+    const {showToast} = useToast()
 
     // 무한 스크롤 목표 데이터
     const getGoalsData = async (cursor: number | undefined) => {
@@ -147,7 +150,7 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
 
         if (selectedFile) {
             if (selectedFile.size > 3 * 1024 * 1024) {
-                alert('파일 크기는 3MB 이하로 제한됩니다.')
+                showToast('파일 크기는 3MB 이하로 제한됩니다.')
                 return
             }
             setFile(selectedFile)

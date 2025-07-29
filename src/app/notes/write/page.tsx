@@ -7,6 +7,7 @@ import {useQuery} from '@tanstack/react-query'
 
 import NoteEditCompo from '@/components/notes/edit'
 import NoteWriteCompo from '@/components/notes/write'
+import useToast from '@/hooks/use-toast'
 import {get} from '@/lib/api'
 
 import type {Goal} from '@/types/goals'
@@ -18,6 +19,8 @@ const NoteWritePage = () => {
     const todoId = searchParameters.get('todoId')
     const noteId = searchParameters.get('noteId')
 
+    const {showToast} = useToast()
+
     const isEdit = typeof noteId === 'string'
     const router = useRouter()
 
@@ -26,7 +29,7 @@ const NoteWritePage = () => {
             (todoId === undefined || todoId === null || goalId === undefined || goalId === null) &&
             (noteId === undefined || noteId === null)
         ) {
-            alert('확인 할 데이터가 없습니다.') // 에러페이지로 이동
+            showToast('확인 할 데이터가 없습니다.')
             router.back()
         }
     }, [todoId, goalId, router, noteId])

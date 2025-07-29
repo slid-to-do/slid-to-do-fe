@@ -21,6 +21,7 @@ const AddTodoModal = () => {
     const [inputs, setInputs] = useState<PostTodoRequest>({
         title: '',
         goalId: undefined,
+        linkUrl: '', // 빈 문자열로 초기화
     })
 
     const [isCheckedFile, setIsCheckedFile] = useState<boolean>(false)
@@ -102,7 +103,12 @@ const AddTodoModal = () => {
 
     const submitForm = useMutation({
         mutationFn: async () => {
-            const payload = {...inputs}
+            const payload: {
+                title: string
+                goalId: number | undefined
+                fileUrl?: string
+                linkUrl?: string
+            } = {title: inputs.title, goalId: inputs.goalId}
 
             if (isCheckedFile && file) {
                 const fileUrl = await uploadFileMutation.mutateAsync()
@@ -242,7 +248,7 @@ const AddTodoModal = () => {
                     <InputStyle
                         type="text"
                         placeholder="링크를 입력해주세요"
-                        value={inputs.linkUrl}
+                        value={inputs.linkUrl || ''} // undefined 방지
                         name="linkUrl"
                         onChange={handleInputUpdate}
                     />

@@ -102,7 +102,12 @@ const AddTodoModal = () => {
 
     const submitForm = useMutation({
         mutationFn: async () => {
-            const payload = {...inputs}
+            const payload: {
+                title: string
+                goalId: number | undefined
+                fileUrl?: string
+                linkUrl?: string
+            } = {title: inputs.title, goalId: inputs.goalId}
 
             if (isCheckedFile && file) {
                 const fileUrl = await uploadFileMutation.mutateAsync()

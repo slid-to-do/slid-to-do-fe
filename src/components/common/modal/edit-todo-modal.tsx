@@ -123,6 +123,8 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ['todos']})
+            queryClient.invalidateQueries({queryKey: ['todo', 'done', todoDetail.goal.id]})
+            queryClient.invalidateQueries({queryKey: ['todo', 'notDone', todoDetail.goal.id]})
             clearModal()
         },
         onError: () => {

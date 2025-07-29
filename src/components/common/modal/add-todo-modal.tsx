@@ -125,6 +125,7 @@ const AddTodoModal = () => {
         },
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ['todos']})
+            queryClient.invalidateQueries({queryKey: ['todo']})
             clearModal()
         },
         onError: () => {

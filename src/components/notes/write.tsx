@@ -14,6 +14,7 @@ import TwoButtonModal from '@/components/common/modal/two-buttom-modal'
 import MarkdownEditor from '@/components/markdown-editor/markdown-editor'
 import ButtonStyle from '@/components/style/button-style'
 import useModal from '@/hooks/use-modal'
+import useToast from '@/hooks/use-toast'
 import {post} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
@@ -43,6 +44,8 @@ const NoteWriteCompo = ({
 
     const {clearModal} = useModalStore()
 
+    const {showToast} = useToast()
+
     const key = `note-draft-${goalId}-${todoId}`
 
     /** 작성페이지 검사 */
@@ -61,7 +64,7 @@ const NoteWriteCompo = ({
     const saveToLocalStorage = useCallback(
         (editContent: string) => {
             if ((content === '<p></p>' || content === '') && subject === '') {
-                alert('제목 또는 내용을 입력해주세요.')
+                showToast('제목 또는 내용을 입력해주세요.')
                 return
             }
 
@@ -148,7 +151,7 @@ const NoteWriteCompo = ({
         if (value.length <= 30) {
             setSubject(value)
         } else {
-            alert('제목은 최대 30자까지 입력 가능합니다.')
+            showToast('제목은 최대 30자까지 입력 가능합니다.')
         }
     }
 
@@ -179,10 +182,10 @@ const NoteWriteCompo = ({
                 },
             })
             if (response.status === 201) {
-                alert('작성이 완료되었습니다.')
+                showToast('작성이 완료되었습니다.')
                 router.push(`/notes?goalId=${goalId}`)
             } else {
-                alert(response.message)
+                showToast(response.message)
             }
 
             return response.data

@@ -6,6 +6,7 @@ import {useForm} from 'react-hook-form'
 
 import InputForm from '@/components/common/input-form'
 import {useLogin} from '@/hooks/use-login'
+import useToast from '@/hooks/use-toast'
 
 import type {ApiError} from '@/types/api'
 import type {LoginFormData} from '@/types/login'
@@ -13,6 +14,8 @@ import type {LoginFormData} from '@/types/login'
 const LoginPage = () => {
     const {login, loading} = useLogin()
     const router = useRouter()
+
+    const {showToast} = useToast()
 
     const {
         register,
@@ -25,14 +28,14 @@ const LoginPage = () => {
         const {email, password} = data
         try {
             await login({email, password})
-            alert('로그인에 성공했습니다!')
+            showToast('로그인에 성공했습니다!')
             router.push('/')
         } catch (error_: unknown) {
             const error = error_ as ApiError
             if (error.status === 400 || error.status === 404) {
                 setError('email', {message: error.message})
             } else {
-                alert('알 수 없는 오류가 발생했습니다.')
+                showToast('알 수 없는 오류가 발생했습니다.')
             }
         }
     }

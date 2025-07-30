@@ -74,7 +74,7 @@ const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
                 type="button"
                 aria-haspopup="true"
                 onClick={() => setIsOpen((previous) => !previous)}
-                className="w-6 h-6 rounded-full bg-custom_slate-50  focus:outline-none relative"
+                className="w-6 h-6 rounded-full bg-custom_slate-50  focus:outline-none relative z-1"
             >
                 <div className="flex flex-col items-center justify-center space-y-0.5">
                     <span className="block w-0.5 h-0.5 bg-gray-400 rounded-full" />
@@ -86,7 +86,7 @@ const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
             <div
                 role="menu"
                 aria-orientation="vertical"
-                className={clsx('absolute right-0 mt-2 w-[81px] bg-white rounded-xl shadow-md z-10', '', {
+                className={clsx('absolute right-0 mt-2 w-[81px] bg-white rounded-xl shadow-md z-2', {
                     'opacity-100': isOpen,
                     'opacity-0': !isOpen,
                 })}
@@ -94,7 +94,7 @@ const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
             >
                 <button
                     role="menuitem"
-                    className="block w-full text-sm font-normal px-4 py-2 hover:bg-gray-100 text-custom_slate-700 focus:outline-none"
+                    className="block w-full text-sm font-normal py-2 hover:bg-gray-100 text-custom_slate-700 focus:outline-none"
                     onClick={() => {
                         setIsOpen(false)
                         router.push(`/notes/write?noteId=${noteId}`)
@@ -105,7 +105,7 @@ const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
 
                 <button
                     role="menuitem"
-                    className="block w-full text-sm font-normal px-4 py-2 hover:bg-gray-100 text-custom_slate-700 focus:outline-none"
+                    className="block w-full text-sm font-normal py-2 hover:bg-gray-100 text-custom_slate-700 focus:outline-none"
                     onClick={() => {
                         openModal()
                         setIsOpen(false)

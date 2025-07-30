@@ -1,5 +1,6 @@
 'use client'
 import Image from 'next/image'
+import {useEffect, useState} from 'react'
 
 import CharacterCount from '@tiptap/extension-character-count'
 import Link from '@tiptap/extension-link'
@@ -9,21 +10,29 @@ import Underline from '@tiptap/extension-underline'
 import {EditorContent, useEditor} from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 
+import useModal from '@/hooks/use-modal'
+
+import LinkModal from '../common/modal/link-modal'
+
 const MarkdownEditor = ({
     value,
     onUpdate,
     className,
-    onChangeDetect,
     linkButton,
     onSetLinkButton,
 }: {
     value: string
     onUpdate: (content: string) => void
     className?: string
-    onChangeDetect?: (changed: boolean) => void
     linkButton?: string | undefined
     onSetLinkButton?: (link: string | undefined) => void
 }) => {
+    const [internalLink, setInternalLink] = useState(linkButton ?? '')
+
+    useEffect(() => {
+        setInternalLink(linkButton ?? '')
+    }, [linkButton])
+
     const editorInstance = useEditor({
         extensions: [
             StarterKit,
@@ -42,14 +51,11 @@ const MarkdownEditor = ({
                 wordCounter: (text) => text.split(/\s+/).filter((word) => word !== '').length,
             }),
         ],
-        content: value || '',
+        content: '',
+        immediatelyRender: false,
 
         onUpdate: ({editor}) => {
-            const currentContent = editor.getHTML()
-            onUpdate(currentContent)
-
-            const hasChanged = currentContent !== value
-            onChangeDetect?.(hasChanged)
+            onUpdate(editor.getHTML())
         },
         editorProps: {
             attributes: {
@@ -58,26 +64,43 @@ const MarkdownEditor = ({
         },
     })
 
+    useEffect(() => {
+        if (editorInstance && value !== editorInstance.getHTML()) {
+            editorInstance.commands.setContent(value)
+        }
+    }, [value, editorInstance])
+
     if (!editorInstance) {
         return <div>Loading editor...</div>
     }
 
     return (
-        <div className={`relative min-w-64 min-h-64 ${className}`}>
+        <div className={`relative max-w-screen min-w-64 min-h-64 ${className}`}>
             <div className="text-xs font-medium">
                 글자 수 : {editorInstance.storage.characterCount.characters()} | 단어 수 :{' '}
                 {editorInstance.storage.characterCount.words()}
             </div>
 
-            {linkButton && (
+            {internalLink && (
                 <div className="mt-2 bg-custom_slate-200 p-1 rounded-full flex justify-between items-center">
-                    <div className="flex items-end gap-2">
-                        <Image src="/markdown-editor/ic-save-iink.svg" alt="삭제" width={24} height={24} />
-                        <a href={linkButton} target="_blank" className="inline-block" rel="noreferrer">
-                            {linkButton}
+                    <div className="flex items-end gap-2 flex-1 min-w-0  p-1 max-w-fit ">
+                        <Image src="/markdown-editor/ic-save-link.svg" alt="링크아이콘" width={24} height={24} />
+                        <a
+                            href={internalLink}
+                            target="_blank"
+                            className="truncate whitespace-nowrap break-all text-ellipsis block text-body text-custom_slate-800"
+                            rel="noreferrer"
+                        >
+                            {internalLink}
                         </a>
                     </div>
-                    <button onClick={() => onSetLinkButton?.(undefined)} className="">
+                    <button
+                        onClick={() => {
+                            setInternalLink('')
+                            onSetLinkButton?.(undefined)
+                        }}
+                        className="shrink-0 ml-2"
+                    >
                         <Image src="/todos/ic-delete.svg" alt="삭제" width={24} height={24} />
                     </button>
                 </div>
@@ -101,6 +124,22 @@ function Toolbar({
     linkButton?: string | undefined
     onSetLinkButton?: (link: string | undefined) => void
 }) {
+    /** 링크 modal */
+    const {openModal, closeModal} = useModal(
+        () => (
+            <LinkModal
+                onSetButton={(url) => {
+                    onSetLinkButton?.(url)
+                    closeModal()
+                }}
+            />
+        ),
+        {
+            modalAnimation: 'slideFromTop',
+            backdropAnimation: 'fade',
+        },
+    )
+
     return (
         <div className="absolute flex w-full gap-4 p-2 bg-white rounded-full shadow-sm -bottom-20 border-slate-200">
             <div className="flex gap-1">
@@ -162,15 +201,7 @@ function Toolbar({
 
             {!linkButton && (
                 <button
-                    onClick={() => {
-                        let url = prompt('링크 주소 입력')
-                        if (!url) return
-
-                        if (!/^https?:\/\//i.test(url)) {
-                            url = 'https://' + url
-                        }
-                        onSetLinkButton?.(url)
-                    }}
+                    onClick={openModal}
                     className="rounded-full hover:bg-blue-500 size-6 font-bold transition bg-white"
                 >
                     <Image src="/markdown-editor/ic-link.svg" alt="Link Button" width={24} height={24} />

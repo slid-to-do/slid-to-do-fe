@@ -27,7 +27,7 @@ export const metadata: Metadata = {
     },
     description: 'Slid-to-do',
     icons: {
-        icon: '/ic_favicon.svg',
+        icon: '/ic-favicon.svg',
     },
 }
 

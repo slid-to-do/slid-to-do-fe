@@ -1,10 +1,4 @@
-interface FilterProperties {
-    children: React.ReactNode
-    checked?: boolean
-    onChange?: (value: string) => void
-    value: string
-    name: string
-}
+import type {FilterProperties} from "@/types/todos"
 
 const Filter = ({children, checked = false, onChange, value, name}: FilterProperties) => {
     const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {

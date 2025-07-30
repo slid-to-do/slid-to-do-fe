@@ -1,5 +1,6 @@
 'use client'
 import Image from 'next/image'
+import Link from 'next/link'
 import {useParams, useRouter} from 'next/navigation'
 import {useEffect, useState} from 'react'
 
@@ -11,6 +12,7 @@ import GoalHeader from '@/components/goals/goal-header'
 import InfiniteTodoList from '@/components/goals/todo-list'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import useModal from '@/hooks/use-modal'
+import useToast from '@/hooks/use-toast'
 import {del, get, patch} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
@@ -19,9 +21,11 @@ import type {TodoResponse} from '@/types/todos'
 
 const GoalsPage = () => {
     const router = useRouter()
-    const [posts, setPosts] = useState<Goal>()
+    const [goal, setGoal] = useState<Goal>()
     const [moreButton, setMoreButton] = useState<boolean>(false)
     const [goalEdit, setGoalEdit] = useState<boolean>(false)
+    const [goalTitle, setGoalTitle] = useState<string>('')
+    const {showToast} = useToast()
 
     const queryClient = useQueryClient()
 
@@ -49,7 +53,8 @@ const GoalsPage = () => {
 
     useEffect(() => {
         if (goalsData) {
-            setPosts(goalsData)
+            setGoal(goalsData)
+            setGoalTitle(goalsData.title)
         }
     }, [goalsData])
 
@@ -58,7 +63,7 @@ const GoalsPage = () => {
         mutationFn: async () => {
             const response = await patch<TodoResponse>({
                 endpoint: `goals/${goalId}`,
-                data: {title: posts?.title},
+                data: {title: goalTitle},
                 options: {
                     headers: {
                         Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
@@ -67,9 +72,9 @@ const GoalsPage = () => {
             })
 
             if (response.status === 200) {
-                alert('수정되었습니다.')
+                showToast('수정되었습니다.')
             } else {
-                alert(response.message)
+                showToast(response.message)
             }
 
             return response.data
@@ -91,7 +96,7 @@ const GoalsPage = () => {
             })
             if (response === undefined) {
                 clearModal()
-                alert('삭제가 완료되었습니다.')
+                showToast('삭제가 완료되었습니다.')
                 router.push('/')
             }
         },
@@ -100,8 +105,8 @@ const GoalsPage = () => {
     /** 목표 수정&삭제 분기 함수 */
     const handleGoalAction = async (mode: string) => {
         if (mode === 'edit') {
-            if (posts?.title === '') {
-                alert('제목을 입력해주세요.')
+            if (goal?.title === '') {
+                showToast('제목을 입력해주세요.')
                 return
             }
             updateGoals.mutate()
@@ -116,11 +121,7 @@ const GoalsPage = () => {
     const handleInputUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {value} = event.target
 
-        setPosts((previous) => ({
-            ...previous,
-            title: value,
-            id: previous?.id ?? 0,
-        }))
+        setGoalTitle(value)
     }
 
     /** 목표 삭제 모달 */
@@ -249,17 +250,13 @@ const GoalsPage = () => {
         )
     }
 
-    /** 노트 모아보기 페이지 이동 */
-    const goNoteList = () => {
-        router.push(`/notes?goalId=${goalId}`)
-    }
-
     return (
-        <div className="w-full bg-custom_slate-100">
+        <div className="w-full bg-custom_slate-100 overflow-y-auto">
             <div className={`p-6 desktop:px-20`}>
                 <div className="text-subTitle">목표</div>
                 <GoalHeader
-                    posts={posts}
+                    goal={goal}
+                    goalTitle={goalTitle}
                     goalEdit={goalEdit}
                     setGoalEdit={setGoalEdit}
                     moreButton={moreButton}
@@ -269,16 +266,16 @@ const GoalsPage = () => {
                     handleGoalAction={handleGoalAction}
                 />
 
-                <div
+                <Link
                     className="mt-6 py-4 px-6 bg-custom_blue-100 flex items-center justify-between rounded-xl cursor-pointer"
-                    onClick={() => goNoteList()}
+                    href={`/notes?goalId=${goalId}`}
                 >
                     <div className="flex gap-2 items-center">
                         <Image src="/goals/note.svg" alt="노트" width={24} height={24} />
                         <div className="text-subTitle">노트 모아보기</div>
                     </div>
                     <Image src="/goals/ic-arrow-right.svg" alt="노트보기 페이지 이동" width={24} height={24} />
-                </div>
+                </Link>
 
                 <div className="mt-6 flex flex-col lg:flex-row gap-6 justify-between">
                     <InfiniteTodoList

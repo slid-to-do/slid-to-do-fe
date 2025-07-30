@@ -61,6 +61,12 @@ export function useCustomMutation<TData = unknown, TError = unknown, TVariables 
                 }
             }
 
+            // 공통 서버 오류 처리 (500 이상일 경우 알림)
+            if ((error as any)?.status >= 500) {
+                showToast('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', {type: 'error'})
+            }
+
+            // 사용자가 정의한 onError 콜백 호출
             if (options.onError) {
                 options.onError(error, variables, context)
             }

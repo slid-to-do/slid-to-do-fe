@@ -1,8 +1,11 @@
 'use client'
 
+import {useMutation} from '@tanstack/react-query'
+
 import useToast from '@/hooks/use-toast'
-import {useMutation, UseMutationOptions} from '@tanstack/react-query'
-import {FieldValues, UseFormSetError} from 'react-hook-form'
+
+import type {UseMutationOptions} from '@tanstack/react-query'
+import type {FieldValues, UseFormSetError} from 'react-hook-form'
 
 type ErrorDisplayType = 'toast' | 'form' | 'both' | 'none'
 
@@ -13,8 +16,8 @@ type CustomMutationOptions<TData, TError, TVariables, TContext> = UseMutationOpt
     TContext
 > & {
     setError?: UseFormSetError<FieldValues>
-    onValidationError?: (error: any) => {name: string; message: string}[] // 에러 객체 → 폼 필드 매핑
-    errorDisplayType?: ErrorDisplayType // <-- 추가
+    onValidationError?: (error: TError) => {name: string; message: string}[]
+    errorDisplayType?: ErrorDisplayType
 }
 
 /**
@@ -26,35 +29,36 @@ type CustomMutationOptions<TData, TError, TVariables, TContext> = UseMutationOpt
  * @template TVariables - 뮤테이션에 전달되는 변수 타입
  * @template TContext - 옵티미스틱 업데이트 등에서 사용하는 컨텍스트 타입
  *
- * @param mutationFn - 서버에 데이터를 전송하는 비동기 함수
+ * @param mutationFunction - 서버에 데이터를 전송하는 비동기 함수
  * @param options - 뮤테이션 동작을 커스터마이징하기 위한 옵션
  * @returns React Query의 `useMutation` 훅 결과
  */
 
 export function useCustomMutation<TData = unknown, TError = unknown, TVariables = void, TContext = unknown>(
-    mutationFn: (variables: TVariables) => Promise<TData>,
+    mutationFunction: (variables: TVariables) => Promise<TData>,
     options: CustomMutationOptions<TData, TError, TVariables, TContext> = {},
 ) {
     const {showToast} = useToast()
 
     return useMutation({
-        mutationFn,
+        mutationFn: mutationFunction,
         ...options,
         onError: (error, variables, context) => {
             const displayType = options.errorDisplayType ?? 'toast'
 
-            if (options.onValidationError) {
-                const mappedErrors = options.onValidationError(error)
+            const mappedErrors = options.onValidationError?.(error)
 
-                if (displayType === 'form' || displayType === 'both') {
-                    if (options.setError) {
-                        for (const {name, message} of mappedErrors) {
-                            options.setError(name, {message})
-                        }
+            if (mappedErrors?.length) {
+                const isForm = displayType === 'form' || displayType === 'both'
+                const isToast = displayType === 'toast' || displayType === 'both'
+
+                if (isForm && options.setError) {
+                    for (const {name, message} of mappedErrors) {
+                        options.setError(name, {message})
                     }
                 }
 
-                if (displayType === 'toast' || displayType === 'both') {
+                if (isToast) {
                     for (const {message} of mappedErrors) {
                         showToast(message, {type: 'error'})
                     }
@@ -62,7 +66,10 @@ export function useCustomMutation<TData = unknown, TError = unknown, TVariables 
             }
 
             // 공통 서버 오류 처리 (500 이상일 경우 알림)
-            if ((error as any)?.status >= 500) {
+            if (
+                typeof (error as {status?: number}).status === 'number' &&
+                (error as {status?: number}).status! >= 500
+            ) {
                 showToast('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', {type: 'error'})
             }
 

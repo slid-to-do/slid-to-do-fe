@@ -1,4 +1,5 @@
 import {post} from '@/lib/api'
+
 import type {SignupFormData} from '@/types/signup'
 
 /**

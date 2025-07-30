@@ -5,13 +5,12 @@ import {useRouter} from 'next/navigation'
 import {useForm} from 'react-hook-form'
 
 import InputForm from '@/components/common/input-form'
-import {useLogin} from '@/hooks/use-login'
-
-import type {ApiError} from '@/types/api'
-import type {LoginFormData} from '@/types/login'
 import {useCustomMutation} from '@/hooks/use-custom-mutation'
-import {loginApi} from '../api/login-api'
 import useToast from '@/hooks/use-toast'
+
+import {loginApi} from '../api/login-api'
+
+import type {LoginFormData} from '@/types/login'
 
 const LoginPage = () => {
     const {
@@ -24,7 +23,7 @@ const LoginPage = () => {
     const router = useRouter()
     const {showToast} = useToast()
 
-    const {mutate, isPending: loading} = useCustomMutation<void, any, LoginFormData>(loginApi, {
+    const {mutate, isPending: loading} = useCustomMutation<void, unknown, LoginFormData>(loginApi, {
         errorDisplayType: 'form',
         setError,
         onValidationError: (error) => {

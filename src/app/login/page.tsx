@@ -10,6 +10,7 @@ import useToast from '@/hooks/use-toast'
 
 import {loginApi} from '../api/login-api'
 
+import type {ApiError} from '@/types/api'
 import type {LoginFormData} from '@/types/login'
 
 const LoginPage = () => {
@@ -23,9 +24,9 @@ const LoginPage = () => {
     const router = useRouter()
     const {showToast} = useToast()
 
-    const {mutate, isPending: loading} = useCustomMutation<void, unknown, LoginFormData>(loginApi, {
-        errorDisplayType: 'form',
+    const {mutate, isPending: loading} = useCustomMutation<void, ApiError, LoginFormData>(loginApi, {
         setError,
+        errorDisplayType: 'form',
         onValidationError: (error) => {
             if (error.status === 404) {
                 return [{name: 'email', message: error.message}]

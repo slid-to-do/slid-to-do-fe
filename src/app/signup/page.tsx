@@ -4,8 +4,9 @@ import {useRouter} from 'next/navigation'
 
 import {useForm} from 'react-hook-form'
 
+import {signupApi} from '@/app/api/signup-api'
 import InputForm from '@/components/common/input-form'
-import {useSignup} from '@/hooks/use-signup'
+import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useToast from '@/hooks/use-toast'
 
 import type {ApiError} from '@/types/api'
@@ -21,30 +22,28 @@ const SignPage = () => {
     } = useForm<SignupFormData>()
 
     const password = watch('password')
-    const {signup, loading} = useSignup()
     const router = useRouter()
 
     const {showToast} = useToast()
 
-    const onSubmit = async (data: SignupFormData) => {
-        const {name, email, password: formPassword} = data
-        try {
-            await signup({name, email, password: formPassword})
-            showToast('회원가입이 완료되었습니다!')
-            router.push('/')
-        } catch (error_: unknown) {
-            const error = error_ as ApiError
-            if (error.status === 400 || error.status === 404) {
-                setError('email', {message: error.message})
-            } else {
-                showToast('알 수 없는 오류가 발생했습니다.')
+    const {mutate: signup, isPending: loading} = useCustomMutation<void, ApiError, SignupFormData>(signupApi, {
+        errorDisplayType: 'form',
+        setError,
+        onValidationError: (error) => {
+            if (error.status === 400 || error.status === 404 || error.status === 409) {
+                return [{name: 'email', message: error.message}]
             }
-        }
-    }
+            return []
+        },
+        onSuccess: () => {
+            showToast('회원가입이 완료되었습니다!', {type: 'success'})
+            router.push('/')
+        },
+    })
 
     return (
         <InputForm<SignupFormData>
-            onSubmit={onSubmit}
+            onSubmit={(data) => signup(data)}
             handleSubmit={handleSubmit}
             register={register}
             errors={errors}

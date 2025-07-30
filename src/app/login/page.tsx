@@ -9,11 +9,11 @@ import {useLogin} from '@/hooks/use-login'
 
 import type {ApiError} from '@/types/api'
 import type {LoginFormData} from '@/types/login'
+import {useCustomMutation} from '@/hooks/use-custom-mutation'
+import {loginApi} from '../api/login-api'
+import useToast from '@/hooks/use-toast'
 
 const LoginPage = () => {
-    const {login, loading} = useLogin()
-    const router = useRouter()
-
     const {
         register,
         handleSubmit,
@@ -21,20 +21,29 @@ const LoginPage = () => {
         setError,
     } = useForm<LoginFormData>()
 
-    const onSubmit = async (data: LoginFormData) => {
-        const {email, password} = data
-        try {
-            await login({email, password})
-            alert('로그인에 성공했습니다!')
-            router.push('/')
-        } catch (error_: unknown) {
-            const error = error_ as ApiError
-            if (error.status === 400 || error.status === 404) {
-                setError('email', {message: error.message})
-            } else {
-                alert('알 수 없는 오류가 발생했습니다.')
+    const router = useRouter()
+    const {showToast} = useToast()
+
+    const {mutate, isPending: loading} = useCustomMutation<void, any, LoginFormData>(loginApi, {
+        errorDisplayType: 'form',
+        setError,
+        onValidationError: (error) => {
+            if (error.status === 404) {
+                return [{name: 'email', message: error.message}]
             }
-        }
+            if (error.status === 400) {
+                return [{name: 'password', message: error.message}]
+            }
+            return []
+        },
+        onSuccess: () => {
+            showToast('로그인에 성공했습니다!', {type: 'success'})
+            router.push('/')
+        },
+    })
+
+    const onSubmit = (data: LoginFormData) => {
+        mutate(data)
     }
 
     return (

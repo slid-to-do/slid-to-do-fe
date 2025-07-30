@@ -33,7 +33,10 @@ const InputForm = <T extends Record<string, unknown>>({
                         <InputStyle
                             type={field.type}
                             placeholder={field.placeholder}
-                            {...register(field.name, validationRules?.[field.name])}
+                            {...register(field.name, {
+                                ...(validationRules?.[field.name] ?? {}),
+                                setValueAs: (v: string) => (typeof v === 'string' ? v.trim() : v),
+                            })}
                             className={clsx('w-full', errors?.[field.name] && 'border border-red-500')}
                         />
                         {errors?.[field.name] && (

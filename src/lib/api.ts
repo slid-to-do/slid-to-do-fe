@@ -39,7 +39,7 @@ const axiosInstance = axios.create({
     },
 })
 
-/** 통합된 HTTP 요청 함수 - axios 버전 */
+/** 통합 HTTP 요청 함수 - axios 버전 */
 const request = async <T>({method, endpoint, data, options}: RequestParameters): Promise<ApiResponse<T>> => {
     try {
         const config: AxiosRequestConfig = {

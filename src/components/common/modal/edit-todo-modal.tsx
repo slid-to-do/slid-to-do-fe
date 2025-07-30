@@ -10,23 +10,25 @@ import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import useToast from '@/hooks/use-toast'
-import {get, post} from '@/lib/api'
+import {get, patch} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
-import type {GoalResponse} from '@/types/goals'
-import type {PostTodoRequest} from '@/types/todos'
+import type {Goal, GoalResponse} from '@/types/goals'
+import type {PatchTodoRequest, PostTodoRequest, TodoResponse} from '@/types/todos'
 
-const AddTodoModal = () => {
+const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
     const queryClient = useQueryClient()
 
     const [inputs, setInputs] = useState<PostTodoRequest>({
-        title: '',
-        goalId: undefined,
-        linkUrl: '', // 빈 문자열로 초기화
+        title: todoDetail.title,
+        goalId: todoDetail.goal.id,
+        fileUrl: todoDetail.fileUrl || '',
+        linkUrl: todoDetail.linkUrl || '',
     })
 
-    const [isCheckedFile, setIsCheckedFile] = useState<boolean>(false)
-    const [isCheckedLink, setIsCheckedLink] = useState<boolean>(false)
+    const [selectedGoal, setSelectedGoal] = useState<Goal>(todoDetail.goal)
+    const [isCheckedFile, setIsCheckedFile] = useState<boolean>(!!todoDetail.fileUrl)
+    const [isCheckedLink, setIsCheckedLink] = useState<boolean>(!!todoDetail.linkUrl)
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [error, setError] = useState<string>('')
     const [file, setFile] = useState<File | undefined>()
@@ -37,12 +39,12 @@ const AddTodoModal = () => {
 
     const {showToast} = useToast()
 
+    // 무한 스크롤 목표 데이터
     const getGoalsData = async (cursor: number | undefined) => {
         try {
             const urlParameter = cursor === undefined ? '' : `&cursor=${cursor}`
             const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
                 endpoint: `goals?size=3&sortOrder=newest${urlParameter}`,
-
                 options: {
                     headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
@@ -80,15 +82,10 @@ const AddTodoModal = () => {
 
             formData.append('file', file)
 
-            // 파일 업로드 API 호출
-            // 파일 호출하는 API 함수를 구현하는 것보다 직접 호출하는 것이 더 간단하여
-            // 직접 fetch를 사용합니다.
             const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/files`, {
                 method: 'POST',
                 body: formData,
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                },
+                headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
             })
 
             if (!response.ok) {
@@ -106,12 +103,10 @@ const AddTodoModal = () => {
 
     const submitForm = useMutation({
         mutationFn: async () => {
-            const payload: {
-                title: string
-                goalId: number | undefined
-                fileUrl?: string
-                linkUrl?: string
-            } = {title: inputs.title, goalId: inputs.goalId}
+            const payload: PatchTodoRequest = {
+                title: inputs.title,
+                goalId: inputs.goalId,
+            }
 
             if (isCheckedFile && file) {
                 const fileUrl = await uploadFileMutation.mutateAsync()
@@ -122,23 +117,22 @@ const AddTodoModal = () => {
                 payload.linkUrl = inputs.linkUrl
             }
 
-            return await post({
-                endpoint: 'todos',
+            return await patch({
+                endpoint: `todos/${todoDetail.id}`,
                 data: payload,
                 options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
+                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
             })
         },
         onSuccess: () => {
             queryClient.invalidateQueries({queryKey: ['todos']})
-            queryClient.invalidateQueries({queryKey: ['todo']})
+            queryClient.invalidateQueries({queryKey: ['todo', 'done', todoDetail.goal.id]})
+            queryClient.invalidateQueries({queryKey: ['todo', 'notDone', todoDetail.goal.id]})
             clearModal()
         },
         onError: () => {
-            setError('할 일 생성에 실패했습니다.')
+            setError('할 일 수정에 실패했습니다.')
         },
     })
 
@@ -163,6 +157,10 @@ const AddTodoModal = () => {
         }
     }
 
+    const handleSubmit = () => {
+        submitForm.mutate()
+    }
+
     if (error) {
         return (
             <div className="absolute p-6 transform bg-white -translate-1/2 top-1/2 left-1/2 rounded-xl">
@@ -176,7 +174,7 @@ const AddTodoModal = () => {
         <div className="absolute p-6 transform bg-white -translate-1/2 top-1/2 left-1/2 md:rounded-xl md:h-auto w-full h-full md:w-lg flex flex-col justify-between">
             <div>
                 <div className="flex items-center justify-between">
-                    <div className="text-lg font-bold">할 일 생성</div>
+                    <div className="text-lg font-bold">할 일 수정</div>
                     <Image
                         src="/todos/ic-close.svg"
                         alt="Close Icon"
@@ -252,33 +250,41 @@ const AddTodoModal = () => {
                         <InputStyle
                             type="text"
                             placeholder="링크를 입력해주세요"
-                            value={inputs.linkUrl || ''} // undefined 방지
+                            value={inputs.linkUrl}
                             name="linkUrl"
                             onChange={handleInputUpdate}
                         />
                     )}
 
-                    {isCheckedFile && (
+                    {(isCheckedFile || inputs.fileUrl) && (
                         <div
                             className="flex flex-col items-center justify-center gap-2 py-16 bg-custom_slate-50 rounded-xl"
                             onClick={() => {
                                 fileInputReference.current?.click()
                             }}
                         >
-                            {file ? (
+                            {file || inputs.fileUrl ? (
                                 <Image src="/todos/ic-uploaded.svg" alt="Uploaded Icon" width={24} height={24} />
                             ) : (
                                 <Image src="/todos/ic-plus.svg" alt="Plus Icon" width={24} height={24} />
                             )}
 
-                            <div className="text-custom_slate-400">{file ? file.name : '파일을 업로드해주세요'}</div>
+                            {file ? (
+                                <div className="max-w-xs px-2 text-center truncate text-custom_slate-400">
+                                    {file.name}
+                                </div>
+                            ) : (
+                                <div className="w-full max-w-xs px-4 text-center truncate text-custom_slate-400">
+                                    {inputs.fileUrl || '파일을 업로드해주세요'}
+                                </div>
+                            )}
+
                             <input type="file" hidden ref={fileInputReference} onChange={handleFileChange} />
                         </div>
                     )}
                 </div>
 
-                {/* 목표 드롭다운 */}
-                {/* goals API가 무한 스크롤 방식이기 때문에 input 태그 대신 div 태그로 구현 */}
+                {/* 목표 드롭다운 - 무한 스크롤 */}
                 <div className="mt-6">
                     <div className="text-base font-semibold">목표</div>
 
@@ -289,9 +295,7 @@ const AddTodoModal = () => {
                             })}
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                         >
-                            {inputs.goalId
-                                ? fetchGoals.find((goal) => goal.id === inputs.goalId)?.title
-                                : '목표를 선택해주세요'}
+                            {inputs.goalId ? selectedGoal.title : '목표를 선택해주세요'}
                         </div>
 
                         {isDropdownOpen && (
@@ -313,11 +317,12 @@ const AddTodoModal = () => {
                                                         key={goal.id}
                                                         ref={
                                                             index === fetchGoals.length - 1 ? goalReference : undefined
-                                                        } // 마지막 요소에 ref 연결
+                                                        }
                                                         className="px-3 py-2 text-sm cursor-pointer hover:bg-custom_slate-100"
                                                         onClick={(event_) => {
                                                             event_.stopPropagation()
                                                             setInputs((previous) => ({...previous, goalId: goal.id}))
+                                                            setSelectedGoal(goal)
                                                             setIsDropdownOpen(false)
                                                         }}
                                                     >
@@ -350,16 +355,12 @@ const AddTodoModal = () => {
 
             {/* 확인 버튼 */}
             <div className="mt-6">
-                <ButtonStyle
-                    size="full"
-                    disabled={!inputs.title.trim() || !inputs.goalId}
-                    onClick={() => submitForm.mutate()}
-                >
-                    확인
+                <ButtonStyle size="full" disabled={!inputs.title.trim() || !inputs.goalId} onClick={handleSubmit}>
+                    수정하기
                 </ButtonStyle>
             </div>
         </div>
     )
 }
 
-export default AddTodoModal
+export default EditTodoModal

@@ -38,22 +38,12 @@ describe('GoalHeader', () => {
                 goal={mockGoal}
                 goalTitle={mockGoal.title}
                 goalEdit={false}
-                setGoalEdit={() => {
-                    /* 빈 함수 */
-                }}
+                setGoalEdit={jest.fn()}
                 moreButton={false}
-                setMoreButton={() => {
-                    /* 빈 함수 */
-                }}
-                goalDeleteModal={() => {
-                    /* 빈 함수 */
-                }}
-                handleInputUpdate={() => {
-                    /* 빈 함수 */
-                }}
-                handleGoalAction={() => {
-                    /* 빈 함수 */
-                }}
+                setMoreButton={jest.fn()}
+                goalDeleteModal={jest.fn()}
+                handleInputUpdate={jest.fn()}
+                handleGoalAction={jest.fn()}
             />,
         )
 
@@ -65,22 +55,12 @@ describe('GoalHeader', () => {
                 goal={mockGoal}
                 goalTitle={mockGoal.title}
                 goalEdit={false}
-                setGoalEdit={() => {
-                    /* 빈 함수 */
-                }}
+                setGoalEdit={jest.fn()}
                 moreButton={false}
-                setMoreButton={() => {
-                    /* 빈 함수 */
-                }}
-                goalDeleteModal={() => {
-                    /* 빈 함수 */
-                }}
-                handleInputUpdate={() => {
-                    /* 빈 함수 */
-                }}
-                handleGoalAction={() => {
-                    /* 빈 함수 */
-                }}
+                setMoreButton={jest.fn()}
+                goalDeleteModal={jest.fn()}
+                handleInputUpdate={jest.fn()}
+                handleGoalAction={jest.fn()}
             />,
         )
 

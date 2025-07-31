@@ -1,12 +1,12 @@
 import axios, {AxiosHeaders} from 'axios'
-import {get, post} from '../../src/lib/api'
+import {get, post} from '../../lib/api'
 import type {AxiosResponse} from 'axios'
 
 jest.mock('axios')
 const mockedAxios = axios as jest.Mocked<typeof axios>
 
 /** get통신 testcode */
-test('get 통신 성공하면 json 리턴', async () => {
+describe('get 통신 성공하면 json 리턴', async () => {
     const mockReponse: AxiosResponse = {
         data: {data: {message: 'get 성공'}, message: 'get 성공'},
         status: 200,
@@ -26,7 +26,7 @@ test('get 통신 성공하면 json 리턴', async () => {
 })
 
 /** post통신 testcode */
-test('post 통신 성공하면 json 리턴', async () => {
+describe('post 통신 성공하면 json 리턴', async () => {
     const mockReponse: AxiosResponse = {
         data: {data: {message: 'post 성공'}, message: 'post 성공'},
         status: 201,
@@ -45,7 +45,7 @@ test('post 통신 성공하면 json 리턴', async () => {
 })
 
 /** patch통신 testcode */
-test('patch 통신 성공하면 json 리턴', async () => {
+describe('patch 통신 성공하면 json 리턴', async () => {
     const mockReponse: AxiosResponse = {
         data: {data: {message: 'patch 성공'}, message: 'patch 성공'},
         status: 202,
@@ -61,7 +61,7 @@ test('patch 통신 성공하면 json 리턴', async () => {
 })
 
 /** delete통신 testcode */
-test('delete 통신 성공', async () => {
+describe('delete 통신 성공', async () => {
     const mockReponse: AxiosResponse = {
         data: {data: null, message: '삭제됨'},
         status: 204,

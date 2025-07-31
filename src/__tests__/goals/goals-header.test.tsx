@@ -53,16 +53,13 @@ const headerProperties = (overrides = {}) => ({
 
 describe('api 모킹', () => {
     it('API 호출이 올바르게 발생하는지 확인', async () => {
-        // 1. get 함수 mock 준비 (이미 jest.mock 해둔 상태)
         mockedGet.mockResolvedValueOnce({
             data: {progress: 50},
             status: 200,
         })
 
-        // 2. 컴포넌트 렌더링
         renderWithClient(<GoalHeader {...headerProperties()} />)
 
-        // 3. get 함수가 호출되었는지, 인자에 goalId가 포함되었는지 확인
         await waitFor(() => {
             expect(mockedGet).toHaveBeenCalledTimes(1)
             expect(mockedGet).toHaveBeenCalledWith(
@@ -102,7 +99,6 @@ describe('goalHeader 화면', () => {
 
 describe('목표 달성률 PrograssBar', () => {
     it('API에서 받아온 progress 값이 ProgressBar에 표시된다', async () => {
-        // API 응답 mocking
         mockedGet.mockResolvedValueOnce({
             data: {progress: 75},
             status: 200,
@@ -110,20 +106,17 @@ describe('목표 달성률 PrograssBar', () => {
 
         renderWithClient(<GoalHeader {...headerProperties()} />)
 
-        // "75%"가 표시되는지 확인
         expect(await screen.findByText('75%')).toBeInTheDocument()
     })
 
     it('빈 progress 응답일 때 기본값 0%가 렌더링된다', async () => {
-        // progress 데이터가 비어있는 경우를 mock
         mockedGet.mockResolvedValueOnce({
-            data: {}, // progress 없음
+            data: {},
             status: 200,
         })
 
         renderWithClient(<GoalHeader {...headerProperties()} />)
 
-        // 기본값 0%가 화면에 나타나는지 확인
         expect(await screen.findByText('0%')).toBeInTheDocument()
     })
 })
@@ -138,18 +131,15 @@ describe('버튼 클릭 이벤트', () => {
                 {...headerProperties({
                     handleGoalAction: mockHandleGoalAction,
                     goalEdit: true,
-                    goalTitle: '다른 제목', // goal.title과 다르게 설정(goal.title === goalTitle)
+                    goalTitle: '다른 제목',
                 })}
             />,
         )
 
-        // 수정 버튼 찾기
         const editButton = await screen.findByRole('button', {name: '수정'})
 
-        // 클릭
         await user.click(editButton)
 
-        // ✅ 함수가 호출되었는지 확인
         expect(mockHandleGoalAction).toHaveBeenCalledTimes(1)
         expect(mockHandleGoalAction).toHaveBeenCalledWith('edit')
     })

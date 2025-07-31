@@ -15,7 +15,7 @@ jest.mock('next/navigation', () => ({
     useParams: jest.fn(),
 }))
 beforeEach(() => {
-    ;(nextNavigation.useParams as jest.Mock).mockReturnValue({goalId: 2474})
+    ;(nextNavigation.useParams as jest.Mock).mockReturnValue({goalId: 2488})
 })
 
 // api통신 모킹

@@ -39,7 +39,7 @@ const axiosInstance = axios.create({
     },
 })
 
-const isTestEnv = process.env.NODE_ENV === 'test'
+const isTestEnvironment = process.env.NODE_ENV === 'test'
 
 /** 통합 HTTP 요청 함수 - axios 버전 */
 export const request = async <T>({method, endpoint, data, options}: RequestParameters): Promise<ApiResponse<T>> => {
@@ -51,7 +51,7 @@ export const request = async <T>({method, endpoint, data, options}: RequestParam
             headers: options?.headers,
         }
 
-        const sender = isTestEnv ? axios : axiosInstance
+        const sender = isTestEnvironment ? axios : axiosInstance
         const response = await sender.request<ApiPayload<T>>(config)
 
         return {
@@ -69,8 +69,9 @@ export const request = async <T>({method, endpoint, data, options}: RequestParam
             message = error.response?.data?.message || error.message || '에러 발생'
             /** 일반 JS 에러일 경우: Error 객체의 message 사용 */
         } else if (error instanceof Error) {
-            message = error.message
-            status = (error as any).status ?? 500
+            const customError = error as Error & {status?: number}
+            message = customError.message
+            status = customError.status ?? 500
         }
         const customError = new Error(message) as Error & {status: number}
         customError.status = status

@@ -4,7 +4,6 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-// import Expand from '@/../public/sidebar/ic_expand.svg'
 import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import HamburgerToggle from '@/components/style/hamburger-toggle'
 import useLayout from '@/hooks/use-layout'

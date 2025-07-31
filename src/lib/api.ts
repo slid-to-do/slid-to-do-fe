@@ -39,8 +39,10 @@ const axiosInstance = axios.create({
     },
 })
 
+const isTestEnv = process.env.NODE_ENV === 'test'
+
 /** 통합 HTTP 요청 함수 - axios 버전 */
-const request = async <T>({method, endpoint, data, options}: RequestParameters): Promise<ApiResponse<T>> => {
+export const request = async <T>({method, endpoint, data, options}: RequestParameters): Promise<ApiResponse<T>> => {
     try {
         const config: AxiosRequestConfig = {
             url: endpoint,
@@ -49,7 +51,8 @@ const request = async <T>({method, endpoint, data, options}: RequestParameters):
             headers: options?.headers,
         }
 
-        const response = await axiosInstance.request<ApiPayload<T>>(config)
+        const sender = isTestEnv ? axios : axiosInstance
+        const response = await sender.request<ApiPayload<T>>(config)
 
         return {
             data: response.data.data ?? (response.data as unknown as T),
@@ -57,15 +60,22 @@ const request = async <T>({method, endpoint, data, options}: RequestParameters):
             message: response.data.message,
         }
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            const status = error.response?.status ?? 500
-            const message = error.response?.data?.message || error.message || '에러 발생'
-            const customError = new Error(message) as Error & {status: number}
-            customError.status = status
-            throw customError
-        }
+        let status = 500
+        let message = '에러 발생'
 
-        throw error
+        /** axios 에러일 경우: 서버 응답(response)에 접근 가능 */
+        if (axios.isAxiosError(error)) {
+            status = error.response?.status ?? 500
+            message = error.response?.data?.message || error.message || '에러 발생'
+            /** 일반 JS 에러일 경우: Error 객체의 message 사용 */
+        } else if (error instanceof Error) {
+            message = error.message
+            status = (error as any).status ?? 500
+        }
+        const customError = new Error(message) as Error & {status: number}
+        customError.status = status
+        throw customError
+        /** console.error(err.status, err.message)해서 접근 */
     }
 }
 

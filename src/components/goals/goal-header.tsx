@@ -89,7 +89,11 @@ export default function GoalHeader({
                     )}
                 </div>
                 {!goalEdit && (
-                    <div className="flex-shrink-0 cursor-pointer relative" onClick={() => setMoreButton(!moreButton)}>
+                    <div
+                        className="flex-shrink-0 cursor-pointer relative"
+                        onClick={() => setMoreButton(!moreButton)}
+                        role="moreButton"
+                    >
                         <Image src="/goals/ic-more.svg" alt="더보기버튼" width={24} height={24} />
                         {moreButton && (
                             <div className="w-24 py-2 absolute right-0 top-7 flex gap-2 flex-col rounded text-center shadow-md z-10 bg-white">

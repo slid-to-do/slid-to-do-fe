@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import React, {useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 
 import {useQueryClient, useMutation} from '@tanstack/react-query'
 
@@ -14,6 +14,7 @@ import {useModalStore} from '@/store/use-modal-store'
 const GoalModal = () => {
     const [inputChange, setInputChange] = useState('')
     const [inputError, setErrorChange] = useState('')
+    const modalRef = useRef<HTMLDivElement>(null)
     const clientQuery = useQueryClient()
     const {clearModal} = useModalStore()
     const {showToast} = useToast()
@@ -50,8 +51,46 @@ const GoalModal = () => {
         setInputChange(changeEvent.target.value)
     }
 
+    useEffect(() => {
+        const modalEl = modalRef.current
+        if (!modalEl) return
+
+        const focusableSelector =
+            'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
+
+        const focusableEls = modalEl.querySelectorAll<HTMLElement>(focusableSelector)
+        const firstEl = focusableEls[0]
+        const lastEl = focusableEls[focusableEls.length - 1]
+
+        const trapFocus = (event: KeyboardEvent) => {
+            if (event.key !== 'Tab' || focusableEls.length === 0) return
+
+            if (event.shiftKey) {
+                if (document.activeElement === firstEl) {
+                    event.preventDefault()
+                    lastEl?.focus()
+                }
+            } else {
+                if (document.activeElement === lastEl) {
+                    event.preventDefault()
+                    firstEl?.focus()
+                }
+            }
+        }
+
+        document.addEventListener('keydown', trapFocus)
+        firstEl?.focus()
+
+        return () => {
+            document.removeEventListener('keydown', trapFocus)
+        }
+    }, [])
+
     return (
-        <section className=" w-80 mobile:w-75 min-h-65 absolute  transform bg-white -translate-1/2 top-1/2 left-1/2 px-6 py-4 flex flex-col justify-between items-center rounded-xl">
+        <section
+            ref={modalRef}
+            className=" w-80 mobile:w-75 min-h-65 absolute  transform bg-white -translate-1/2 top-1/2 left-1/2 px-6 py-4 flex flex-col justify-between items-center rounded-xl"
+        >
             <header className="flex w-full items-center justify-between mb-2 ">
                 <div className={`flex justify-center items-center w-auto h-full `}>
                     <Image src={'/ic-favicon.svg'} alt="Logo" width={32} height={32} className="w-[32px] " />
@@ -69,6 +108,7 @@ const GoalModal = () => {
             <main className=" flex flex-col w-full h-full justify-start items-center mb-6">
                 <h1 className=" w-full text-subTitle mb-4">목표 생성</h1>
                 <InputStyle
+                    autoFocus
                     type="text"
                     custom_size="default"
                     state={inputError ? 'error' : 'blue'}

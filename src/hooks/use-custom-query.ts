@@ -62,9 +62,9 @@ export function useCustomQuery<TData, TError = unknown, TQueryKey extends QueryK
         if (['toast', 'both'].includes(errorDisplayType)) {
             showToast(message, {type: 'error'})
         }
-
         if (['redirect', 'both'].includes(errorDisplayType)) {
-            router.push(errorRedirectPath)
+            const encodedMessage = encodeURIComponent(message)
+            router.push(`${errorRedirectPath}?toast=${encodedMessage}`)
         }
 
         onError?.(queryResult.error as TError)

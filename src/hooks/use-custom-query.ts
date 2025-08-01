@@ -6,14 +6,14 @@ import {useQuery, type UseQueryOptions, type QueryKey, type QueryFunction} from 
 
 import useToast from '@/hooks/use-toast'
 
-type ErrorDisplayType = 'toast' | 'redirect' | 'component' | 'none'
+type ErrorDisplayType = 'toast' | 'redirect' | 'component' | 'both' | 'none'
 
 type CustomQueryOptions<TData, TError, TQueryKey extends QueryKey, TSelected = TData> = Omit<
     UseQueryOptions<TData, TError, TSelected, TQueryKey>,
     'queryKey' | 'queryFunction'
 > & {
     errorDisplayType?: ErrorDisplayType
-    mapErrorMessage?: (error: unknown) => string
+    mapErrorMessage?: (error: TError) => string
     errorRedirectPath?: string
     onError?: (error: TError) => void
 }
@@ -56,11 +56,14 @@ export function useCustomQuery<TData, TError = unknown, TQueryKey extends QueryK
         queryFn: queryFunction,
         ...rest,
     })
-
     if (queryResult.isError && queryResult.error) {
-        if (errorDisplayType === 'toast') {
-            showToast(mapErrorMessage(queryResult.error), {type: 'error'})
-        } else if (errorDisplayType === 'redirect') {
+        const message = mapErrorMessage(queryResult.error)
+
+        if (['toast', 'both'].includes(errorDisplayType)) {
+            showToast(message, {type: 'error'})
+        }
+
+        if (['redirect', 'both'].includes(errorDisplayType)) {
             router.push(errorRedirectPath)
         }
 

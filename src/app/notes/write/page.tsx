@@ -32,7 +32,7 @@ const NoteWritePage = () => {
             showToast('확인 할 데이터가 없습니다.')
             router.back()
         }
-    }, [todoId, goalId, router, noteId])
+    }, [todoId, goalId, router, noteId, showToast])
 
     const {data: goalsData} = useQuery<Goal>({
         queryKey: ['goals', goalId],

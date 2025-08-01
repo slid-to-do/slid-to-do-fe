@@ -1,6 +1,7 @@
 import {post} from '@/lib/api'
 
 import type {LoginFormData, LoginResponse} from '@/types/login'
+import axios from 'axios'
 
 /**
  * 로그인 API 호출 함수
@@ -12,11 +13,16 @@ import type {LoginFormData, LoginResponse} from '@/types/login'
  * @returns {Promise<void>} 반환값은 없으며, 성공 시 토큰을 저장하고 실패 시 예외를 던집니다.
  */
 export async function loginApi(data: LoginFormData): Promise<void> {
-    const response = await post<LoginResponse>({
-        endpoint: 'auth/login',
-        data,
+    // const response = await post<LoginResponse>({
+    //     endpoint: '/api/login',
+    //     data,
+    // })
+
+    const res = await axios.post('/api/auth/login', {
+        email: data.email,
+        password: data.password,
     })
 
-    localStorage.setItem('accessToken', response.data.accessToken)
-    localStorage.setItem('refreshToken', response.data.refreshToken)
+    // localStorage.setItem('accessToken', response.data.accessToken)
+    // localStorage.setItem('refreshToken', response.data.refreshToken)
 }

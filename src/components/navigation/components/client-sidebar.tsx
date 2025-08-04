@@ -4,12 +4,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import HamburgerToggle from '@/components/style/hamburger-toggle'
 import useLayout from '@/hooks/use-layout'
 import useModal from '@/hooks/use-modal'
 
 import SidebarList from './goal-list'
+import GoalModal from './goal-modal'
 import SidebarProfile from './sidebar-profile'
 import ButtonStyle from '../../style/button-style'
 
@@ -17,7 +17,7 @@ import type {ClientInterface} from '@/types/sidebar'
 
 const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
     const isMobile = useLayout('mobile')
-    const {openModal} = useModal(<AddTodoModal />)
+    const {openModal} = useModal(<GoalModal />)
 
     return (
         <>
@@ -68,7 +68,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                 <SidebarProfile />
                 {!isMobile && (
                     <ButtonStyle size="full" onClick={openModal}>
-                        + 새 할일
+                        + 새 목표
                     </ButtonStyle>
                 )}
                 <hr className=" mt-5 -mx-5 border-t-2 border-gray-200" />
@@ -92,7 +92,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                     </Link>
                     {isMobile && (
                         <ButtonStyle onClick={openModal} size="small">
-                            + 새 할일
+                            + 새 목표
                         </ButtonStyle>
                     )}
                 </nav>

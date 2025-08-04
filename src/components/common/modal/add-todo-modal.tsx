@@ -16,12 +16,16 @@ import {useModalStore} from '@/store/use-modal-store'
 import type {GoalResponse} from '@/types/goals'
 import type {PostTodoRequest} from '@/types/todos'
 
-const AddTodoModal = () => {
+interface AddTodoModalProperties {
+    goalId?: number
+}
+
+const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
     const queryClient = useQueryClient()
 
     const [inputs, setInputs] = useState<PostTodoRequest>({
         title: '',
-        goalId: undefined,
+        goalId: goalId || undefined,
         linkUrl: '', // 빈 문자열로 초기화
     })
 
@@ -47,6 +51,17 @@ const AddTodoModal = () => {
                     headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
             })
+
+            if (response.data.goals.length <= 0) {
+                showToast(
+                    <div>
+                        목표를 찾을 수 없습니다.
+                        <br />
+                        목표를 먼저 생성해주세요.
+                    </div>,
+                )
+                clearModal()
+            }
 
             return {
                 data: response.data.goals,
@@ -199,6 +214,76 @@ const AddTodoModal = () => {
                     />
                 </div>
 
+                {/* 목표 드롭다운 */}
+                {/* goals API가 무한 스크롤 방식이기 때문에 input 태그 대신 div 태그로 구현 */}
+                <div className="mt-6">
+                    <div className="text-base font-semibold">목표</div>
+
+                    <div className="relative px-5 py-3 bg-custom_slate-50 rounded-md">
+                        <div
+                            className={clsx('text-custom_slate-400 cursor-pointer', {
+                                'text-custom_slate-800': inputs.goalId,
+                            })}
+                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                        >
+                            {inputs.goalId
+                                ? fetchGoals.find((goal) => goal.id === inputs.goalId)?.title
+                                : '목표를 선택해주세요'}
+                        </div>
+
+                        {isDropdownOpen && (
+                            <div className="absolute left-0 w-full top-12 h-72 overflow-auto bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                                {loadingGoals && fetchGoals.length === 0 ? (
+                                    <div className="flex items-center justify-center w-full h-full text-sm text-custom_slate-400">
+                                        로딩 중...
+                                    </div>
+                                ) : (
+                                    <div className="flex flex-col">
+                                        {fetchGoals.length === 0 ? (
+                                            <div className="px-3 py-2 text-sm text-custom_slate-400">
+                                                등록된 목표가 없어요
+                                            </div>
+                                        ) : (
+                                            <>
+                                                {fetchGoals.map((goal, index) => (
+                                                    <div
+                                                        key={goal.id}
+                                                        ref={
+                                                            index === fetchGoals.length - 1 ? goalReference : undefined
+                                                        } // 마지막 요소에 ref 연결
+                                                        className="px-3 py-2 text-sm cursor-pointer hover:bg-custom_slate-100"
+                                                        onClick={(event_) => {
+                                                            event_.stopPropagation()
+                                                            setInputs((previous) => ({...previous, goalId: goal.id}))
+                                                            setIsDropdownOpen(false)
+                                                        }}
+                                                    >
+                                                        {goal.title}
+                                                    </div>
+                                                ))}
+
+                                                {/* 로딩 인디케이터 */}
+                                                {loadingGoals && (
+                                                    <div className="px-3 py-2 text-sm text-center text-custom_slate-400">
+                                                        더 불러오는 중...
+                                                    </div>
+                                                )}
+
+                                                {/* 더 이상 데이터가 없을 때 */}
+                                                {!hasMoreGoals && fetchGoals.length > 0 && (
+                                                    <div className="px-3 py-2 text-sm text-center text-custom_slate-400">
+                                                        모든 목표를 불러왔습니다
+                                                    </div>
+                                                )}
+                                            </>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        )}
+                    </div>
+                </div>
+
                 {/* 자료 */}
                 <div className="flex flex-col gap-3 mt-6">
                     <div className="text-base font-semibold">자료</div>
@@ -275,76 +360,6 @@ const AddTodoModal = () => {
                             <input type="file" hidden ref={fileInputReference} onChange={handleFileChange} />
                         </div>
                     )}
-                </div>
-
-                {/* 목표 드롭다운 */}
-                {/* goals API가 무한 스크롤 방식이기 때문에 input 태그 대신 div 태그로 구현 */}
-                <div className="mt-6">
-                    <div className="text-base font-semibold">목표</div>
-
-                    <div className="relative px-5 py-3 bg-custom_slate-50 rounded-md">
-                        <div
-                            className={clsx('text-custom_slate-400 cursor-pointer', {
-                                'text-custom_slate-800': inputs.goalId,
-                            })}
-                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
-                        >
-                            {inputs.goalId
-                                ? fetchGoals.find((goal) => goal.id === inputs.goalId)?.title
-                                : '목표를 선택해주세요'}
-                        </div>
-
-                        {isDropdownOpen && (
-                            <div className="absolute left-0 w-full top-12 h-72 overflow-auto bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                                {loadingGoals && fetchGoals.length === 0 ? (
-                                    <div className="flex items-center justify-center w-full h-full text-sm text-custom_slate-400">
-                                        로딩 중...
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col">
-                                        {fetchGoals.length === 0 ? (
-                                            <div className="px-3 py-2 text-sm text-custom_slate-400">
-                                                등록된 목표가 없어요
-                                            </div>
-                                        ) : (
-                                            <>
-                                                {fetchGoals.map((goal, index) => (
-                                                    <div
-                                                        key={goal.id}
-                                                        ref={
-                                                            index === fetchGoals.length - 1 ? goalReference : undefined
-                                                        } // 마지막 요소에 ref 연결
-                                                        className="px-3 py-2 text-sm cursor-pointer hover:bg-custom_slate-100"
-                                                        onClick={(event_) => {
-                                                            event_.stopPropagation()
-                                                            setInputs((previous) => ({...previous, goalId: goal.id}))
-                                                            setIsDropdownOpen(false)
-                                                        }}
-                                                    >
-                                                        {goal.title}
-                                                    </div>
-                                                ))}
-
-                                                {/* 로딩 인디케이터 */}
-                                                {loadingGoals && (
-                                                    <div className="px-3 py-2 text-sm text-center text-custom_slate-400">
-                                                        더 불러오는 중...
-                                                    </div>
-                                                )}
-
-                                                {/* 더 이상 데이터가 없을 때 */}
-                                                {!hasMoreGoals && fetchGoals.length > 0 && (
-                                                    <div className="px-3 py-2 text-sm text-center text-custom_slate-400">
-                                                        모든 목표를 불러왔습니다
-                                                    </div>
-                                                )}
-                                            </>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
                 </div>
             </div>
 

@@ -3,8 +3,11 @@
 import Image from 'next/image'
 import React, {useEffect, useState} from 'react'
 
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import {useQueryClient} from '@tanstack/react-query'
+import axios from 'axios'
 
+import {useCustomMutation} from '@/hooks/use-custom-mutation'
+import {useCustomQuery} from '@/hooks/use-custom-query'
 import {useIsNoteChanged} from '@/hooks/use-is-note-changed'
 import useToast from '@/hooks/use-toast'
 import {get, patch} from '@/lib/api'
@@ -24,9 +27,9 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
 
     const url = `notes/${noteId}`
     /** 노트 단일 조회 통신 */
-    const {data} = useQuery<NoteItemResponse>({
-        queryKey: ['noteEdit', url],
-        queryFn: async () => {
+    const {data} = useCustomQuery<NoteItemResponse>(
+        ['noteEdit', url],
+        async () => {
             const response = await get<NoteItemResponse>({
                 endpoint: url,
                 options: {headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`}},
@@ -34,7 +37,24 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
 
             return response.data
         },
-    })
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                if (!axios.isAxiosError(error)) {
+                    return '노트 정보를 불러오는 데 실패했습니다.'
+                }
+
+                const status = error.response?.status
+                const message = error.response?.data?.message || error.message
+
+                if (status === 401) {
+                    return '로그인 상태가 아닙니다.'
+                }
+
+                return message || '노트 정보를 불러오는 데 실패했습니다.'
+            },
+        },
+    )
 
     const [linkUrl, setLinkUrl] = useState<string | undefined>(data?.linkUrl)
 
@@ -70,8 +90,8 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
     }
 
     /** 노트 수정 통신*/
-    const editNote = useMutation({
-        mutationFn: async () => {
+    const {mutate: editNote} = useCustomMutation<NoteItemResponse, Error, void>(
+        async () => {
             const response = await patch<NoteItemResponse>({
                 endpoint: url,
                 data: payload,
@@ -79,18 +99,25 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
             })
             return response.data
         },
-        onError: (error) => {
-            showToast(error.message)
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error: Error) => {
+                const apiError = error as {status?: number; message?: string}
+
+                if (apiError.status === 401) return '로그인 상태가 아닙니다.'
+                if (apiError.message) return error.message
+                return '노트를 수정하는 데 실패했습니다.'
+            },
+            onSuccess: () => {
+                showToast('수정이 완료되었습니다!')
+                queryClient.invalidateQueries({queryKey: ['noteEdit', url]})
+            },
         },
-        onSuccess: () => {
-            showToast('수정이 완료되었습니다!')
-            queryClient.invalidateQueries({queryKey: ['noteEdit', url]})
-        },
-    })
+    )
 
     /** 수정하기 버튼 클릭 이벤트 */
     const handleEdit = () => {
-        editNote.mutate()
+        editNote()
     }
 
     return (

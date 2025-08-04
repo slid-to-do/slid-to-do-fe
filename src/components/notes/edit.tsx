@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import {useRouter} from 'next/navigation'
 import React, {useEffect, useState} from 'react'
 
 import {useQueryClient} from '@tanstack/react-query'
@@ -15,7 +16,6 @@ import {type NoteItemResponse} from '@/types/notes'
 
 import MarkdownEditor from '../markdown-editor/markdown-editor'
 import ButtonStyle from '../style/button-style'
-import {useRouter} from 'next/navigation'
 
 const NoteEditCompo = ({noteId}: {noteId: string}) => {
     const queryClient = useQueryClient()
@@ -103,9 +103,9 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
                 if (apiError.message) return error.message
                 return '노트를 수정하는 데 실패했습니다.'
             },
-            onSuccess: (data) => {
+            onSuccess: (successData) => {
                 showToast('수정이 완료되었습니다!')
-                router.push(`/notes?goalId=${data.goal.id}`)
+                router.push(`/notes?goalId=${successData.goal.id}`)
                 queryClient.invalidateQueries({queryKey: ['noteEdit', noteId]})
             },
         },

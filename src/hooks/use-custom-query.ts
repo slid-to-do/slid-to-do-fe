@@ -59,7 +59,7 @@ export function useCustomQuery<TData, TError = unknown, TQueryKey extends QueryK
 
     if (queryResult.isError && queryResult.error) {
         if (errorDisplayType === 'toast') {
-            showToast(mapErrorMessage(queryResult.error), {type: 'error'})
+            showToast(mapErrorMessage(queryResult.error), {type: 'error', id: `error-${queryKey.join('-')}`})
         } else if (errorDisplayType === 'redirect') {
             router.push(errorRedirectPath)
         }

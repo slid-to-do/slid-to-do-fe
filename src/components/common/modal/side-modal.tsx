@@ -40,6 +40,19 @@ export default function SideModal({noteId}: {noteId?: number}) {
         getNoteDetail(noteId)
     }, [noteId])
 
+    function formatDate(isoString: string | undefined) {
+        if (isoString === undefined) {
+            return ''
+        }
+        const date = new Date(isoString)
+
+        const year = date.getFullYear()
+        const month = String(date.getMonth() + 1).padStart(2, '0')
+        const day = String(date.getDate()).padStart(2, '0')
+
+        return `${year}.${month}.${day}`
+    }
+
     if (loading) return <div className="p-6">로딩 중...</div>
 
     if (error) return <div className="p-6 text-red-500">{error}</div>
@@ -67,7 +80,7 @@ export default function SideModal({noteId}: {noteId?: number}) {
                     </div>
                     <div className="text-sm text-custom_slate-700">{note?.todo.title}</div>
                 </div>
-                <div className="text-xs text-custom_slate-500">2024. 04. 29</div>
+                <div className="text-xs text-custom_slate-500">{formatDate(note?.createdAt)}</div>
             </div>
 
             <h2 className="py-3 mb-3 text-lg font-medium border-t border-b border-custom_slate-200 text-custom_slate-800">

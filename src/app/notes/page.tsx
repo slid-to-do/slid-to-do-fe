@@ -3,14 +3,14 @@
 import Image from 'next/image'
 import {useSearchParams} from 'next/navigation'
 
-import {useQuery} from '@tanstack/react-query'
-
 import LoadingSpinner from '@/components/common/loading-spinner'
+import {useCustomQuery} from '@/hooks/use-custom-query'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import {get} from '@/lib/api'
 
 import {NoteList} from '../../components/notes/list'
 
+import type {ApiError} from '@/types/api'
 import type {InfiniteScrollOptions} from '@/types/infinite-scroll'
 import type {NoteCommon, NoteListResponse} from '@/types/notes'
 
@@ -39,11 +39,9 @@ const Page = () => {
 
     const {
         data: notes,
+        isLoading,
         ref,
         hasMore,
-        isLoading,
-        isError,
-        error,
     } = useInfiniteScrollQuery({
         queryKey: ['notes'],
         fetchFn: fetchNoteList,
@@ -64,14 +62,18 @@ const Page = () => {
         return fallbackResult.data
     }
 
-    const {data: goalData, isLoading: isGoalLoading} = useQuery({
-        queryKey: ['goalTitle', goalId],
-        queryFn: fetchGetGoalTitle,
+    const {data: goalData, isLoading: isGoalLoading} = useCustomQuery(['goalTitle', goalId], fetchGetGoalTitle, {
         enabled: !!goalId && notes.length === 0,
+        errorDisplayType: 'toast',
+        mapErrorMessage: (error) => {
+            const apiError = error as ApiError
+            return apiError.message || '알 수 없는 오류가 발생했습니다.'
+        },
     })
+    if (isLoading || isGoalLoading) {
+        return <LoadingSpinner />
+    }
 
-    if (isLoading || isGoalLoading) return <LoadingSpinner />
-    if (isError && error) throw error
     hasMore && !isLoading && notes.length > 0 && <div ref={ref} />
 
     return (

@@ -39,7 +39,6 @@ const GoalsPage = () => {
     /**모달 닫기 */
     const {clearModal} = useModalStore()
 
-    /** [ S ] 목표 */
     /** 목표 GET API */
     const {isLoading} = useCustomQuery(
         ['goals', goalId],
@@ -171,7 +170,6 @@ const GoalsPage = () => {
         },
     )
 
-    /** [ S ] 할일 */
     /** 할일 API 호출 */
     const GetTodoList = (done: boolean) => {
         return async (cursor: number | undefined) => {

@@ -15,6 +15,7 @@ import {type NoteItemResponse} from '@/types/notes'
 
 import MarkdownEditor from '../markdown-editor/markdown-editor'
 import ButtonStyle from '../style/button-style'
+import {useRouter} from 'next/navigation'
 
 const NoteEditCompo = ({noteId}: {noteId: string}) => {
     const queryClient = useQueryClient()
@@ -23,6 +24,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
     const [content, setContent] = useState('')
 
     const {showToast} = useToast()
+    const router = useRouter()
 
     /** 노트 단일 조회 통신 */
     const {data} = useCustomQuery<NoteItemResponse>(
@@ -90,6 +92,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
                 data: payload,
                 options: {headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`}},
             })
+
             return response.data
         },
         {
@@ -100,8 +103,9 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
                 if (apiError.message) return error.message
                 return '노트를 수정하는 데 실패했습니다.'
             },
-            onSuccess: () => {
+            onSuccess: (data) => {
                 showToast('수정이 완료되었습니다!')
+                router.push(`/notes?goalId=${data.goal.id}`)
                 queryClient.invalidateQueries({queryKey: ['noteEdit', noteId]})
             },
         },

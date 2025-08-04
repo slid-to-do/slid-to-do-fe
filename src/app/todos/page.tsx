@@ -2,10 +2,13 @@
 
 import {useState} from 'react'
 
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import {useQueryClient} from '@tanstack/react-query'
+import axios from 'axios'
 
 import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import EditTodoModal from '@/components/common/modal/edit-todo-modal'
+import {useCustomMutation} from '@/hooks/use-custom-mutation'
+import {useCustomQuery} from '@/hooks/use-custom-query'
 import {useModal} from '@/hooks/use-modal'
 import {del, get, patch} from '@/lib/api'
 
@@ -21,9 +24,9 @@ const Page = () => {
 
     const [selectedFilter, setSelectedFilter] = useState<FilterValue>('ALL')
 
-    const {data, isLoading, isError, error} = useQuery<TodoListDetailResponse>({
-        queryKey: ['todos', selectedFilter],
-        queryFn: async () => {
+    const {data, isLoading} = useCustomQuery<TodoListDetailResponse>(
+        ['todos', selectedFilter],
+        async () => {
             const parameter = new URLSearchParams()
 
             if (selectedFilter === 'TODO') parameter.append('done', 'false')
@@ -40,10 +43,20 @@ const Page = () => {
 
             return response.data
         },
-    })
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+                return typedError.message || '할 일을 불러오는 중 오류가 발생했습니다.'
+            },
+        },
+    )
 
-    const updateTodo = useMutation({
-        mutationFn: async ({todoId, newDone}: {todoId: number; newDone: boolean}) => {
+    const {mutate: updateTodo} = useCustomMutation(
+        async ({todoId, newDone}: {todoId: number; newDone: boolean}) => {
             const response = await patch<TodoListDetailResponse>({
                 endpoint: `todos/${todoId}`,
                 data: {done: newDone},
@@ -56,13 +69,25 @@ const Page = () => {
 
             return response.data
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['todos']})
-        },
-    })
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
 
-    const deleteTodo = useMutation({
-        mutationFn: async (todoId: number) => {
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+
+                return typedError.message || '할일 수정 중 오류가 발생했습니다.'
+            },
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: ['todos']})
+            },
+        },
+    )
+
+    const {mutate: deleteTodo} = useCustomMutation(
+        async (todoId: number) => {
             if (!confirm('정말로 이 할 일을 삭제하시겠습니까?')) return
 
             await del({
@@ -74,10 +99,22 @@ const Page = () => {
                 },
             })
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['todos']})
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
+
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+
+                return typedError.message || '할일 수정 중 오류가 발생했습니다.'
+            },
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: ['todos']})
+            },
         },
-    })
+    )
 
     const {openModal: openAddTodoModal} = useModal(<AddTodoModal />)
     const {openModal: openEditTodoModal} = useModal((todoDetail: TodoResponse) => (
@@ -86,14 +123,6 @@ const Page = () => {
 
     const handleFilterChange = (value: string) => {
         setSelectedFilter(value as FilterValue)
-    }
-
-    if (isError) {
-        return (
-            <div className="flex items-center justify-center w-full h-full text-sm text-red-500">
-                {error instanceof Error ? error.message : '할 일을 불러오는 중 오류가 발생했습니다.'}
-            </div>
-        )
     }
 
     return (
@@ -163,10 +192,8 @@ const Page = () => {
                                 <TodoItem
                                     key={todo.id}
                                     todoDetail={todo}
-                                    onToggle={(todoId: number, newDone: boolean) =>
-                                        updateTodo.mutate({todoId, newDone})
-                                    }
-                                    onDelete={(todoId: number) => deleteTodo.mutate(todoId)}
+                                    onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
+                                    onDelete={(todoId: number) => deleteTodo(todoId)}
                                     onEdit={() => openEditTodoModal(todo)}
                                 />
                             ))}

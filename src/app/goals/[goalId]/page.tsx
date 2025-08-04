@@ -271,7 +271,6 @@ const GoalsPage = () => {
     } else if (notDoneIsError) {
         error = notDoneError
     }
-
     if (error) {
         return (
             <div className="flex items-center justify-center w-full h-full text-sm text-red-500">
@@ -281,6 +280,7 @@ const GoalsPage = () => {
     }
 
     if (isLoading) return <LoadingSpinner />
+
     return (
         <div className="w-full bg-custom_slate-100 overflow-y-auto">
             <div className={`p-6 desktop:px-20`}>

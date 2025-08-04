@@ -50,6 +50,7 @@ const NoteWritePage = () => {
             return response.data
         },
         {
+            enabled: !!goalId,
             errorDisplayType: 'toast',
             mapErrorMessage: (error) => {
                 const typedError = error as {message?: string; response?: {data?: {message?: string}}}
@@ -77,6 +78,7 @@ const NoteWritePage = () => {
             return response.data
         },
         {
+            enabled: !!todoId,
             errorDisplayType: 'toast',
             mapErrorMessage: (error) => {
                 const typedError = error as {message?: string; response?: {data?: {message?: string}}}

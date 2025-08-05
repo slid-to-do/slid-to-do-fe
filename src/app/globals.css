@@ -78,10 +78,18 @@ button:disabled {
     ) !important;
 }
 
-.Toastify__toast-container--top-center {
+/* .Toastify__toast-container--top-center {
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
+} */
+
+.custom-toast {
+    background-color: rgba(0, 0, 0, 0.7); /* ✅ 검정색 + 80% 불투명 */
+    color: white;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 /* note 임시작성 toast custom */

@@ -21,11 +21,11 @@ type CustomMutationOptions<TData, TError, TVariables, TContext> = UseMutationOpt
     mapErrorMessage?: (error: TError) => string
 }
 
-function handleMappedErrors<TData, TError, TVariables, TContext>(
+const handleMappedErrors = <TData, TError, TVariables, TContext>(
     error: TError,
     options: CustomMutationOptions<TData, TError, TVariables, TContext>,
     showToast: ReturnType<typeof useToast>['showToast'],
-) {
+) => {
     const mappedErrors = options.onValidationError?.(error)
     if (!mappedErrors?.length) return
 
@@ -46,7 +46,8 @@ function handleMappedErrors<TData, TError, TVariables, TContext>(
     }
 }
 
-function handleServerError<TError>(error: TError, showToast: ReturnType<typeof useToast>['showToast']) {
+
+const handleServerError = <TError>(error: TError, showToast: ReturnType<typeof useToast>['showToast']) => {
     if (typeof (error as {status?: number}).status === 'number' && (error as {status?: number}).status! >= 500) {
         showToast('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', {
             type: 'error',
@@ -69,10 +70,10 @@ function handleServerError<TError>(error: TError, showToast: ReturnType<typeof u
  * @returns React Query의 `useMutation` 훅 결과
  */
 
-export function useCustomMutation<TData = unknown, TError = unknown, TVariables = void, TContext = unknown>(
+export const useCustomMutation = <TData = unknown, TError = unknown, TVariables = void, TContext = unknown>(
     mutationFunction: (variables: TVariables) => Promise<TData>,
     options: CustomMutationOptions<TData, TError, TVariables, TContext> = {},
-) {
+) => {
     const {showToast} = useToast()
 
     return useMutation({

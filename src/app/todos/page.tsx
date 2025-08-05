@@ -126,80 +126,82 @@ const Page = () => {
     }
 
     return (
-        <div className="flex flex-col w-full min-h-screen p-6 bg-slate-100 desktop:px-20">
-            <div className="flex items-center justify-between">
-                <h1 className="text-lg font-semibold">모든 할 일 ({data?.totalCount})</h1>
-                <button className="text-sm font-semibold text-custom_blue-500" onClick={openAddTodoModal}>
-                    + 할 일 추가
-                </button>
-            </div>
-
-            <div className="flex flex-col flex-1 p-6 mt-4 bg-white rounded-xl min-h-0">
-                {/* 할 일 목록 필터링 */}
-                <div className="flex gap-2">
-                    <Filter
-                        checked={selectedFilter === 'ALL'}
-                        onChange={handleFilterChange}
-                        value="ALL"
-                        name="todoFilter"
-                    >
-                        All
-                    </Filter>
-                    <Filter
-                        checked={selectedFilter === 'TODO'}
-                        onChange={handleFilterChange}
-                        value="TODO"
-                        name="todoFilter"
-                    >
-                        To do
-                    </Filter>
-                    <Filter
-                        checked={selectedFilter === 'DONE'}
-                        onChange={handleFilterChange}
-                        value="DONE"
-                        name="todoFilter"
-                    >
-                        Done
-                    </Filter>
+        <div className="flex flex-col w-full bg-slate-100 ">
+            <div className="desktop-layout flex flex-col min-h-screen">
+                <div className="flex items-center justify-between ">
+                    <h1 className="text-lg font-semibold">모든 할 일 ({data?.totalCount})</h1>
+                    <button className="text-sm font-semibold text-custom_blue-500" onClick={openAddTodoModal}>
+                        + 할 일 추가
+                    </button>
                 </div>
 
-                {isLoading ? (
-                    <div className="flex items-center justify-center flex-1 text-sm text-custom_slate-400">
-                        로딩 중...
+                <div className="flex flex-col flex-1 p-6 mt-4 bg-white rounded-xl min-h-0">
+                    {/* 할 일 목록 필터링 */}
+                    <div className="flex gap-2">
+                        <Filter
+                            checked={selectedFilter === 'ALL'}
+                            onChange={handleFilterChange}
+                            value="ALL"
+                            name="todoFilter"
+                        >
+                            All
+                        </Filter>
+                        <Filter
+                            checked={selectedFilter === 'TODO'}
+                            onChange={handleFilterChange}
+                            value="TODO"
+                            name="todoFilter"
+                        >
+                            To do
+                        </Filter>
+                        <Filter
+                            checked={selectedFilter === 'DONE'}
+                            onChange={handleFilterChange}
+                            value="DONE"
+                            name="todoFilter"
+                        >
+                            Done
+                        </Filter>
                     </div>
-                ) : (
-                    <>
-                        <div className="flex flex-col gap-2 mt-4 overflow-y-auto flex-1 min-h-0">
-                            {data?.todos?.length === 0 && selectedFilter === 'ALL' && (
-                                <div className="flex items-center justify-center flex-1 text-sm text-custom_slate-400">
-                                    등록한 일이 없어요
-                                </div>
-                            )}
 
-                            {data?.todos?.length === 0 && selectedFilter === 'TODO' && (
-                                <div className="flex items-center justify-center flex-1 text-sm text-custom_slate-400">
-                                    해야할 일이 아직 없어요
-                                </div>
-                            )}
-
-                            {data?.todos?.length === 0 && selectedFilter === 'DONE' && (
-                                <div className="flex items-center justify-center flex-1 text-sm text-custom_slate-400">
-                                    다 한 일이 아직 없어요
-                                </div>
-                            )}
-
-                            {data?.todos?.map((todo) => (
-                                <TodoItem
-                                    key={todo.id}
-                                    todoDetail={todo}
-                                    onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
-                                    onDelete={(todoId: number) => deleteTodo(todoId)}
-                                    onEdit={() => openEditTodoModal(todo)}
-                                />
-                            ))}
+                    {isLoading ? (
+                        <div className="flex items-center justify-center flex-1 text-sm text-custom_slate-400">
+                            로딩 중...
                         </div>
-                    </>
-                )}
+                    ) : (
+                        <>
+                            <div className="flex flex-col gap-2 mt-4 overflow-y-auto flex-1 min-h-0">
+                                {data?.todos?.length === 0 && selectedFilter === 'ALL' && (
+                                    <div className="flex items-center justify-center flex-1 text-sm text-custom_slate-400">
+                                        등록한 일이 없어요
+                                    </div>
+                                )}
+
+                                {data?.todos?.length === 0 && selectedFilter === 'TODO' && (
+                                    <div className="flex items-center justify-center flex-1 text-sm text-custom_slate-400">
+                                        해야할 일이 아직 없어요
+                                    </div>
+                                )}
+
+                                {data?.todos?.length === 0 && selectedFilter === 'DONE' && (
+                                    <div className="flex items-center justify-center flex-1 text-sm text-custom_slate-400">
+                                        다 한 일이 아직 없어요
+                                    </div>
+                                )}
+
+                                {data?.todos?.map((todo) => (
+                                    <TodoItem
+                                        key={todo.id}
+                                        todoDetail={todo}
+                                        onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
+                                        onDelete={(todoId: number) => deleteTodo(todoId)}
+                                        onEdit={() => openEditTodoModal(todo)}
+                                    />
+                                ))}
+                            </div>
+                        </>
+                    )}
+                </div>
             </div>
         </div>
     )

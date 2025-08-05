@@ -24,11 +24,6 @@ export default function SideModal({noteId}: {noteId?: number}) {
                 setLoading(true)
                 const response = await get<NoteItemResponse>({
                     endpoint: `notes/${id}`,
-                    options: {
-                        headers: {
-                            Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                        },
-                    },
                 })
                 setNote(response.data)
             } catch {

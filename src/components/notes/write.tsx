@@ -153,7 +153,7 @@ const NoteWriteCompo = ({
     const {mutate: saveNotes} = useCustomMutation(
         async () => {
             const payload = {
-                todoId: Number(todoId),
+                id: Number(todoId),
                 title: subject,
                 content,
                 ...(linkButton && {linkUrl: linkButton}),

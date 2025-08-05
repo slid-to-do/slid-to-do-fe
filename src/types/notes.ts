@@ -27,3 +27,10 @@ export interface NoteItemResponse extends NoteCommon {
     linkUrl: string
     content: string
 }
+
+export interface NoteDataProperty {
+    id: number
+    title: string
+    content: string
+    linkUrl?: string
+}

@@ -32,7 +32,6 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
         async () => {
             const response = await get<NoteItemResponse>({
                 endpoint: `notes/${noteId}`,
-                options: {headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`}},
             })
             return response.data
         },
@@ -90,7 +89,6 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
             const response = await patch<NoteItemResponse>({
                 endpoint: `notes/${noteId}`,
                 data: payload,
-                options: {headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`}},
             })
 
             return response.data

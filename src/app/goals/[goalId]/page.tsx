@@ -40,7 +40,7 @@ const GoalsPage = () => {
     const {clearModal} = useModalStore()
 
     /** 목표 GET API */
-    const {isLoading} = useCustomQuery(
+    const {isLoading} = useCustomQuery<Goal>(
         ['goals', goalId],
         async () => {
             const response = await get<Goal>({
@@ -70,7 +70,7 @@ const GoalsPage = () => {
     )
 
     /** 목표 수정 */
-    const {mutate: updateGoals} = useCustomMutation(
+    const {mutate: updateGoals} = useCustomMutation<TodoResponse>(
         async () => {
             const response = await patch<TodoResponse>({
                 endpoint: `goals/${goalId}`,
@@ -221,7 +221,7 @@ const GoalsPage = () => {
     })
 
     /**할일 추가 모달 */
-    const {openModal: todoAddModal} = useModal(<AddTodoModal />)
+    const {openModal: todoAddModal} = useModal(<AddTodoModal goalId={Number(goalId)} />)
 
     /**할일 checkbox update */
     const updateTodo = useMutation({
@@ -281,7 +281,7 @@ const GoalsPage = () => {
 
     return (
         <div className="w-full bg-custom_slate-100 overflow-y-auto">
-            <div className={`p-6 desktop:px-20`}>
+            <div className={`desktop-layout`}>
                 <div className="text-subTitle">목표</div>
                 <GoalHeader
                     goal={goal}

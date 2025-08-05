@@ -40,7 +40,7 @@ export default function GoalHeader({
     const [progress, setProgress] = useState<number>(0)
     const {goalId} = useParams()
     /** 목표 달성 API */
-    const {data: progressData, isLoading} = useCustomQuery(
+    const {data: progressData, isLoading} = useCustomQuery<GoalProgress>(
         ['goals', goalId, 'progress'],
         async () => {
             const response = await get<GoalProgress>({
@@ -93,6 +93,9 @@ export default function GoalHeader({
                                     disabled={goal.title === goalTitle}
                                 >
                                     수정
+                                </ButtonStyle>
+                                <ButtonStyle size="medium" onClick={() => setGoalEdit(false)} color="outline">
+                                    취소
                                 </ButtonStyle>
                             </div>
                         ) : (

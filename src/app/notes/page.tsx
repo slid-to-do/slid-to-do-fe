@@ -77,12 +77,12 @@ const Page = () => {
     hasMore && !isLoading && notes.length > 0 && <div ref={ref} />
 
     return (
-        <div className="bg-slate-100 flex flex-col w-full min-h-screen h-full overflow-y-auto p-6 desktop:px-20 ">
+        <div className="bg-slate-100 flex flex-col w-full min-h-screen h-full overflow-y-auto p-6 desktop:px-20">
             <header>
                 <h1 className="text-subTitle text-custom_slate-900 ">노트 모아보기</h1>
             </header>
 
-            <div className="w-full mt-4 flex-1 flex flex-col">
+            <div className="w-full mt-4 flex-1 flex flex-col max-w-[1200px]">
                 <div className="flex gap-2 items-center bg-white rounded-xl border border-custom_slate-100 py-3.5 px-6">
                     <Image src="/goals/flag-goal.svg" alt="목표깃발" width={28} height={28} />
                     <h2 className="text-subTitle-sm"> {notes.length > 0 ? notes?.[0]?.goal.title : goalData?.title}</h2>

@@ -24,11 +24,11 @@ interface ShowToastOptions {
  * - `'warning'`: 노란 경고 아이콘과 함께 표시됩니다.
  */
 const showToastImpl = (content: ToastContent, options: ShowToastOptions = {}) => {
-    const {id, type = 'default', position = 'bottom-center'} = options
+    const {id, type = 'default', position = 'top-center'} = options
     const common: ToastOptions = {toastId: id, position}
 
     if (type === 'none') {
-        toast(content, {...common, icon: false})
+        toast(content, {...common, icon: false, className: 'center-toast'})
     } else if (type === 'default') {
         toast(content, common)
     } else {

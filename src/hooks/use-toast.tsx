@@ -25,8 +25,12 @@ interface ShowToastOptions {
  */
 const showToastImpl = (content: ToastContent, options: ShowToastOptions = {}) => {
     const {id, type = 'default', position = 'bottom-center'} = options
-    const common: ToastOptions = {toastId: id, position}
 
+    if (id && toast.isActive(id)) {
+        return
+    }
+
+    const common: ToastOptions = {toastId: id, position}
     if (type === 'none') {
         toast(content, {...common, icon: false})
     } else if (type === 'default') {

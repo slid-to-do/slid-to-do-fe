@@ -1,6 +1,7 @@
 'use client'
 
 import Image from 'next/image'
+import {useRouter} from 'next/navigation'
 import React, {useEffect, useState} from 'react'
 
 import {useQueryClient} from '@tanstack/react-query'
@@ -18,38 +19,32 @@ import ButtonStyle from '../style/button-style'
 
 const NoteEditCompo = ({noteId}: {noteId: string}) => {
     const queryClient = useQueryClient()
-
     const [title, setTitle] = useState<string>('')
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [content, setContent] = useState('')
 
     const {showToast} = useToast()
+    const router = useRouter()
 
-    const url = `notes/${noteId}`
     /** 노트 단일 조회 통신 */
     const {data} = useCustomQuery<NoteItemResponse>(
-        ['noteEdit', url],
+        ['noteEdit', noteId],
         async () => {
             const response = await get<NoteItemResponse>({
-                endpoint: url,
+                endpoint: `notes/${noteId}`,
                 options: {headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`}},
             })
-
             return response.data
         },
         {
+            enabled: !!noteId,
             errorDisplayType: 'toast',
             mapErrorMessage: (error) => {
                 if (!axios.isAxiosError(error)) {
                     return '노트 정보를 불러오는 데 실패했습니다.'
                 }
 
-                const status = error.response?.status
                 const message = error.response?.data?.message || error.message
-
-                if (status === 401) {
-                    return '로그인 상태가 아닙니다.'
-                }
 
                 return message || '노트 정보를 불러오는 데 실패했습니다.'
             },
@@ -93,10 +88,11 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
     const {mutate: editNote} = useCustomMutation<NoteItemResponse, Error, void>(
         async () => {
             const response = await patch<NoteItemResponse>({
-                endpoint: url,
+                endpoint: `notes/${noteId}`,
                 data: payload,
                 options: {headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`}},
             })
+
             return response.data
         },
         {
@@ -104,13 +100,13 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
             mapErrorMessage: (error: Error) => {
                 const apiError = error as {status?: number; message?: string}
 
-                if (apiError.status === 401) return '로그인 상태가 아닙니다.'
                 if (apiError.message) return error.message
                 return '노트를 수정하는 데 실패했습니다.'
             },
-            onSuccess: () => {
+            onSuccess: (successData) => {
                 showToast('수정이 완료되었습니다!')
-                queryClient.invalidateQueries({queryKey: ['noteEdit', url]})
+                router.push(`/notes?goalId=${successData.goal.id}`)
+                queryClient.invalidateQueries({queryKey: ['noteEdit', noteId]})
             },
         },
     )

@@ -5,7 +5,6 @@ import {useRouter} from 'next/navigation'
 import {useCallback, useEffect, useState} from 'react'
 
 import axios from 'axios'
-import {toast, ToastContainer, Zoom} from 'react-toastify'
 
 import 'react-toastify/dist/ReactToastify.css'
 
@@ -18,6 +17,7 @@ import useToast from '@/hooks/use-toast'
 import {post} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
+import NoteSaveToast from '../common/note-save-toast'
 import InputStyle from '../style/input-style'
 
 import type {NoteCommon} from '@/types/notes'
@@ -61,6 +61,7 @@ const NoteWriteCompo = ({
     }, [key, router])
 
     /** 임시작성 함수 */
+    const [toastMessage, setToastMessage] = useState('')
     const saveToLocalStorage = useCallback(
         (editContent: string) => {
             if ((content === '<p></p>' || content === '') && subject === '') {
@@ -77,18 +78,7 @@ const NoteWriteCompo = ({
             })
             localStorage.setItem(key, value)
             /** 임시저장 toast open */
-            toast(
-                <div className="bg-custom_blue-50 px-6 py-2 rounded-full flex gap-1 w-full">
-                    <Image src="/notes/ic-check.svg" alt="check" width={24} height={24} />
-                    <div className="text-custom_blue-500 font-semibold">임시 작성이 완료되었습니다</div>
-                </div>,
-                {
-                    autoClose: 300,
-                    closeButton: false,
-                    hideProgressBar: true,
-                    position: 'top-center',
-                },
-            )
+            setToastMessage('임시 작성이 완료되었습니다')
         },
         [goalId, todoId, subject, content, key, linkButton, showToast],
     )
@@ -163,8 +153,6 @@ const NoteWriteCompo = ({
     /** 작성 완료하기 */
     const {mutate: saveNotes} = useCustomMutation(
         async () => {
-            if (!confirm('작성을 완료하시겠습니까?')) return
-
             const payload = {
                 todoId: Number(todoId),
                 title: subject,
@@ -200,6 +188,10 @@ const NoteWriteCompo = ({
             },
         },
     )
+    const handleSaveNoote = () => {
+        if (!confirm('작성을 완료하시겠습니까?')) return
+        saveNotes()
+    }
 
     return (
         <>
@@ -216,7 +208,7 @@ const NoteWriteCompo = ({
                     <ButtonStyle
                         className={`w-24 !font-normal rounded-xl ${!content || content === '<p></p>' || content === '' ? 'bg-custom_slate-400' : 'bg-blue-500'}`}
                         disabled={!content || content === '<p></p>' || content === ''}
-                        onClick={() => saveNotes()}
+                        onClick={() => handleSaveNoote()}
                     >
                         작성완료
                     </ButtonStyle>
@@ -274,19 +266,7 @@ const NoteWriteCompo = ({
                         onSetLinkButton={setLinkButton}
                     />
                 </div>
-                <div id="noteWrite" className="relative">
-                    <ToastContainer
-                        transition={Zoom}
-                        style={{
-                            width: '100%',
-                            left: '50%',
-                            right: 'auto',
-                            transform: 'translateX(-50%)',
-                            position: 'absolute',
-                            top: '-30px',
-                        }}
-                    />
-                </div>
+                {toastMessage && <NoteSaveToast message={toastMessage} onClose={() => setToastMessage('')} />}
             </div>
         </>
     )

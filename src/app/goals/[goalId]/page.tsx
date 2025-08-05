@@ -96,6 +96,7 @@ const GoalsPage = () => {
                 return typedError.message || '알 수 없는 오류가 발생했습니다.'
             },
             onSuccess: () => {
+                showToast('수정이 완료되었습니다.')
                 queryClient.invalidateQueries({queryKey: ['goals']})
             },
         },

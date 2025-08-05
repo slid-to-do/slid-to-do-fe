@@ -5,6 +5,13 @@ import {ToastContainer} from 'react-toastify'
 
 export default function ToastProvider() {
     return (
-        <ToastContainer position="top-center" toastClassName="center-toast" autoClose={3000} hideProgressBar={false} />
+        <ToastContainer
+            position="top-center"
+            toastClassName="custom-toast"
+            theme="dark"
+            autoClose={3000}
+            hideProgressBar={false}
+            limit={1}
+        />
     )
 }

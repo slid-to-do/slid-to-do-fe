@@ -22,6 +22,7 @@ export function middleware(request: NextRequest) {
         pathname !== '/signup' &&
         !pathname.startsWith('/_next') &&
         !pathname.startsWith('/api') &&
+        !pathname.endsWith('.svg') &&
         !pathname.endsWith('.ico')
 
     if (isProtectedPath && !accessToken) {
@@ -32,5 +33,5 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: [String.raw`/((?!_next|favicon.ico|api|public|.*\.svg$).*)`],
+    matcher: [String.raw`/((?!_next|_next/static|_next/image|favicon.ico|api|.*\\.svg$).*)`],
 }

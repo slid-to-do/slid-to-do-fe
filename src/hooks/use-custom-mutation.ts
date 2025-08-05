@@ -60,7 +60,10 @@ export function useCustomMutation<TData = unknown, TError = unknown, TVariables 
 
                 if (isToast) {
                     for (const {message} of mappedErrors) {
-                        showToast(message, {type: 'error'})
+                        showToast(message, {
+                            type: 'error',
+                            id: 'MUTATION_TOAST_ID',
+                        })
                     }
                 }
             }
@@ -70,7 +73,10 @@ export function useCustomMutation<TData = unknown, TError = unknown, TVariables 
                 typeof (error as {status?: number}).status === 'number' &&
                 (error as {status?: number}).status! >= 500
             ) {
-                showToast('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', {type: 'error'})
+                showToast('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', {
+                    type: 'error',
+                    id: 'SERVER_ERROR_TOAST_ID',
+                })
             }
 
             // 사용자가 정의한 onError 콜백 호출

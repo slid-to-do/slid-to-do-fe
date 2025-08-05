@@ -26,6 +26,7 @@ interface ShowToastOptions {
 const showToastImpl = (content: ToastContent, options: ShowToastOptions = {}) => {
     const {id, type = 'default', position = 'bottom-center'} = options
 
+    toast.clearWaitingQueue()
     if (id && toast.isActive(id)) {
         return
     }

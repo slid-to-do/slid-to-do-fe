@@ -8,6 +8,7 @@ export default function ToastProvider() {
         <ToastContainer
             position="top-center"
             toastClassName="custom-toast"
+            theme="dark"
             autoClose={3000}
             hideProgressBar={false}
             limit={1}

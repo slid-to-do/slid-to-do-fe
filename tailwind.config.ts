@@ -118,6 +118,18 @@ const config: Config = {
                 )
             }
         }),
+        plugin(({addComponents, theme}) => {
+            addComponents({
+                '.desktop-layout': {
+                    padding: theme('spacing.6'),
+                    [`@media (min-width: 774px)`]: {
+                        maxWidth: '1200px',
+                        paddingLeft: `${theme('spacing.20')}!important`,
+                        paddingRight: `${theme('spacing.20')}!important`,
+                    },
+                },
+            })
+        }),
     ],
 }
 

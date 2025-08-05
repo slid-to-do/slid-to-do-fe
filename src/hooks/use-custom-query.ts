@@ -34,11 +34,11 @@ type CustomQueryOptions<TData, TError, TQueryKey extends QueryKey, TSelected = T
  * @returns React Query의 `useQuery` 결과 객체
  */
 
-export function useCustomQuery<TData, TError = unknown, TQueryKey extends QueryKey = QueryKey, TSelected = TData>(
+export const useCustomQuery = <TData, TError = unknown, TQueryKey extends QueryKey = QueryKey, TSelected = TData>(
     queryKey: TQueryKey,
     queryFunction: QueryFunction<TData, TQueryKey>,
     options: CustomQueryOptions<TData, TError, TQueryKey, TSelected> = {},
-) {
+) => {
     const {showToast} = useToast()
     const router = useRouter()
 

@@ -7,8 +7,7 @@ import {useEffect, useState} from 'react'
 import {useQueryClient} from '@tanstack/react-query'
 import axios from 'axios'
 
-import {goalDataApi, goalDeleteApi, goalUpdateApi} from '@/app/api/goals/route'
-import {todoDeleteApi, todoUpdateApi} from '@/app/api/todos/route'
+import {todoDeleteApi, todoUpdateApi} from '@/app/api/todo-api'
 import LoadingSpinner from '@/components/common/loading-spinner'
 import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import TwoButtonModal from '@/components/common/modal/two-buttom-modal'
@@ -24,6 +23,8 @@ import {useModalStore} from '@/store/use-modal-store'
 
 import type {Goal} from '@/types/goals'
 import type {TodoResponse} from '@/types/todos'
+
+import {goalDataApi, goalDeleteApi, goalUpdateApi} from '@/app/api/goals/goal-api'
 
 const GoalsPage = () => {
     const router = useRouter()

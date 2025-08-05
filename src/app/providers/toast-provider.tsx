@@ -3,7 +3,7 @@
 
 import {ToastContainer} from 'react-toastify'
 
-export default function ToastProvider() {
+const ToastProvider = () => {
     return (
         <ToastContainer
             position="top-center"
@@ -15,3 +15,5 @@ export default function ToastProvider() {
         />
     )
 }
+
+export default ToastProvider

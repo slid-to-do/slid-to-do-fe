@@ -26,11 +26,6 @@ const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
         async (id) => {
             await del({
                 endpoint: `notes/${id}`,
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
             })
         },
         {

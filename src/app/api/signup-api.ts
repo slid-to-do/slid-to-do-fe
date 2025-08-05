@@ -9,6 +9,7 @@ import type {SignupFormData} from '@/types/signup'
  */
 
 const URL = process.env.NEXT_PUBLIC_BACKEND_API
+
 export async function signupApi(data: SignupFormData): Promise<void> {
     const interceptor = axios.interceptors.response.use(
         (response) => response,

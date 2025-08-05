@@ -11,6 +11,7 @@ import type {LoginFormData} from '@/types/login'
  * @param {LoginFormData} data - 로그인 요청에 필요한 사용자 입력 데이터 (이메일, 비밀번호)
  * @returns {Promise<void>} 반환값은 없으며, 성공 시 토큰을 저장하고 실패 시 예외를 던집니다.
  */
+
 export async function loginApi(data: LoginFormData): Promise<void> {
     const interceptor = axios.interceptors.response.use(
         (response) => response,

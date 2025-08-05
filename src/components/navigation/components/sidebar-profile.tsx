@@ -4,8 +4,8 @@ import Image from 'next/image'
 import {useRouter} from 'next/navigation'
 import React from 'react'
 
-import axios from 'axios'
 import {useQuery} from '@tanstack/react-query'
+import axios from 'axios'
 
 import useToast from '@/hooks/use-toast'
 import {get} from '@/lib/api'
@@ -40,13 +40,14 @@ const SidebarProfile = () => {
     })
     const handleLogout = async () => {
         try {
-            await axios.post('/api/auth/logout', null, {
+            await axios.post('/api/auth/logout', {
                 withCredentials: true,
             })
 
             router.push('/login')
-        } catch (err) {
-            console.error('로그아웃 실패:', err)
+            showToast('로그아웃이 되었습니다.', {type: 'success'})
+        } catch {
+            showToast('로그아웃에 실패했습니다.', {type: 'error'})
         }
     }
 

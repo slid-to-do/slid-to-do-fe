@@ -1,10 +1,11 @@
-import {NextResponse} from 'next/server'
 import {cookies} from 'next/headers'
+import {NextResponse} from 'next/server'
 
-export async function GET(req: Request) {
+export async function GET(request: Request) {
     const cookieStore = await cookies()
+
     const accessToken = cookieStore.get('refreshToken')?.value
-    const {searchParams} = new URL(req.url)
+    const {searchParams} = new URL(request.url)
     const endpoint = searchParams.get('endpoint') as string
 
     if (!accessToken) {
@@ -26,18 +27,17 @@ export async function GET(req: Request) {
         if (error instanceof Error) {
             const status = (error as Error & {status?: number}).status || 500
 
-            console.error('Proxy Error:', error)
             return NextResponse.json({message: 'Proxy Error', error: String(error)}, {status})
         }
     }
 }
 
-export async function POST(req: Request) {
+export async function POST(request: Request) {
     const cookieStore = await cookies()
     const accessToken = cookieStore.get('refreshToken')?.value
-    const {searchParams} = new URL(req.url)
+    const {searchParams} = new URL(request.url)
     const endpoint = searchParams.get('endpoint') as string
-    const body = await req.json()
+    const body = await request.json()
 
     if (!accessToken) {
         return NextResponse.json({message: '로그인이 만료 되었습니다.'}, {status: 401})
@@ -59,18 +59,17 @@ export async function POST(req: Request) {
         if (error instanceof Error) {
             const status = (error as Error & {status?: number}).status || 500
 
-            console.error('Proxy Error:', error)
             return NextResponse.json({message: 'Proxy Error', error: String(error)}, {status})
         }
     }
 }
 
-export async function PATCH(req: Request) {
+export async function PATCH(request: Request) {
     const cookieStore = await cookies()
     const accessToken = cookieStore.get('refreshToken')?.value
-    const {searchParams} = new URL(req.url)
+    const {searchParams} = new URL(request.url)
     const endpoint = searchParams.get('endpoint') as string
-    const body = await req.json()
+    const body = await request.json()
 
     if (!accessToken) {
         return NextResponse.json({message: '로그인이 만료 되었습니다.'}, {status: 401})
@@ -92,16 +91,15 @@ export async function PATCH(req: Request) {
         if (error instanceof Error) {
             const status = (error as Error & {status?: number}).status || 500
 
-            console.error('Proxy Error:', error)
             return NextResponse.json({message: 'Proxy Error', error: String(error)}, {status})
         }
     }
 }
 
-export async function DELETE(req: Request) {
+export async function DELETE(request: Request) {
     const cookieStore = await cookies()
     const accessToken = cookieStore.get('refreshToken')?.value
-    const {searchParams} = new URL(req.url)
+    const {searchParams} = new URL(request.url)
     const endpoint = searchParams.get('endpoint') as string
 
     if (!accessToken) {
@@ -121,7 +119,6 @@ export async function DELETE(req: Request) {
         if (error instanceof Error) {
             const status = (error as Error & {status?: number}).status || 500
 
-            console.error('Proxy Error:', error)
             return NextResponse.json({message: 'Proxy Error', error: String(error)}, {status})
         }
     }

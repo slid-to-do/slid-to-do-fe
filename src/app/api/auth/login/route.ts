@@ -1,10 +1,10 @@
-import {NextResponse} from 'next/server'
 import {cookies} from 'next/headers'
+import {NextResponse} from 'next/server'
 
-const URL = process.env.NEXT_PUBLIC_API_BASE_URL
+const URL = process.env.NEXT_PUBLIC_BACKEND_API
 
-export async function POST(req: Request) {
-    const {email, password} = await req.json()
+export async function POST(request: Request) {
+    const {email, password} = await request.json()
     const cookie = await cookies()
 
     if (!email || !password) {

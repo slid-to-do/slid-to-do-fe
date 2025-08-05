@@ -1,5 +1,6 @@
-import type {LoginFormData} from '@/types/login'
 import axios from 'axios'
+
+import type {LoginFormData} from '@/types/login'
 
 /**
  * 로그인 API 호출 함수

@@ -7,41 +7,42 @@ export async function POST(request: Request) {
     const {email, password} = await request.json()
     const cookie = await cookies()
 
-    if (!email || !password) {
-        return NextResponse.json({message: '이메일, 비밀번호을 입력해주세요.'}, {status: 400})
+    try {
+        const response = await fetch(`${URL}/auth/login`, {
+            method: 'POST',
+            headers: {'Content-Type': 'application/json'},
+            body: JSON.stringify({email, password}),
+        })
+
+        const data = await response.json()
+
+        if (!response.ok) {
+            return NextResponse.json(
+                {message: data.message || '로그인 실패', error: data.error},
+                {status: response.status},
+            )
+        }
+
+        cookie.set({
+            name: 'accessToken',
+            value: data.accessToken,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            path: '/',
+            maxAge: 60 * 60 * 24,
+        })
+
+        cookie.set({
+            name: 'refreshToken',
+            value: data.refreshToken,
+            httpOnly: true,
+            secure: process.env.NODE_ENV === 'production',
+            path: '/',
+            maxAge: 60 * 60 * 24,
+        })
+
+        return NextResponse.json({success: true})
+    } catch {
+        return NextResponse.json({message: '서버 통신 오류가 발생했습니다.'}, {status: 500})
     }
-
-    // 외부 로그인 API 요청
-    const response = await fetch(`${URL}/auth/login`, {
-        method: 'POST',
-        headers: {'Content-Type': 'application/json'},
-        body: JSON.stringify({email, password}),
-    })
-
-    if (!response.ok) {
-        return NextResponse.json({error: 'Login failed'}, {status: 401})
-    }
-
-    const data = await response.json()
-    const accessToken = data.accessToken
-    const refreshToken = data.refreshToken
-
-    cookie.set({
-        name: 'accessToken',
-        value: accessToken,
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-        maxAge: 60 * 60 * 24,
-    })
-    cookie.set({
-        name: 'refreshToken',
-        value: refreshToken,
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        path: '/',
-        maxAge: 60 * 60 * 24,
-    })
-
-    return NextResponse.json({success: true})
 }

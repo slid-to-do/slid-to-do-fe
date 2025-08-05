@@ -12,8 +12,24 @@ import type {LoginFormData} from '@/types/login'
  * @returns {Promise<void>} 반환값은 없으며, 성공 시 토큰을 저장하고 실패 시 예외를 던집니다.
  */
 export async function loginApi(data: LoginFormData): Promise<void> {
-    await axios.post('/api/auth/login', {
-        email: data.email,
-        password: data.password,
-    })
+    const interceptor = axios.interceptors.response.use(
+        (response) => response,
+        (error) => {
+            if (error.response?.data?.message) {
+                error.message = error.response.data.message
+            } else if (error.response?.data?.error) {
+                error.message = error.response.data.error
+            }
+            return Promise.reject(error)
+        },
+    )
+
+    try {
+        await axios.post('/api/auth/login', {
+            email: data.email,
+            password: data.password,
+        })
+    } finally {
+        axios.interceptors.response.eject(interceptor)
+    }
 }

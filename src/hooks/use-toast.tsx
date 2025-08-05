@@ -33,7 +33,7 @@ const showToastImpl = (content: ToastContent, options: ShowToastOptions = {}) =>
 
     const common: ToastOptions = {toastId: id, position}
     if (type === 'none') {
-        toast(content, {...common, icon: false, className: 'center-toast'})
+        toast(content, {...common, icon: false})
     } else if (type === 'default') {
         toast(content, common)
     } else {

@@ -60,7 +60,8 @@ export function useCustomQuery<TData, TError = unknown, TQueryKey extends QueryK
         const message = mapErrorMessage(queryResult.error)
 
         if (['toast', 'both'].includes(errorDisplayType)) {
-            showToast(message, {type: 'error'})
+            showToast(message, {id: 'QUERY_TOAST_ID', type: 'error'})
+            console.log('토스트 메세지 생성')
         }
         if (['redirect', 'both'].includes(errorDisplayType)) {
             const encodedMessage = encodeURIComponent(message)

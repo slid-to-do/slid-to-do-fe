@@ -2,11 +2,12 @@
 
 import {useSearchParams} from 'next/navigation'
 import {useEffect} from 'react'
+
 import {toast} from 'react-toastify'
 
 export default function ErrorPage() {
-    const searchParams = useSearchParams()
-    const toastMessage = searchParams.get('toast')
+    const searchParameters = useSearchParams()
+    const toastMessage = searchParameters.get('toast')
 
     useEffect(() => {
         if (toastMessage) {

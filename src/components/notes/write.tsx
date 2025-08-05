@@ -8,7 +8,7 @@ import axios from 'axios'
 
 import 'react-toastify/dist/ReactToastify.css'
 
-import {noteRegApi} from '@/app/api/notes/route'
+import {noteRegApi} from '@/app/api/note-api'
 import TwoButtonModal from '@/components/common/modal/two-buttom-modal'
 import MarkdownEditor from '@/components/markdown-editor/markdown-editor'
 import ButtonStyle from '@/components/style/button-style'

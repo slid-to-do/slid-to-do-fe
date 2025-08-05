@@ -3,14 +3,14 @@
 import Image from 'next/image'
 import {useSearchParams} from 'next/navigation'
 
-import {useQuery} from '@tanstack/react-query'
-
 import LoadingSpinner from '@/components/common/loading-spinner'
+import {useCustomQuery} from '@/hooks/use-custom-query'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import {get} from '@/lib/api'
 
 import {NoteList} from '../../components/notes/list'
 
+import type {ApiError} from '@/types/api'
 import type {InfiniteScrollOptions} from '@/types/infinite-scroll'
 import type {NoteCommon, NoteListResponse} from '@/types/notes'
 
@@ -39,11 +39,9 @@ const Page = () => {
 
     const {
         data: notes,
+        isLoading,
         ref,
         hasMore,
-        isLoading,
-        isError,
-        error,
     } = useInfiniteScrollQuery({
         queryKey: ['notes'],
         fetchFn: fetchNoteList,
@@ -64,23 +62,27 @@ const Page = () => {
         return fallbackResult.data
     }
 
-    const {data: goalData, isLoading: isGoalLoading} = useQuery({
-        queryKey: ['goalTitle', goalId],
-        queryFn: fetchGetGoalTitle,
+    const {data: goalData, isLoading: isGoalLoading} = useCustomQuery(['goalTitle', goalId], fetchGetGoalTitle, {
         enabled: !!goalId && notes.length === 0,
+        errorDisplayType: 'toast',
+        mapErrorMessage: (error) => {
+            const apiError = error as ApiError
+            return apiError.message || '알 수 없는 오류가 발생했습니다.'
+        },
     })
+    if (isLoading || isGoalLoading) {
+        return <LoadingSpinner />
+    }
 
-    if (isLoading || isGoalLoading) return <LoadingSpinner />
-    if (isError && error) throw error
     hasMore && !isLoading && notes.length > 0 && <div ref={ref} />
 
     return (
-        <div className="bg-slate-100 flex flex-col w-full min-h-screen h-full overflow-y-auto p-6 desktop:px-20 ">
+        <div className="bg-slate-100 flex flex-col w-full min-h-screen h-full overflow-y-auto p-6 desktop:px-20">
             <header>
                 <h1 className="text-subTitle text-custom_slate-900 ">노트 모아보기</h1>
             </header>
 
-            <div className="w-full mt-4 flex-1 flex flex-col">
+            <div className="w-full mt-4 flex-1 flex flex-col max-w-[1200px]">
                 <div className="flex gap-2 items-center bg-white rounded-xl border border-custom_slate-100 py-3.5 px-6">
                     <Image src="/goals/flag-goal.svg" alt="목표깃발" width={28} height={28} />
                     <h2 className="text-subTitle-sm"> {notes.length > 0 ? notes?.[0]?.goal.title : goalData?.title}</h2>

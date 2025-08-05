@@ -38,7 +38,7 @@ const LoginPage = () => {
         },
         onSuccess: () => {
             showToast('로그인에 성공했습니다!', {type: 'success'})
-            router.push('/')
+            router.push('/dashboard')
         },
     })
 

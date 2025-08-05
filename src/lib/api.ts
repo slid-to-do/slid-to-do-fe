@@ -34,6 +34,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 /** axios 인스턴스 생성 */
 const axiosInstance = axios.create({
     baseURL: API_BASE_URL,
+    withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -44,11 +45,12 @@ const isTestEnvironment = process.env.NODE_ENV === 'test'
 /** 통합 HTTP 요청 함수 - axios 버전 */
 export const request = async <T>({method, endpoint, data, options}: RequestParameters): Promise<ApiResponse<T>> => {
     try {
+        console.log(endpoint, method, data)
         const config: AxiosRequestConfig = {
-            url: endpoint,
             method,
             data,
             headers: options?.headers,
+            params: {endpoint: endpoint},
         }
 
         const sender = isTestEnvironment ? axios : axiosInstance
@@ -62,7 +64,7 @@ export const request = async <T>({method, endpoint, data, options}: RequestParam
     } catch (error) {
         let status = 500
         let message = '에러 발생'
-
+        console.error(error)
         /** axios 에러일 경우: 서버 응답(response)에 접근 가능 */
         if (axios.isAxiosError(error)) {
             status = error.response?.status ?? 500

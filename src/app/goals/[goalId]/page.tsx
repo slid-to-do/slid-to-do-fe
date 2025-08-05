@@ -2,14 +2,18 @@
 import Image from 'next/image'
 import Link from 'next/link'
 import {useParams, useRouter} from 'next/navigation'
-import {useEffect, useState} from 'react'
+import {useState} from 'react'
 
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import {useMutation, useQueryClient} from '@tanstack/react-query'
+import axios from 'axios'
 
+import LoadingSpinner from '@/components/common/loading-spinner'
 import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import TwoButtonModal from '@/components/common/modal/two-buttom-modal'
 import GoalHeader from '@/components/goals/goal-header'
 import InfiniteTodoList from '@/components/goals/todo-list'
+import {useCustomMutation} from '@/hooks/use-custom-mutation'
+import {useCustomQuery} from '@/hooks/use-custom-query'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import useModal from '@/hooks/use-modal'
 import useToast from '@/hooks/use-toast'
@@ -35,11 +39,10 @@ const GoalsPage = () => {
     /**모달 닫기 */
     const {clearModal} = useModalStore()
 
-    /** [ S ] 목표 */
-    /** 목표 API */
-    const {data: goalsData} = useQuery<Goal>({
-        queryKey: ['goals', goalId],
-        queryFn: async () => {
+    /** 목표 GET API */
+    const {isLoading} = useCustomQuery<Goal>(
+        ['goals', goalId],
+        async () => {
             const response = await get<Goal>({
                 endpoint: `goals/${goalId}`,
                 options: {
@@ -47,20 +50,28 @@ const GoalsPage = () => {
                 },
             })
 
+            setGoal(response.data)
+            setGoalTitle(response.data.title)
             return response.data
         },
-    })
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
 
-    useEffect(() => {
-        if (goalsData) {
-            setGoal(goalsData)
-            setGoalTitle(goalsData.title)
-        }
-    }, [goalsData])
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+
+                return typedError.message || '알 수 없는 오류가 발생했습니다.'
+            },
+            // errorRedirectPath: '/',
+        },
+    )
 
     /** 목표 수정 */
-    const updateGoals = useMutation({
-        mutationFn: async () => {
+    const {mutate: updateGoals} = useCustomMutation<TodoResponse>(
+        async () => {
             const response = await patch<TodoResponse>({
                 endpoint: `goals/${goalId}`,
                 data: {title: goalTitle},
@@ -71,22 +82,29 @@ const GoalsPage = () => {
                 },
             })
 
-            if (response.status === 200) {
-                showToast('수정되었습니다.')
-            } else {
-                showToast(response.message)
-            }
-
             return response.data
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['goals']})
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
+
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+
+                return typedError.message || '알 수 없는 오류가 발생했습니다.'
+            },
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: ['goals']})
+            },
         },
-    })
+    )
+
     /** 목표 삭제 */
-    const deleteGoals = useMutation({
-        mutationFn: async () => {
-            const response = await del({
+    const {mutate: deleteGoals} = useCustomMutation(
+        async () => {
+            await del({
                 endpoint: `goals/${goalId}`,
                 options: {
                     headers: {
@@ -94,13 +112,25 @@ const GoalsPage = () => {
                     },
                 },
             })
-            if (response === undefined) {
+        },
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
+
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+
+                return typedError.message || '알 수 없는 오류가 발생했습니다.'
+            },
+            onSuccess: () => {
                 clearModal()
                 showToast('삭제가 완료되었습니다.')
                 router.push('/')
-            }
+            },
         },
-    })
+    )
 
     /** 목표 수정&삭제 분기 함수 */
     const handleGoalAction = async (mode: string) => {
@@ -109,18 +139,17 @@ const GoalsPage = () => {
                 showToast('제목을 입력해주세요.')
                 return
             }
-            updateGoals.mutate()
+            updateGoals()
 
             setGoalEdit(false)
         } else if (mode === 'delete') {
-            deleteGoals.mutate()
+            deleteGoals()
         }
     }
 
     /**목표 수정 시 input값 변경 */
     const handleInputUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {value} = event.target
-
         setGoalTitle(value)
     }
 
@@ -141,7 +170,6 @@ const GoalsPage = () => {
         },
     )
 
-    /** [ S ] 할일 */
     /** 할일 API 호출 */
     const GetTodoList = (done: boolean) => {
         return async (cursor: number | undefined) => {
@@ -193,7 +221,7 @@ const GoalsPage = () => {
     })
 
     /**할일 추가 모달 */
-    const {openModal: todoAddModal} = useModal(<AddTodoModal />)
+    const {openModal: todoAddModal} = useModal(<AddTodoModal goalId={Number(goalId)} />)
 
     /**할일 checkbox update */
     const updateTodo = useMutation({
@@ -241,7 +269,6 @@ const GoalsPage = () => {
     } else if (notDoneIsError) {
         error = notDoneError
     }
-
     if (error) {
         return (
             <div className="flex items-center justify-center w-full h-full text-sm text-red-500">
@@ -250,9 +277,11 @@ const GoalsPage = () => {
         )
     }
 
+    if (isLoading) return <LoadingSpinner />
+
     return (
         <div className="w-full bg-custom_slate-100 overflow-y-auto">
-            <div className={`p-6 desktop:px-20`}>
+            <div className={`desktop-layout`}>
                 <div className="text-subTitle">목표</div>
                 <GoalHeader
                     goal={goal}

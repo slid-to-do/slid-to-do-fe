@@ -4,7 +4,7 @@ import Image from 'next/image'
 import {useRouter} from 'next/navigation'
 import {useCallback, useEffect, useState} from 'react'
 
-import {useMutation} from '@tanstack/react-query'
+import axios from 'axios'
 import {toast, ToastContainer, Zoom} from 'react-toastify'
 
 import 'react-toastify/dist/ReactToastify.css'
@@ -12,6 +12,7 @@ import 'react-toastify/dist/ReactToastify.css'
 import TwoButtonModal from '@/components/common/modal/two-buttom-modal'
 import MarkdownEditor from '@/components/markdown-editor/markdown-editor'
 import ButtonStyle from '@/components/style/button-style'
+import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useModal from '@/hooks/use-modal'
 import useToast from '@/hooks/use-toast'
 import {post} from '@/lib/api'
@@ -89,7 +90,7 @@ const NoteWriteCompo = ({
                 },
             )
         },
-        [goalId, todoId, subject, content, key, linkButton],
+        [goalId, todoId, subject, content, key, linkButton, showToast],
     )
 
     /** 5분에 한번 임시작성 */
@@ -160,8 +161,8 @@ const NoteWriteCompo = ({
     }
 
     /** 작성 완료하기 */
-    const saveNotes = useMutation({
-        mutationFn: async () => {
+    const {mutate: saveNotes} = useCustomMutation(
+        async () => {
             if (!confirm('작성을 완료하시겠습니까?')) return
 
             const payload = {
@@ -180,16 +181,26 @@ const NoteWriteCompo = ({
                     },
                 },
             })
-            if (response.status === 201) {
-                showToast('작성이 완료되었습니다.')
-                router.push(`/notes?goalId=${goalId}`)
-            } else {
-                showToast(response.message)
-            }
-
             return response.data
         },
-    })
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
+
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+
+                return typedError.message || '알 수 없는 오류가 발생했습니다.'
+            },
+            onSuccess: () => {
+                showToast('작성이 완료되었습니다.')
+                router.push(`/notes?goalId=${goalId}`)
+            },
+        },
+    )
+
     return (
         <>
             <div className="w-full flex justify-between items-center">
@@ -205,7 +216,7 @@ const NoteWriteCompo = ({
                     <ButtonStyle
                         className={`w-24 !font-normal rounded-xl ${!content || content === '<p></p>' || content === '' ? 'bg-custom_slate-400' : 'bg-blue-500'}`}
                         disabled={!content || content === '<p></p>' || content === ''}
-                        onClick={() => saveNotes.mutate()}
+                        onClick={() => saveNotes()}
                     >
                         작성완료
                     </ButtonStyle>
@@ -217,6 +228,8 @@ const NoteWriteCompo = ({
                         <Image
                             src={'/todos/ic-delete.svg'}
                             alt="delete"
+                            width={24}
+                            height={24}
                             className="w-6 h-6"
                             onClick={() => setSaveToastOpen(false)}
                         />

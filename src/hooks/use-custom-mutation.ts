@@ -18,6 +18,7 @@ type CustomMutationOptions<TData, TError, TVariables, TContext> = UseMutationOpt
     setError?: UseFormSetError<FieldValues>
     onValidationError?: (error: TError) => {name: string; message: string}[]
     errorDisplayType?: ErrorDisplayType
+    mapErrorMessage?: (error: TError) => string
 }
 
 /**
@@ -48,21 +49,23 @@ export function useCustomMutation<TData = unknown, TError = unknown, TVariables 
 
             const mappedErrors = options.onValidationError?.(error)
 
-            if (mappedErrors?.length) {
-                const isForm = displayType === 'form' || displayType === 'both'
-                const isToast = displayType === 'toast' || displayType === 'both'
+            const isForm = displayType === 'form' || displayType === 'both'
+            const isToast = displayType === 'toast' || displayType === 'both'
 
-                if (isForm && options.setError) {
-                    for (const {name, message} of mappedErrors) {
+            if (mappedErrors?.length) {
+                for (const {name, message} of mappedErrors) {
+                    if (isForm && options.setError && name) {
                         options.setError(name, {message})
                     }
-                }
-
-                if (isToast) {
-                    for (const {message} of mappedErrors) {
+                    if (isToast) {
                         showToast(message, {type: 'error'})
                     }
                 }
+            }
+
+            const mapped = options.mapErrorMessage?.(error)
+            if (displayType === 'toast' && mapped) {
+                showToast(mapped, {type: 'error'})
             }
 
             // 공통 서버 오류 처리 (500 이상일 경우 알림)

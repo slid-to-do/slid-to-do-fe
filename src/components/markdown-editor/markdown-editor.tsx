@@ -83,13 +83,13 @@ const MarkdownEditor = ({
 
             {internalLink && (
                 <div className="mt-2 bg-custom_slate-200 p-1 rounded-full flex justify-between items-center">
-                    <div className="flex items-end gap-2 flex-1 min-w-0  p-1 max-w-fit ">
+                    <div className="flex items-end gap-2 flex-1 min-w-0 max-w-full p-1 ">
                         <Image src="/markdown-editor/ic-save-link.svg" alt="링크아이콘" width={24} height={24} />
                         <a
                             href={internalLink}
                             target="_blank"
-                            className="truncate whitespace-nowrap break-all text-ellipsis block text-body text-custom_slate-800"
                             rel="noreferrer"
+                            className="block overflow-hidden text-ellipsis whitespace-nowrap max-w-full text-body text-custom_slate-800"
                         >
                             {internalLink}
                         </a>

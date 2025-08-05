@@ -92,21 +92,20 @@ const Page = () => {
                         </h2>
                     </div>
 
-                    {notes.length > 0 ? (
-                        <>
-                            <NoteList notesData={notes} />
-                            {!hasMore && notes.length > 0 && (
-                                <div className="mt-4 text-gray-400 text-sm flex items-center justify-center">
-                                    <p>모든 노트를 다 불러왔어요</p>
-                                </div>
-                            )}
-                        </>
-                    ) : (
-                        <div className="w-full h-full  flex-1 flex items-center justify-center">
-                            <p className="text-sm font-normal text-custom_slate-500">아직 등록된 노트가 없어요</p>
-                        </div>
-                    )}
-                </div>
+                {notes.length > 0 ? (
+                    <>
+                        <NoteList notesData={notes} />
+                        {!hasMore && notes.length > 0 && (
+                            <div className="mt-4 text-gray-400 text-sm flex items-center justify-center">
+                                <p>모든 노트를 다 불러왔어요</p>
+                            </div>
+                        )}
+                    </>
+                ) : (
+                    <div className="w-full h-full  flex-1 flex items-center justify-center">
+                        <p className="text-sm font-normal text-custom_slate-500">아직 등록된 노트가 없어요</p>
+                    </div>
+                )}
             </div>
         </div>
     )

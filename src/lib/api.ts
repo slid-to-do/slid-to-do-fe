@@ -34,6 +34,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 /** axios 인스턴스 생성 */
 const axiosInstance = axios.create({
     baseURL: API_BASE_URL,
+    withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
     },
@@ -45,10 +46,10 @@ const isTestEnvironment = process.env.NODE_ENV === 'test'
 export const request = async <T>({method, endpoint, data, options}: RequestParameters): Promise<ApiResponse<T>> => {
     try {
         const config: AxiosRequestConfig = {
-            url: endpoint,
             method,
             data,
             headers: options?.headers,
+            params: {endpoint: endpoint},
         }
 
         const sender = isTestEnvironment ? axios : axiosInstance

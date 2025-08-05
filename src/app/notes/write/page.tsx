@@ -5,15 +5,15 @@ import {useEffect} from 'react'
 
 import axios from 'axios'
 
+import {goalDataApi} from '@/app/api/goals/route'
+import {todoDataApi} from '@/app/api/todos/route'
 import LoadingSpinner from '@/components/common/loading-spinner'
 import NoteEditCompo from '@/components/notes/edit'
 import NoteWriteCompo from '@/components/notes/write'
 import {useCustomQuery} from '@/hooks/use-custom-query'
 import useToast from '@/hooks/use-toast'
-import {get} from '@/lib/api'
 
 import type {Goal} from '@/types/goals'
-import type {Todo} from '@/types/todos'
 
 const NoteWritePage = () => {
     const searchParameters = useSearchParams()
@@ -37,17 +37,11 @@ const NoteWritePage = () => {
     }, [todoId, goalId, router, noteId, showToast])
 
     // goal API 호출
-    const {data: goalsData, isLoading: isLoadingGoals} = useCustomQuery(
+    const {data: goalsData, isLoading: isLoadingGoals} = useCustomQuery<Goal>(
         ['goals', goalId],
         async () => {
-            const response = await get<Goal>({
-                endpoint: `goals/${goalId}`,
-                options: {
-                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                },
-            })
-
-            return response.data
+            if (!goalId) throw new Error('목표 없이 노트작성이 불가합니다.')
+            return goalDataApi(goalId)
         },
         {
             enabled: !!goalId,
@@ -67,16 +61,7 @@ const NoteWritePage = () => {
     // todolist API 호출
     const {data: todosData, isLoading: isLoadingTodos} = useCustomQuery(
         ['todos', todoId],
-        async () => {
-            const response = await get<Todo>({
-                endpoint: `todos/${todoId}`,
-                options: {
-                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                },
-            })
-
-            return response.data
-        },
+        async () => todoDataApi(Number(todoId)),
         {
             enabled: !!todoId,
             errorDisplayType: 'toast',

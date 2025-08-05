@@ -8,19 +8,17 @@ import axios from 'axios'
 
 import 'react-toastify/dist/ReactToastify.css'
 
+import {noteRegApi} from '@/app/api/notes/route'
 import TwoButtonModal from '@/components/common/modal/two-buttom-modal'
 import MarkdownEditor from '@/components/markdown-editor/markdown-editor'
 import ButtonStyle from '@/components/style/button-style'
 import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useModal from '@/hooks/use-modal'
 import useToast from '@/hooks/use-toast'
-import {post} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
 import NoteSaveToast from '../common/note-save-toast'
 import InputStyle from '../style/input-style'
-
-import type {NoteCommon} from '@/types/notes'
 
 const NoteWriteCompo = ({
     goalId,
@@ -34,6 +32,7 @@ const NoteWriteCompo = ({
     todoTitle: string | undefined
 }) => {
     const router = useRouter()
+
     const [saveToastOpen, setSaveToastOpen] = useState<boolean>(false)
     const [hasLocalNote, setHasLocalNote] = useState(false)
     const [content, setContent] = useState<string>('')
@@ -160,16 +159,7 @@ const NoteWriteCompo = ({
                 ...(linkButton && {linkUrl: linkButton}),
             }
 
-            const response = await post<NoteCommon>({
-                endpoint: `notes`,
-                data: payload,
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
-            })
-            return response.data
+            noteRegApi(payload)
         },
         {
             errorDisplayType: 'toast',

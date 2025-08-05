@@ -27,9 +27,6 @@ const Page = () => {
         const endpoint = `notes?${urlParameter.toString()}`
         const result = await get<NoteListResponse>({
             endpoint,
-            options: {
-                headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-            },
         })
         return {
             data: result.data.notes,
@@ -52,11 +49,6 @@ const Page = () => {
         const fallbackEndpoint = `goals/${goalId}`
         const fallbackResult = await get<{title: string}>({
             endpoint: fallbackEndpoint,
-            options: {
-                headers: {
-                    Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                },
-            },
         })
 
         return fallbackResult.data
@@ -77,31 +69,36 @@ const Page = () => {
     hasMore && !isLoading && notes.length > 0 && <div ref={ref} />
 
     return (
-        <div className="bg-slate-100 flex flex-col w-full min-h-screen h-full overflow-y-auto p-6 desktop:px-20">
-            <header>
-                <h1 className="text-subTitle text-custom_slate-900 ">노트 모아보기</h1>
-            </header>
+        <div className="bg-slate-100 flex flex-col w-full min-h-screen h-full overflow-y-auto">
+            <div className="desktop-layout">
+                <header>
+                    <h1 className="text-subTitle text-custom_slate-900 ">노트 모아보기</h1>
+                </header>
 
-            <div className="w-full mt-4 flex-1 flex flex-col max-w-[1200px]">
-                <div className="flex gap-2 items-center bg-white rounded-xl border border-custom_slate-100 py-3.5 px-6">
-                    <Image src="/goals/flag-goal.svg" alt="목표깃발" width={28} height={28} />
-                    <h2 className="text-subTitle-sm"> {notes.length > 0 ? notes?.[0]?.goal.title : goalData?.title}</h2>
-                </div>
-
-                {notes.length > 0 ? (
-                    <>
-                        <NoteList notesData={notes} />
-                        {!hasMore && notes.length > 0 && (
-                            <div className="mt-4 text-gray-400 text-sm flex items-center justify-center">
-                                <p>모든 노트를 다 불러왔어요</p>
-                            </div>
-                        )}
-                    </>
-                ) : (
-                    <div className="w-full h-full  flex-1 flex items-center justify-center">
-                        <p className="text-sm font-normal text-custom_slate-500">아직 등록된 노트가 없어요</p>
+                <div className="w-full mt-4 flex-1 flex flex-col">
+                    <div className="flex gap-2 items-center bg-white rounded-xl border border-custom_slate-100 py-3.5 px-6">
+                        <Image src="/goals/flag-goal.svg" alt="목표깃발" width={28} height={28} />
+                        <h2 className="text-subTitle-sm">
+                            {' '}
+                            {notes.length > 0 ? notes?.[0]?.goal.title : goalData?.title}
+                        </h2>
                     </div>
-                )}
+
+                    {notes.length > 0 ? (
+                        <>
+                            <NoteList notesData={notes} />
+                            {!hasMore && notes.length > 0 && (
+                                <div className="mt-4 text-gray-400 text-sm flex items-center justify-center">
+                                    <p>모든 노트를 다 불러왔어요</p>
+                                </div>
+                            )}
+                        </>
+                    ) : (
+                        <div className="w-full h-full  flex-1 flex items-center justify-center">
+                            <p className="text-sm font-normal text-custom_slate-500">아직 등록된 노트가 없어요</p>
+                        </div>
+                    )}
+                </div>
             </div>
         </div>
     )

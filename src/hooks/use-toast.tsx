@@ -25,10 +25,15 @@ interface ShowToastOptions {
  */
 const showToastImpl = (content: ToastContent, options: ShowToastOptions = {}) => {
     const {id, type = 'default', position = 'top-center'} = options
-    const common: ToastOptions = {toastId: id, position}
 
+    toast.clearWaitingQueue()
+    if (id && toast.isActive(id)) {
+        return
+    }
+
+    const common: ToastOptions = {toastId: id, position}
     if (type === 'none') {
-        toast(content, {...common, icon: false, className: 'center-toast'})
+        toast(content, {...common, icon: false})
     } else if (type === 'default') {
         toast(content, common)
     } else {

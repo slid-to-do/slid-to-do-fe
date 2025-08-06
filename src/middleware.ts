@@ -26,7 +26,9 @@ export const middleware = (request: NextRequest) => {
         !pathname.endsWith('.svg') &&
         !pathname.endsWith('.ico')
 
+
     if (isProtectedPath && (!accessToken || !refreshToken)) {
+
         return NextResponse.redirect(new URL('/login', request.url))
     }
 
@@ -34,5 +36,7 @@ export const middleware = (request: NextRequest) => {
 }
 
 export const config = {
+
     matcher: [String.raw`/((?!_next|_next/image|favicon.ico|api|.*\\.svg$).*)`],
+
 }

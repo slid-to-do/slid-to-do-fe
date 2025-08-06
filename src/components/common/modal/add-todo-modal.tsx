@@ -148,6 +148,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
             })
         },
         onSuccess: () => {
+            showToast('할 일이 생성되었습니다.')
             queryClient.invalidateQueries({queryKey: ['todos']})
             queryClient.invalidateQueries({queryKey: ['todo']})
             clearModal()

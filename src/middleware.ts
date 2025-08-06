@@ -2,17 +2,18 @@ import {NextResponse} from 'next/server'
 
 import type {NextRequest} from 'next/server'
 
-export function middleware(request: NextRequest) {
+export const middleware = (request: NextRequest) => {
     const {pathname} = request.nextUrl
     const accessToken = request.cookies.get('accessToken')?.value
+    const refreshToken = request.cookies.get('refreshToken')?.value
 
     //  루트 경로 처리 추가
     if (pathname === '/') {
-        return NextResponse.redirect(new URL(accessToken ? '/dashboard' : '/login', request.url))
+        return NextResponse.redirect(new URL(accessToken && refreshToken ? '/dashboard' : '/login', request.url))
     }
 
     //  로그인된 사용자가 /login 또는 /signup으로 접근하면 /dashboard로 리디렉션
-    if ((pathname === '/login' || pathname === '/signup') && accessToken) {
+    if ((pathname === '/login' || pathname === '/signup') && accessToken && refreshToken) {
         return NextResponse.redirect(new URL('/dashboard', request.url))
     }
 
@@ -25,7 +26,9 @@ export function middleware(request: NextRequest) {
         !pathname.endsWith('.svg') &&
         !pathname.endsWith('.ico')
 
-    if (isProtectedPath && !accessToken) {
+
+    if (isProtectedPath && (!accessToken || !refreshToken)) {
+
         return NextResponse.redirect(new URL('/login', request.url))
     }
 
@@ -33,5 +36,7 @@ export function middleware(request: NextRequest) {
 }
 
 export const config = {
-    matcher: [String.raw`/((?!_next|_next/static|_next/image|favicon.ico|api|.*\\.svg$).*)`],
+
+    matcher: [String.raw`/((?!_next|_next/image|favicon.ico|api|.*\\.svg$).*)`],
+
 }

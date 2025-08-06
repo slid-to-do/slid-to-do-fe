@@ -1,5 +1,7 @@
 'use client'
 
-export default function Home() {
+const Home = () => {
     return <>Main Page</>
 }
+
+export default Home

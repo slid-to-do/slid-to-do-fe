@@ -34,11 +34,11 @@ const GoalModal = () => {
             })
         },
         onSuccess: () => {
+            showToast('목표가 생성되었습니다.')
             clientQuery.invalidateQueries({queryKey: ['goals']})
             clientQuery.invalidateQueries({queryKey: ['myGoals']})
             clientQuery.invalidateQueries({queryKey: ['navMygoals']})
 
-            showToast('목표가 생성되었습니다.', {type: 'info'})
             clearModal()
         },
         onError: () => {

@@ -40,6 +40,28 @@ const axiosInstance = axios.create({
     },
 })
 
+axiosInstance.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        if (error.response.status === 401 && !error.config._retry) {
+            error.config._retry = true
+            try {
+                await axios.post(
+                    '/api/auth/refresh',
+                    {},
+                    {
+                        withCredentials: true,
+                    },
+                )
+                return axiosInstance(error.config)
+            } catch (refreshError) {
+                return refreshError
+            }
+        }
+        throw error
+    },
+)
+
 const isTestEnvironment = process.env.NODE_ENV === 'test'
 
 /** 통합 HTTP 요청 함수 - axios 버전 */

@@ -14,13 +14,13 @@ import useToast from '@/hooks/use-toast'
 import {get, patch} from '@/lib/api'
 import {type NoteItemResponse} from '@/types/notes'
 
+import LoadingSpinner from '../common/loading-spinner'
 import MarkdownEditor from '../markdown-editor/markdown-editor'
 import ButtonStyle from '../style/button-style'
-import LoadingSpinner from '../common/loading-spinner'
 
 const NoteEditCompo = ({noteId}: {noteId: string}) => {
     const queryClient = useQueryClient()
-    const inputRef = useRef<HTMLInputElement>(null)
+    const inputReference = useRef<HTMLInputElement>(null)
     const [title, setTitle] = useState<string>('')
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [content, setContent] = useState('')
@@ -64,7 +64,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
     useEffect(() => {
         if (isEditingTitle) {
             const timeout = setTimeout(() => {
-                inputRef.current?.focus()
+                inputReference.current?.focus()
             }, 0)
 
             return () => clearTimeout(timeout)
@@ -158,7 +158,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
                     <div className="py-3 mt-6 border-y-1 border-custom_slate-200">
                         {isEditingTitle || title === '' ? (
                             <input
-                                ref={inputRef}
+                                ref={inputReference}
                                 value={title}
                                 onChange={(event) => setTitle(event.target.value)}
                                 onBlur={() => {

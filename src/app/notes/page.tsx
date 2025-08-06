@@ -70,7 +70,7 @@ const Page = () => {
 
     return (
         <div className="bg-slate-100 flex flex-col w-full min-h-screen h-full overflow-y-auto">
-            <div className="desktop-layout">
+            <div className="desktop-layout min-h-screen flex flex-col">
                 <header>
                     <h1 className="text-subTitle text-custom_slate-900 ">노트 모아보기</h1>
                 </header>

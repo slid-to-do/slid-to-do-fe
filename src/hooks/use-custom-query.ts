@@ -6,14 +6,14 @@ import {useQuery, type UseQueryOptions, type QueryKey, type QueryFunction} from 
 
 import useToast from '@/hooks/use-toast'
 
-type ErrorDisplayType = 'toast' | 'redirect' | 'component' | 'none'
+type ErrorDisplayType = 'toast' | 'redirect' | 'component' | 'both' | 'none'
 
 type CustomQueryOptions<TData, TError, TQueryKey extends QueryKey, TSelected = TData> = Omit<
     UseQueryOptions<TData, TError, TSelected, TQueryKey>,
     'queryKey' | 'queryFunction'
 > & {
     errorDisplayType?: ErrorDisplayType
-    mapErrorMessage?: (error: unknown) => string
+    mapErrorMessage?: (error: TError) => string
     errorRedirectPath?: string
     onError?: (error: TError) => void
 }
@@ -34,11 +34,11 @@ type CustomQueryOptions<TData, TError, TQueryKey extends QueryKey, TSelected = T
  * @returns React Query의 `useQuery` 결과 객체
  */
 
-export function useCustomQuery<TData, TError = unknown, TQueryKey extends QueryKey = QueryKey, TSelected = TData>(
+export const useCustomQuery = <TData, TError = unknown, TQueryKey extends QueryKey = QueryKey, TSelected = TData>(
     queryKey: TQueryKey,
     queryFunction: QueryFunction<TData, TQueryKey>,
     options: CustomQueryOptions<TData, TError, TQueryKey, TSelected> = {},
-) {
+) => {
     const {showToast} = useToast()
     const router = useRouter()
 
@@ -56,12 +56,15 @@ export function useCustomQuery<TData, TError = unknown, TQueryKey extends QueryK
         queryFn: queryFunction,
         ...rest,
     })
-
     if (queryResult.isError && queryResult.error) {
-        if (errorDisplayType === 'toast') {
-            showToast(mapErrorMessage(queryResult.error), {type: 'error', id: `error-${queryKey.join('-')}`})
-        } else if (errorDisplayType === 'redirect') {
-            router.push(errorRedirectPath)
+        const message = mapErrorMessage(queryResult.error)
+
+        if (['toast', 'both'].includes(errorDisplayType)) {
+            showToast(message, {id: 'QUERY_TOAST_ID', type: 'error'})
+        }
+        if (['redirect', 'both'].includes(errorDisplayType)) {
+            const encodedMessage = encodeURIComponent(message)
+            router.push(`${errorRedirectPath}?toast=${encodedMessage}`)
         }
 
         onError?.(queryResult.error as TError)

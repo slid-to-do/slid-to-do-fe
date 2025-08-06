@@ -21,6 +21,41 @@ type CustomMutationOptions<TData, TError, TVariables, TContext> = UseMutationOpt
     mapErrorMessage?: (error: TError) => string
 }
 
+const handleMappedErrors = <TData, TError, TVariables, TContext>(
+    error: TError,
+    options: CustomMutationOptions<TData, TError, TVariables, TContext>,
+    showToast: ReturnType<typeof useToast>['showToast'],
+) => {
+    const mappedErrors = options.onValidationError?.(error)
+    if (!mappedErrors?.length) return
+
+    const displayType = options.errorDisplayType ?? 'toast'
+    const isForm = displayType === 'form' || displayType === 'both'
+    const isToast = displayType === 'toast' || displayType === 'both'
+
+    if (isForm && options.setError) {
+        for (const {name, message} of mappedErrors) {
+            if (name) options.setError(name, {message})
+        }
+    }
+
+    if (isToast) {
+        for (const {message} of mappedErrors) {
+            showToast(message, {type: 'error', id: 'MUTATION_TOAST_ID'})
+        }
+    }
+}
+
+
+const handleServerError = <TError>(error: TError, showToast: ReturnType<typeof useToast>['showToast']) => {
+    if (typeof (error as {status?: number}).status === 'number' && (error as {status?: number}).status! >= 500) {
+        showToast('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', {
+            type: 'error',
+            id: 'SERVER_ERROR_TOAST_ID',
+        })
+    }
+}
+
 /**
  * React Query의 `useMutation`을 확장하여,
  * 폼 에러 처리와 토스트 알림을 통합적으로 처리할 수 있는 커스텀 훅입니다.
@@ -35,10 +70,10 @@ type CustomMutationOptions<TData, TError, TVariables, TContext> = UseMutationOpt
  * @returns React Query의 `useMutation` 훅 결과
  */
 
-export function useCustomMutation<TData = unknown, TError = unknown, TVariables = void, TContext = unknown>(
+export const useCustomMutation = <TData = unknown, TError = unknown, TVariables = void, TContext = unknown>(
     mutationFunction: (variables: TVariables) => Promise<TData>,
     options: CustomMutationOptions<TData, TError, TVariables, TContext> = {},
-) {
+) => {
     const {showToast} = useToast()
 
     return useMutation({
@@ -47,39 +82,16 @@ export function useCustomMutation<TData = unknown, TError = unknown, TVariables 
         onError: (error, variables, context) => {
             const displayType = options.errorDisplayType ?? 'toast'
 
-            const mappedErrors = options.onValidationError?.(error)
-
-            const isForm = displayType === 'form' || displayType === 'both'
-            const isToast = displayType === 'toast' || displayType === 'both'
-
-            if (mappedErrors?.length) {
-                for (const {name, message} of mappedErrors) {
-                    if (isForm && options.setError && name) {
-                        options.setError(name, {message})
-                    }
-                    if (isToast) {
-                        showToast(message, {type: 'error'})
-                    }
-                }
-            }
+            handleMappedErrors(error, options, showToast)
 
             const mapped = options.mapErrorMessage?.(error)
             if (displayType === 'toast' && mapped) {
                 showToast(mapped, {type: 'error'})
             }
 
-            // 공통 서버 오류 처리 (500 이상일 경우 알림)
-            if (
-                typeof (error as {status?: number}).status === 'number' &&
-                (error as {status?: number}).status! >= 500
-            ) {
-                showToast('서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.', {type: 'error'})
-            }
+            handleServerError(error, showToast)
 
-            // 사용자가 정의한 onError 콜백 호출
-            if (options.onError) {
-                options.onError(error, variables, context)
-            }
+            options.onError?.(error, variables, context)
         },
     })
 }

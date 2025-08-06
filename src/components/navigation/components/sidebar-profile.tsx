@@ -1,16 +1,21 @@
 'use client '
 
 import Image from 'next/image'
+import {useRouter} from 'next/navigation'
 import React from 'react'
 
 import {useQuery} from '@tanstack/react-query'
+import axios from 'axios'
 
+import useToast from '@/hooks/use-toast'
 import {get} from '@/lib/api'
 
 import type {UserType} from '@/types/user'
 
 // 로고 및 유저 정보 Component
 const SidebarProfile = () => {
+    const router = useRouter()
+    const {showToast} = useToast()
     const {data: userData} = useQuery({
         queryKey: ['userData'],
         queryFn: async () => {
@@ -33,6 +38,18 @@ const SidebarProfile = () => {
             }
         },
     })
+    const handleLogout = async () => {
+        try {
+            await axios.post('/api/auth/logout', {
+                withCredentials: true,
+            })
+
+            router.push('/login')
+            showToast('로그아웃이 되었습니다.', {type: 'success'})
+        } catch {
+            showToast('로그아웃에 실패했습니다.', {type: 'error'})
+        }
+    }
 
     return (
         <div className="flex w-full h-auto  gap-2 mb-4 justify-between items-center ">
@@ -49,7 +66,9 @@ const SidebarProfile = () => {
                     <p className="text-sm font-medium overflow-x-hidden w-full">{userData?.data.email}</p>
                 </div>
 
-                <button className="text-xs text-gray-500 hover:underline">로그아웃</button>
+                <button className="text-xs text-gray-500 hover:underline" onClick={handleLogout}>
+                    로그아웃
+                </button>
             </div>
         </div>
     )

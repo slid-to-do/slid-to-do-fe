@@ -6,11 +6,11 @@ import {useEffect, useState} from 'react'
 
 import axios from 'axios'
 
+import {goalPrograssApi} from '@/app/api/goal-api'
 import LoadingSpinner from '@/components/common/loading-spinner'
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
 import {useCustomQuery} from '@/hooks/use-custom-query'
-import {get} from '@/lib/api'
 
 import ProgressBar from './prograss-motion'
 
@@ -42,15 +42,7 @@ export default function GoalHeader({
     /** 목표 달성 API */
     const {data: progressData, isLoading} = useCustomQuery<GoalProgress>(
         ['goals', goalId, 'progress'],
-        async () => {
-            const response = await get<GoalProgress>({
-                endpoint: `todos/progress?goalId=${goalId}`,
-                options: {
-                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                },
-            })
-            return response.data
-        },
+        async () => goalPrograssApi(Number(goalId)),
         {
             errorDisplayType: 'toast',
             mapErrorMessage: (error) => {

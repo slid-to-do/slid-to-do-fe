@@ -52,197 +52,195 @@ const headerProperties = (overrides = {}) => ({
     ...overrides,
 })
 
-describe('goals-header 통합테스트', () => {
-    describe('api 모킹', () => {
-        it('API 호출이 올바르게 발생하는지 확인', async () => {
-            mockedGet.mockResolvedValueOnce({
-                data: {progress: 50},
-                status: 200,
-            })
+describe('api 모킹', () => {
+    it('API 호출이 올바르게 발생하는지 확인', async () => {
+        mockedGet.mockResolvedValueOnce({
+            data: {progress: 50},
+            status: 200,
+        })
 
-            renderWithClient(<GoalHeader {...headerProperties()} />)
+        renderWithClient(<GoalHeader {...headerProperties()} />)
 
-            await waitFor(() => {
-                expect(mockedGet).toHaveBeenCalledTimes(1)
-                expect(mockedGet).toHaveBeenCalledWith(
-                    expect.objectContaining({
-                        endpoint: expect.stringContaining('todos/progress'),
-                    }),
-                )
-            })
+        await waitFor(() => {
+            expect(mockedGet).toHaveBeenCalledTimes(1)
+            expect(mockedGet).toHaveBeenCalledWith(
+                expect.objectContaining({
+                    endpoint: expect.stringContaining('todos/progress'),
+                }),
+            )
         })
     })
+})
 
-    describe('goalHeader 화면', () => {
-        it('goal이 있고 goalEdit가 false 일 때 목표 제목이 화면에 보여야 한다.', async () => {
-            renderWithClient(<GoalHeader {...headerProperties()} />)
+describe('goalHeader 화면', () => {
+    it('goal이 있고 goalEdit가 false 일 때 목표 제목이 화면에 보여야 한다.', async () => {
+        renderWithClient(<GoalHeader {...headerProperties()} />)
 
-            const title = await screen.findByText('아바타 사진찍기!!')
-            expect(title).toBeInTheDocument()
+        const title = await screen.findByText('아바타 사진찍기!!')
+        expect(title).toBeInTheDocument()
+    })
+    it('goal이 없을 때 loaging 표시', async () => {
+        renderWithClient(<GoalHeader {...headerProperties({goal: undefined})} />)
+
+        const loading = await screen.findByText('loading...')
+        expect(loading).toBeInTheDocument()
+    })
+    it('goalEdit가 true 일 때 input이 보여야한다.', async () => {
+        renderWithClient(<GoalHeader {...headerProperties({goalEdit: true})} />)
+
+        const placeholder = await screen.findByPlaceholderText('할 일의 제목을 적어주세요')
+        expect(placeholder).toBeInTheDocument()
+    })
+    it('goalEdit가 true 일 때 수정버튼이 보여야한다.', async () => {
+        renderWithClient(<GoalHeader {...headerProperties({goalEdit: true})} />)
+
+        const updateButton = await screen.findByRole('button', {name: '수정'})
+        const cancleButton = await screen.findByRole('button', {name: '취소'})
+
+        expect(updateButton).toBeInTheDocument()
+        expect(cancleButton).toBeInTheDocument()
+    })
+})
+
+describe('목표 달성률 PrograssBar', () => {
+    it('API에서 받아온 progress 값이 ProgressBar에 표시된다', async () => {
+        mockedGet.mockResolvedValueOnce({
+            data: {progress: 75},
+            status: 200,
         })
-        it('goal이 없을 때 loaging 표시', async () => {
-            renderWithClient(<GoalHeader {...headerProperties({goal: undefined})} />)
 
-            const loading = await screen.findByText('loading...')
-            expect(loading).toBeInTheDocument()
-        })
-        it('goalEdit가 true 일 때 input이 보여야한다.', async () => {
-            renderWithClient(<GoalHeader {...headerProperties({goalEdit: true})} />)
+        renderWithClient(<GoalHeader {...headerProperties()} />)
 
-            const placeholder = await screen.findByPlaceholderText('할 일의 제목을 적어주세요')
-            expect(placeholder).toBeInTheDocument()
-        })
-        it('goalEdit가 true 일 때 수정버튼이 보여야한다.', async () => {
-            renderWithClient(<GoalHeader {...headerProperties({goalEdit: true})} />)
-
-            const updateButton = await screen.findByRole('button', {name: '수정'})
-            const cancleButton = await screen.findByRole('button', {name: '취소'})
-
-            expect(updateButton).toBeInTheDocument()
-            expect(cancleButton).toBeInTheDocument()
-        })
+        expect(await screen.findByText('75%')).toBeInTheDocument()
     })
 
-    describe('목표 달성률 PrograssBar', () => {
-        it('API에서 받아온 progress 값이 ProgressBar에 표시된다', async () => {
-            mockedGet.mockResolvedValueOnce({
-                data: {progress: 75},
-                status: 200,
-            })
-
-            renderWithClient(<GoalHeader {...headerProperties()} />)
-
-            expect(await screen.findByText('75%')).toBeInTheDocument()
+    it('빈 progress 응답일 때 기본값 0%가 렌더링된다', async () => {
+        mockedGet.mockResolvedValueOnce({
+            data: {},
+            status: 200,
         })
 
-        it('빈 progress 응답일 때 기본값 0%가 렌더링된다', async () => {
-            mockedGet.mockResolvedValueOnce({
-                data: {},
-                status: 200,
-            })
+        renderWithClient(<GoalHeader {...headerProperties()} />)
 
-            renderWithClient(<GoalHeader {...headerProperties()} />)
+        expect(await screen.findByText('0%')).toBeInTheDocument()
+    })
+})
 
-            expect(await screen.findByText('0%')).toBeInTheDocument()
+describe('버튼 클릭 이벤트', () => {
+    it('취소 버튼 클릭 시 input이 사라지고 제목이 다시 보여야 한다.', async () => {
+        const user = userEvent.setup()
+
+        const GoalHeaderTestWrapper = () => {
+            const [goalEdit, setGoalEdit] = useState(true)
+
+            return (
+                <GoalHeader
+                    {...headerProperties({
+                        goalEdit,
+                        setGoalEdit,
+                        goal: {
+                            id: 1,
+                            title: '아바타 사진찍기!!',
+                        },
+                    })}
+                />
+            )
+        }
+
+        renderWithClient(<GoalHeaderTestWrapper />)
+
+        const input = await screen.findByPlaceholderText('할 일의 제목을 적어주세요')
+        expect(input).toBeInTheDocument()
+
+        await user.click(await screen.findByRole('button', {name: '취소'}))
+
+        await waitFor(() => {
+            expect(screen.queryByPlaceholderText('할 일의 제목을 적어주세요')).not.toBeInTheDocument()
+            expect(screen.getByText('아바타 사진찍기!!')).toBeInTheDocument()
         })
     })
+    it('수정 버튼 클릭 시 handleGoalAction이 호출되고 "edit" 인자가 전달되어야 한다', async () => {
+        const user = userEvent.setup()
+        const mockHandleGoalAction = jest.fn()
 
-    describe('버튼 클릭 이벤트', () => {
-        it('취소 버튼 클릭 시 input이 사라지고 제목이 다시 보여야 한다.', async () => {
-            const user = userEvent.setup()
+        renderWithClient(
+            <GoalHeader
+                {...headerProperties({
+                    handleGoalAction: mockHandleGoalAction,
+                    goalEdit: true,
+                    goalTitle: '다른 제목',
+                })}
+            />,
+        )
 
-            const GoalHeaderTestWrapper = () => {
-                const [goalEdit, setGoalEdit] = useState(true)
+        const editButton = await screen.findByRole('button', {name: '수정'})
 
-                return (
-                    <GoalHeader
-                        {...headerProperties({
-                            goalEdit,
-                            setGoalEdit,
-                            goal: {
-                                id: 1,
-                                title: '아바타 사진찍기!!',
-                            },
-                        })}
-                    />
-                )
-            }
+        await user.click(editButton)
 
-            renderWithClient(<GoalHeaderTestWrapper />)
+        expect(mockHandleGoalAction).toHaveBeenCalledTimes(1)
+        expect(mockHandleGoalAction).toHaveBeenCalledWith('edit')
+    })
+    it('더보기 버튼 클릭 시 setMoreButton이 호출되어야 한다', async () => {
+        const user = userEvent.setup()
+        const mockSetMoreButton = jest.fn()
 
-            const input = await screen.findByPlaceholderText('할 일의 제목을 적어주세요')
-            expect(input).toBeInTheDocument()
+        renderWithClient(
+            <GoalHeader
+                {...headerProperties({
+                    moreButton: false,
+                    setMoreButton: mockSetMoreButton,
+                })}
+            />,
+        )
 
-            await user.click(await screen.findByRole('button', {name: '취소'}))
+        const moreButton = await screen.findByRole('moreButton')
+        await user.click(moreButton)
 
-            await waitFor(() => {
-                expect(screen.queryByPlaceholderText('할 일의 제목을 적어주세요')).not.toBeInTheDocument()
-                expect(screen.getByText('아바타 사진찍기!!')).toBeInTheDocument()
-            })
-        })
-        it('수정 버튼 클릭 시 handleGoalAction이 호출되고 "edit" 인자가 전달되어야 한다', async () => {
-            const user = userEvent.setup()
-            const mockHandleGoalAction = jest.fn()
+        expect(mockSetMoreButton).toHaveBeenCalledTimes(1)
+        expect(mockSetMoreButton).toHaveBeenCalledWith(true)
+    })
+    it('더보기 메뉴가 열려있을 때 수정하기, 삭제하기 버튼이 보여야 한다', async () => {
+        renderWithClient(<GoalHeader {...headerProperties({moreButton: true})} />)
 
-            renderWithClient(
-                <GoalHeader
-                    {...headerProperties({
-                        handleGoalAction: mockHandleGoalAction,
-                        goalEdit: true,
-                        goalTitle: '다른 제목',
-                    })}
-                />,
-            )
+        expect(await screen.findByText('수정하기')).toBeInTheDocument()
+        expect(await screen.findByText('삭제하기')).toBeInTheDocument()
+    })
+    it('수정하기 클릭 시 setGoalEdit(true) 호출', async () => {
+        const user = userEvent.setup()
+        const mockSetGoalEditButton = jest.fn()
 
-            const editButton = await screen.findByRole('button', {name: '수정'})
+        renderWithClient(
+            <GoalHeader
+                {...headerProperties({
+                    moreButton: true,
+                    setGoalEdit: mockSetGoalEditButton,
+                })}
+            />,
+        )
 
-            await user.click(editButton)
+        const editButton = await screen.findByRole('button', {name: '수정하기'})
+        await user.click(editButton)
 
-            expect(mockHandleGoalAction).toHaveBeenCalledTimes(1)
-            expect(mockHandleGoalAction).toHaveBeenCalledWith('edit')
-        })
-        it('더보기 버튼 클릭 시 setMoreButton이 호출되어야 한다', async () => {
-            const user = userEvent.setup()
-            const mockSetMoreButton = jest.fn()
+        expect(mockSetGoalEditButton).toHaveBeenCalledTimes(1)
+        expect(mockSetGoalEditButton).toHaveBeenCalledWith(true)
+    })
+    it('삭제하기 클릭 시 goalDeleteModal 호출', async () => {
+        const user = userEvent.setup()
+        const mockSetGoalDeleteButton = jest.fn()
 
-            renderWithClient(
-                <GoalHeader
-                    {...headerProperties({
-                        moreButton: false,
-                        setMoreButton: mockSetMoreButton,
-                    })}
-                />,
-            )
+        renderWithClient(
+            <GoalHeader
+                {...headerProperties({
+                    moreButton: true,
+                    goalDeleteModal: mockSetGoalDeleteButton,
+                })}
+            />,
+        )
 
-            const moreButton = await screen.findByRole('moreButton')
-            await user.click(moreButton)
+        const deleteButton = await screen.findByRole('button', {name: '삭제하기'})
+        await user.click(deleteButton)
 
-            expect(mockSetMoreButton).toHaveBeenCalledTimes(1)
-            expect(mockSetMoreButton).toHaveBeenCalledWith(true)
-        })
-        it('더보기 메뉴가 열려있을 때 수정하기, 삭제하기 버튼이 보여야 한다', async () => {
-            renderWithClient(<GoalHeader {...headerProperties({moreButton: true})} />)
-
-            expect(await screen.findByText('수정하기')).toBeInTheDocument()
-            expect(await screen.findByText('삭제하기')).toBeInTheDocument()
-        })
-        it('수정하기 클릭 시 setGoalEdit(true) 호출', async () => {
-            const user = userEvent.setup()
-            const mockSetGoalEditButton = jest.fn()
-
-            renderWithClient(
-                <GoalHeader
-                    {...headerProperties({
-                        moreButton: true,
-                        setGoalEdit: mockSetGoalEditButton,
-                    })}
-                />,
-            )
-
-            const editButton = await screen.findByRole('button', {name: '수정하기'})
-            await user.click(editButton)
-
-            expect(mockSetGoalEditButton).toHaveBeenCalledTimes(1)
-            expect(mockSetGoalEditButton).toHaveBeenCalledWith(true)
-        })
-        it('삭제하기 클릭 시 goalDeleteModal 호출', async () => {
-            const user = userEvent.setup()
-            const mockSetGoalDeleteButton = jest.fn()
-
-            renderWithClient(
-                <GoalHeader
-                    {...headerProperties({
-                        moreButton: true,
-                        goalDeleteModal: mockSetGoalDeleteButton,
-                    })}
-                />,
-            )
-
-            const deleteButton = await screen.findByRole('button', {name: '삭제하기'})
-            await user.click(deleteButton)
-
-            expect(mockSetGoalDeleteButton).toHaveBeenCalled()
-            expect(mockSetGoalDeleteButton).toHaveBeenCalledTimes(1)
-        })
+        expect(mockSetGoalDeleteButton).toHaveBeenCalled()
+        expect(mockSetGoalDeleteButton).toHaveBeenCalledTimes(1)
     })
 })

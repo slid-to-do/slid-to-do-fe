@@ -258,7 +258,8 @@ const GoalsPage = () => {
     const error = [doneIsError && doneError, notDoneIsError && notDoneError].find(Boolean)
 
     if (error) {
-        return showToast('할 일을 불러오는 중 오류가 발생했습니다.')
+        showToast('할 일을 불러오는 중 오류가 발생했습니다.')
+        return <></>
     }
 
     return (

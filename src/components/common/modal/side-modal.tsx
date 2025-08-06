@@ -36,19 +36,6 @@ export default function SideModal({noteId}: {noteId?: number}) {
         getNoteDetail(noteId)
     }, [noteId])
 
-    function formatDate(isoString: string | undefined) {
-        if (isoString === undefined) {
-            return ''
-        }
-        const date = new Date(isoString)
-
-        const year = date.getFullYear()
-        const month = String(date.getMonth() + 1).padStart(2, '0')
-        const day = String(date.getDate()).padStart(2, '0')
-
-        return `${year}.${month}.${day}`
-    }
-
     if (loading) return <div className="p-6">로딩 중...</div>
 
     if (error) return <div className="p-6 text-red-500">{error}</div>

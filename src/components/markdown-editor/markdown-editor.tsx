@@ -141,7 +141,7 @@ function Toolbar({
     )
 
     return (
-        <div className="absolute flex w-full gap-4 p-2 bg-white rounded-full shadow-sm -bottom-20 border-slate-200">
+        <div className="absolute flex w-full gap-4 p-2 bg-white rounded-full shadow-sm -bottom-24 border-slate-200">
             <div className="flex gap-1">
                 <button
                     onClick={() => editorInstance?.chain().focus().toggleBold().run()}

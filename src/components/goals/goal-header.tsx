@@ -6,13 +6,13 @@ import {useEffect, useState} from 'react'
 
 import axios from 'axios'
 
+import LoadingSpinner from '@/components/common/loading-spinner'
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
 import {useCustomQuery} from '@/hooks/use-custom-query'
 import {get} from '@/lib/api'
 
 import ProgressBar from './prograss-motion'
-import LoadingSpinner from '../common/loading-spinner'
 
 import type {Goal, GoalProgress} from '@/types/goals'
 

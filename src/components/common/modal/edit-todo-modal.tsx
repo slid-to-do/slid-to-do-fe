@@ -126,6 +126,7 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
             })
         },
         onSuccess: () => {
+            showToast('할 일 수정이 완료되었습니다.')
             queryClient.invalidateQueries({queryKey: ['todos']})
             queryClient.invalidateQueries({queryKey: ['todo', 'done', todoDetail.goal.id]})
             queryClient.invalidateQueries({queryKey: ['todo', 'notDone', todoDetail.goal.id]})

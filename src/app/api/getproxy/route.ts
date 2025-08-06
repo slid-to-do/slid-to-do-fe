@@ -4,7 +4,7 @@ import {NextResponse} from 'next/server'
 export async function GET(request: Request) {
     const cookieStore = await cookies()
 
-    const accessToken = cookieStore.get('refreshToken')?.value
+    const accessToken = cookieStore.get('accessToken')?.value
     const {searchParams} = new URL(request.url)
     const endpoint = searchParams.get('endpoint') as string
 
@@ -34,7 +34,7 @@ export async function GET(request: Request) {
 
 export async function POST(request: Request) {
     const cookieStore = await cookies()
-    const accessToken = cookieStore.get('refreshToken')?.value
+    const accessToken = cookieStore.get('accessToken')?.value
     const {searchParams} = new URL(request.url)
     const endpoint = searchParams.get('endpoint') as string
     const body = await request.json()
@@ -66,7 +66,7 @@ export async function POST(request: Request) {
 
 export async function PATCH(request: Request) {
     const cookieStore = await cookies()
-    const accessToken = cookieStore.get('refreshToken')?.value
+    const accessToken = cookieStore.get('accessToken')?.value
     const {searchParams} = new URL(request.url)
     const endpoint = searchParams.get('endpoint') as string
     const body = await request.json()
@@ -98,7 +98,7 @@ export async function PATCH(request: Request) {
 
 export async function DELETE(request: Request) {
     const cookieStore = await cookies()
-    const accessToken = cookieStore.get('refreshToken')?.value
+    const accessToken = cookieStore.get('accessToken')?.value
     const {searchParams} = new URL(request.url)
     const endpoint = searchParams.get('endpoint') as string
 

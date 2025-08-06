@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import {useRouter} from 'next/navigation'
-import React, {useEffect, useState} from 'react'
+import React, {useEffect, useRef, useState} from 'react'
 
 import {useQueryClient} from '@tanstack/react-query'
 import axios from 'axios'
@@ -16,9 +16,11 @@ import {type NoteItemResponse} from '@/types/notes'
 
 import MarkdownEditor from '../markdown-editor/markdown-editor'
 import ButtonStyle from '../style/button-style'
+import LoadingSpinner from '../common/loading-spinner'
 
 const NoteEditCompo = ({noteId}: {noteId: string}) => {
     const queryClient = useQueryClient()
+    const inputRef = useRef<HTMLInputElement>(null)
     const [title, setTitle] = useState<string>('')
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [content, setContent] = useState('')
@@ -59,6 +61,16 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
         if (data.content) setContent(data.content)
     }, [data])
 
+    useEffect(() => {
+        if (isEditingTitle) {
+            const timeout = setTimeout(() => {
+                inputRef.current?.focus()
+            }, 0)
+
+            return () => clearTimeout(timeout)
+        }
+    }, [isEditingTitle])
+
     /** 변경값 감지하여 수정하기 버튼 활성화/비활성화 */
     const isChanged = useIsNoteChanged({
         original: {
@@ -72,6 +84,8 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
             linkUrl: linkUrl ?? '',
         },
     })
+
+    const isEmpty = !title || !content
 
     const handleEditorUpdate = (newContent: string) => {
         setContent(newContent)
@@ -124,7 +138,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
                             <ButtonStyle
                                 className="w-24 text-sm font-semibold  rounded-xl"
                                 onClick={handleEdit}
-                                disabled={!isChanged}
+                                disabled={!isChanged || isEmpty}
                             >
                                 수정하기
                             </ButtonStyle>
@@ -142,12 +156,14 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
                     </div>
 
                     <div className="py-3 mt-6 border-y-1 border-custom_slate-200">
-                        {isEditingTitle ? (
+                        {isEditingTitle || title === '' ? (
                             <input
+                                ref={inputRef}
                                 value={title}
                                 onChange={(event) => setTitle(event.target.value)}
-                                onBlur={() => setIsEditingTitle(false)}
-                                autoFocus
+                                onBlur={() => {
+                                    if (title !== '') setIsEditingTitle(false)
+                                }}
                                 className="w-full text-lg font-medium text-custom_slate-800 bg-transparent outline-none border-none"
                             />
                         ) : (
@@ -170,7 +186,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
                     </div>
                 </div>
             ) : (
-                <div>데이터가 없습니다</div>
+                <LoadingSpinner />
             )}
         </>
     )

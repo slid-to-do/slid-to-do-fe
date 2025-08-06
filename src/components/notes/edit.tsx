@@ -1,10 +1,14 @@
 'use client'
 
 import Image from 'next/image'
+import {useRouter} from 'next/navigation'
 import React, {useEffect, useState} from 'react'
 
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import {useQueryClient} from '@tanstack/react-query'
+import axios from 'axios'
 
+import {useCustomMutation} from '@/hooks/use-custom-mutation'
+import {useCustomQuery} from '@/hooks/use-custom-query'
 import {useIsNoteChanged} from '@/hooks/use-is-note-changed'
 import useToast from '@/hooks/use-toast'
 import {get, patch} from '@/lib/api'
@@ -15,26 +19,36 @@ import ButtonStyle from '../style/button-style'
 
 const NoteEditCompo = ({noteId}: {noteId: string}) => {
     const queryClient = useQueryClient()
-
     const [title, setTitle] = useState<string>('')
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [content, setContent] = useState('')
 
     const {showToast} = useToast()
+    const router = useRouter()
 
-    const url = `notes/${noteId}`
     /** 노트 단일 조회 통신 */
-    const {data} = useQuery<NoteItemResponse>({
-        queryKey: ['noteEdit', url],
-        queryFn: async () => {
+    const {data} = useCustomQuery<NoteItemResponse>(
+        ['noteEdit', noteId],
+        async () => {
             const response = await get<NoteItemResponse>({
-                endpoint: url,
-                options: {headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`}},
+                endpoint: `notes/${noteId}`,
             })
-
             return response.data
         },
-    })
+        {
+            enabled: !!noteId,
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                if (!axios.isAxiosError(error)) {
+                    return '노트 정보를 불러오는 데 실패했습니다.'
+                }
+
+                const message = error.response?.data?.message || error.message
+
+                return message || '노트 정보를 불러오는 데 실패했습니다.'
+            },
+        },
+    )
 
     const [linkUrl, setLinkUrl] = useState<string | undefined>(data?.linkUrl)
 
@@ -70,27 +84,34 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
     }
 
     /** 노트 수정 통신*/
-    const editNote = useMutation({
-        mutationFn: async () => {
+    const {mutate: editNote} = useCustomMutation<NoteItemResponse, Error, void>(
+        async () => {
             const response = await patch<NoteItemResponse>({
-                endpoint: url,
+                endpoint: `notes/${noteId}`,
                 data: payload,
-                options: {headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`}},
             })
+
             return response.data
         },
-        onError: (error) => {
-            showToast(error.message)
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error: Error) => {
+                const apiError = error as {status?: number; message?: string}
+
+                if (apiError.message) return error.message
+                return '노트를 수정하는 데 실패했습니다.'
+            },
+            onSuccess: (successData) => {
+                showToast('수정이 완료되었습니다!')
+                router.push(`/notes?goalId=${successData.goal.id}`)
+                queryClient.invalidateQueries({queryKey: ['noteEdit', noteId]})
+            },
         },
-        onSuccess: () => {
-            showToast('수정이 완료되었습니다!')
-            queryClient.invalidateQueries({queryKey: ['noteEdit', url]})
-        },
-    })
+    )
 
     /** 수정하기 버튼 클릭 이벤트 */
     const handleEdit = () => {
-        editNote.mutate()
+        editNote()
     }
 
     return (

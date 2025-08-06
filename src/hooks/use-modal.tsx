@@ -76,6 +76,7 @@ type AnimationProperties = Pick<MotionProps, 'initial' | 'animate' | 'exit' | 't
  * })
  * ```
  */
+
 export const useModal = <T = unknown,>(
     modal: JSX.Element | ((properties: T) => JSX.Element),
     options?: UseModalOptions,
@@ -200,6 +201,67 @@ export const useModal = <T = unknown,>(
 
         return () => {
             document.body.style.overflow = 'visible'
+        }
+    }, [currentModal])
+
+    // 모달 진입 시 tab막기, focus주기
+    useEffect(() => {
+        if (!currentModal || !modalReference.current) return
+
+        const modalElement = modalReference.current
+
+        const focusableElements = [
+            ...modalElement.querySelectorAll<HTMLElement>(
+                'a[href], button:not([disabled]), textarea:not([disabled]), input:not([disabled]), select:not([disabled]), [tabindex]:not([tabindex="-1"])',
+            ),
+        ].filter((element) => {
+            // disabled되지 않고, 화면에 보이는 요소만 필터링
+            return (
+                !element.hasAttribute('disabled') &&
+                (!!element.offsetWidth || element.offsetHeight || element.getClientRects().length > 0)
+            )
+        })
+
+        // 모달 진입 시 첫 포커스
+        focusableElements[0]?.focus()
+
+        const handleKeyDown = (event: KeyboardEvent) => {
+            if (event.key !== 'Tab') return
+
+            const first = focusableElements[0]
+            const last = focusableElements.at(-1)
+
+            if (!first || !last) {
+                // focusable 요소 없으면 Tab 막기
+                event.preventDefault()
+                return
+            }
+
+            if (first === last) {
+                // focusable 요소가 하나라면 tab막고 첫번째 요소에 focus주기
+                event.preventDefault()
+                first.focus()
+                return
+            }
+
+            // tab 이동 순서 제한(focus trap)
+            if (event.shiftKey) {
+                if (document.activeElement === first) {
+                    event.preventDefault()
+                    last.focus()
+                }
+            } else {
+                if (document.activeElement === last) {
+                    event.preventDefault()
+                    first.focus()
+                }
+            }
+        }
+
+        document.addEventListener('keydown', handleKeyDown)
+
+        return () => {
+            document.removeEventListener('keydown', handleKeyDown)
         }
     }, [currentModal])
 

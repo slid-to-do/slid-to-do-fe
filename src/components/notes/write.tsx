@@ -4,22 +4,21 @@ import Image from 'next/image'
 import {useRouter} from 'next/navigation'
 import {useCallback, useEffect, useState} from 'react'
 
-import {useMutation} from '@tanstack/react-query'
-import {toast, ToastContainer, Zoom} from 'react-toastify'
+import axios from 'axios'
 
 import 'react-toastify/dist/ReactToastify.css'
 
+import {noteRegApi} from '@/app/api/note-api'
 import TwoButtonModal from '@/components/common/modal/two-buttom-modal'
 import MarkdownEditor from '@/components/markdown-editor/markdown-editor'
 import ButtonStyle from '@/components/style/button-style'
+import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useModal from '@/hooks/use-modal'
 import useToast from '@/hooks/use-toast'
-import {post} from '@/lib/api'
 import {useModalStore} from '@/store/use-modal-store'
 
+import NoteSaveToast from '../common/note-save-toast'
 import InputStyle from '../style/input-style'
-
-import type {NoteCommon} from '@/types/notes'
 
 const NoteWriteCompo = ({
     goalId,
@@ -33,6 +32,7 @@ const NoteWriteCompo = ({
     todoTitle: string | undefined
 }) => {
     const router = useRouter()
+
     const [saveToastOpen, setSaveToastOpen] = useState<boolean>(false)
     const [hasLocalNote, setHasLocalNote] = useState(false)
     const [content, setContent] = useState<string>('')
@@ -60,6 +60,7 @@ const NoteWriteCompo = ({
     }, [key, router])
 
     /** 임시작성 함수 */
+    const [toastMessage, setToastMessage] = useState('')
     const saveToLocalStorage = useCallback(
         (editContent: string) => {
             if ((content === '<p></p>' || content === '') && subject === '') {
@@ -76,20 +77,9 @@ const NoteWriteCompo = ({
             })
             localStorage.setItem(key, value)
             /** 임시저장 toast open */
-            toast(
-                <div className="bg-custom_blue-50 px-6 py-2 rounded-full flex gap-1 w-full">
-                    <Image src="/notes/ic-check.svg" alt="check" width={24} height={24} />
-                    <div className="text-custom_blue-500 font-semibold">임시 작성이 완료되었습니다</div>
-                </div>,
-                {
-                    autoClose: 300,
-                    closeButton: false,
-                    hideProgressBar: true,
-                    position: 'top-center',
-                },
-            )
+            setToastMessage('임시 작성이 완료되었습니다')
         },
-        [goalId, todoId, subject, content, key, linkButton],
+        [goalId, todoId, subject, content, key, linkButton, showToast],
     )
 
     /** 5분에 한번 임시작성 */
@@ -160,36 +150,39 @@ const NoteWriteCompo = ({
     }
 
     /** 작성 완료하기 */
-    const saveNotes = useMutation({
-        mutationFn: async () => {
-            if (!confirm('작성을 완료하시겠습니까?')) return
-
+    const {mutate: saveNotes} = useCustomMutation(
+        async () => {
             const payload = {
-                todoId: Number(todoId),
+                id: Number(todoId),
                 title: subject,
                 content,
                 ...(linkButton && {linkUrl: linkButton}),
             }
 
-            const response = await post<NoteCommon>({
-                endpoint: `notes`,
-                data: payload,
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
-            })
-            if (response.status === 201) {
+            noteRegApi(payload)
+        },
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
+
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+
+                return typedError.message || '알 수 없는 오류가 발생했습니다.'
+            },
+            onSuccess: () => {
                 showToast('작성이 완료되었습니다.')
                 router.push(`/notes?goalId=${goalId}`)
-            } else {
-                showToast(response.message)
-            }
-
-            return response.data
+            },
         },
-    })
+    )
+    const handleSaveNoote = () => {
+        if (!confirm('작성을 완료하시겠습니까?')) return
+        saveNotes()
+    }
+
     return (
         <>
             <div className="w-full flex justify-between items-center">
@@ -205,7 +198,7 @@ const NoteWriteCompo = ({
                     <ButtonStyle
                         className={`w-24 !font-normal rounded-xl ${!content || content === '<p></p>' || content === '' ? 'bg-custom_slate-400' : 'bg-blue-500'}`}
                         disabled={!content || content === '<p></p>' || content === ''}
-                        onClick={() => saveNotes.mutate()}
+                        onClick={() => handleSaveNoote()}
                     >
                         작성완료
                     </ButtonStyle>
@@ -217,6 +210,8 @@ const NoteWriteCompo = ({
                         <Image
                             src={'/todos/ic-delete.svg'}
                             alt="delete"
+                            width={24}
+                            height={24}
                             className="w-6 h-6"
                             onClick={() => setSaveToastOpen(false)}
                         />
@@ -261,19 +256,7 @@ const NoteWriteCompo = ({
                         onSetLinkButton={setLinkButton}
                     />
                 </div>
-                <div id="noteWrite" className="relative">
-                    <ToastContainer
-                        transition={Zoom}
-                        style={{
-                            width: '100%',
-                            left: '50%',
-                            right: 'auto',
-                            transform: 'translateX(-50%)',
-                            position: 'absolute',
-                            top: '-30px',
-                        }}
-                    />
-                </div>
+                {toastMessage && <NoteSaveToast message={toastMessage} onClose={() => setToastMessage('')} />}
             </div>
         </>
     )

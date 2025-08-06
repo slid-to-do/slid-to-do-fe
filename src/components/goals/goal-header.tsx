@@ -4,10 +4,12 @@ import Image from 'next/image'
 import {useParams} from 'next/navigation'
 import {useEffect, useState} from 'react'
 
-import {useQuery} from '@tanstack/react-query'
+import axios from 'axios'
 
+import LoadingSpinner from '@/components/common/loading-spinner'
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
+import {useCustomQuery} from '@/hooks/use-custom-query'
 import {get} from '@/lib/api'
 
 import ProgressBar from './prograss-motion'
@@ -38,19 +40,30 @@ export default function GoalHeader({
     const [progress, setProgress] = useState<number>(0)
     const {goalId} = useParams()
     /** 목표 달성 API */
-    const {data: progressData} = useQuery<GoalProgress>({
-        queryKey: ['todos', goalId, 'progress'],
-        queryFn: async () => {
+    const {data: progressData, isLoading} = useCustomQuery<GoalProgress>(
+        ['goals', goalId, 'progress'],
+        async () => {
             const response = await get<GoalProgress>({
                 endpoint: `todos/progress?goalId=${goalId}`,
                 options: {
                     headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
             })
-
             return response.data
         },
-    })
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
+
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+
+                return typedError.message || '알 수 없는 오류가 발생했습니다.'
+            },
+        },
+    )
 
     useEffect(() => {
         if (goal && progressData) {
@@ -58,6 +71,7 @@ export default function GoalHeader({
         }
     }, [progressData, goal])
 
+    if (isLoading) return <LoadingSpinner />
     return (
         <div className="mt-4 py-4 px-6 bg-white rounded">
             <div className="flex justify-between items-center">
@@ -79,6 +93,9 @@ export default function GoalHeader({
                                     disabled={goal.title === goalTitle}
                                 >
                                     수정
+                                </ButtonStyle>
+                                <ButtonStyle size="medium" onClick={() => setGoalEdit(false)} color="outline">
+                                    취소
                                 </ButtonStyle>
                             </div>
                         ) : (

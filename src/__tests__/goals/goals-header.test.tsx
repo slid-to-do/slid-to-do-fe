@@ -13,9 +13,10 @@ import * as api from '@/lib/api'
 jest.mock('next/navigation', () => ({
     ...jest.requireActual('next/navigation'),
     useParams: jest.fn(),
+    useRouter: jest.fn(),
 }))
 beforeEach(() => {
-    ;(nextNavigation.useParams as jest.Mock).mockReturnValue({goalId: 2474})
+    ;(nextNavigation.useParams as jest.Mock).mockReturnValue({goalId: 2479})
 })
 
 // api통신 모킹
@@ -33,8 +34,8 @@ function renderWithClient(ui: React.ReactElement) {
 }
 
 const mockGoal = {
-    id: 2488,
-    title: '프로젝트 수정',
+    id: 2479,
+    title: '아바타 사진찍기!!',
 }
 
 // 테스트를 위한 GoalHeader props 객체
@@ -76,7 +77,7 @@ describe('goals-header 통합테스트', () => {
         it('goal이 있고 goalEdit가 false 일 때 목표 제목이 화면에 보여야 한다.', () => {
             renderWithClient(<GoalHeader {...headerProperties()} />)
 
-            expect(screen.getByText('프로젝트 수정')).toBeInTheDocument()
+            expect(screen.getByText('아바타 사진찍기!!')).toBeInTheDocument()
         })
         it('goal이 없을 때 loaging 표시', () => {
             renderWithClient(<GoalHeader {...headerProperties({goal: undefined})} />)

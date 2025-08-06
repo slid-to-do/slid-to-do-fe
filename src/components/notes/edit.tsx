@@ -1,40 +1,56 @@
 'use client'
 
 import Image from 'next/image'
-import React, {useEffect, useState} from 'react'
+import {useRouter} from 'next/navigation'
+import React, {useEffect, useRef, useState} from 'react'
 
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import {useQueryClient} from '@tanstack/react-query'
+import axios from 'axios'
 
+import {useCustomMutation} from '@/hooks/use-custom-mutation'
+import {useCustomQuery} from '@/hooks/use-custom-query'
 import {useIsNoteChanged} from '@/hooks/use-is-note-changed'
 import useToast from '@/hooks/use-toast'
 import {get, patch} from '@/lib/api'
 import {type NoteItemResponse} from '@/types/notes'
 
+import LoadingSpinner from '../common/loading-spinner'
 import MarkdownEditor from '../markdown-editor/markdown-editor'
 import ButtonStyle from '../style/button-style'
 
 const NoteEditCompo = ({noteId}: {noteId: string}) => {
     const queryClient = useQueryClient()
-
+    const inputReference = useRef<HTMLInputElement>(null)
     const [title, setTitle] = useState<string>('')
     const [isEditingTitle, setIsEditingTitle] = useState(false)
     const [content, setContent] = useState('')
 
     const {showToast} = useToast()
+    const router = useRouter()
 
-    const url = `notes/${noteId}`
     /** 노트 단일 조회 통신 */
-    const {data} = useQuery<NoteItemResponse>({
-        queryKey: ['noteEdit', url],
-        queryFn: async () => {
+    const {data} = useCustomQuery<NoteItemResponse>(
+        ['noteEdit', noteId],
+        async () => {
             const response = await get<NoteItemResponse>({
-                endpoint: url,
-                options: {headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`}},
+                endpoint: `notes/${noteId}`,
             })
-
             return response.data
         },
-    })
+        {
+            enabled: !!noteId,
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                if (!axios.isAxiosError(error)) {
+                    return '노트 정보를 불러오는 데 실패했습니다.'
+                }
+
+                const message = error.response?.data?.message || error.message
+
+                return message || '노트 정보를 불러오는 데 실패했습니다.'
+            },
+        },
+    )
 
     const [linkUrl, setLinkUrl] = useState<string | undefined>(data?.linkUrl)
 
@@ -44,6 +60,16 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
         if (data.linkUrl !== undefined) setLinkUrl(data.linkUrl)
         if (data.content) setContent(data.content)
     }, [data])
+
+    useEffect(() => {
+        if (isEditingTitle) {
+            const timeout = setTimeout(() => {
+                inputReference.current?.focus()
+            }, 0)
+
+            return () => clearTimeout(timeout)
+        }
+    }, [isEditingTitle])
 
     /** 변경값 감지하여 수정하기 버튼 활성화/비활성화 */
     const isChanged = useIsNoteChanged({
@@ -59,6 +85,8 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
         },
     })
 
+    const isEmpty = !title || !content
+
     const handleEditorUpdate = (newContent: string) => {
         setContent(newContent)
     }
@@ -70,27 +98,34 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
     }
 
     /** 노트 수정 통신*/
-    const editNote = useMutation({
-        mutationFn: async () => {
+    const {mutate: editNote} = useCustomMutation<NoteItemResponse, Error, void>(
+        async () => {
             const response = await patch<NoteItemResponse>({
-                endpoint: url,
+                endpoint: `notes/${noteId}`,
                 data: payload,
-                options: {headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`}},
             })
+
             return response.data
         },
-        onError: (error) => {
-            showToast(error.message)
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error: Error) => {
+                const apiError = error as {status?: number; message?: string}
+
+                if (apiError.message) return error.message
+                return '노트를 수정하는 데 실패했습니다.'
+            },
+            onSuccess: (successData) => {
+                showToast('수정이 완료되었습니다!')
+                router.push(`/notes?goalId=${successData.goal.id}`)
+                queryClient.invalidateQueries({queryKey: ['noteEdit', noteId]})
+            },
         },
-        onSuccess: () => {
-            showToast('수정이 완료되었습니다!')
-            queryClient.invalidateQueries({queryKey: ['noteEdit', url]})
-        },
-    })
+    )
 
     /** 수정하기 버튼 클릭 이벤트 */
     const handleEdit = () => {
-        editNote.mutate()
+        editNote()
     }
 
     return (
@@ -103,7 +138,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
                             <ButtonStyle
                                 className="w-24 text-sm font-semibold  rounded-xl"
                                 onClick={handleEdit}
-                                disabled={!isChanged}
+                                disabled={!isChanged || isEmpty}
                             >
                                 수정하기
                             </ButtonStyle>
@@ -121,12 +156,14 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
                     </div>
 
                     <div className="py-3 mt-6 border-y-1 border-custom_slate-200">
-                        {isEditingTitle ? (
+                        {isEditingTitle || title === '' ? (
                             <input
+                                ref={inputReference}
                                 value={title}
                                 onChange={(event) => setTitle(event.target.value)}
-                                onBlur={() => setIsEditingTitle(false)}
-                                autoFocus
+                                onBlur={() => {
+                                    if (title !== '') setIsEditingTitle(false)
+                                }}
                                 className="w-full text-lg font-medium text-custom_slate-800 bg-transparent outline-none border-none"
                             />
                         ) : (
@@ -149,7 +186,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
                     </div>
                 </div>
             ) : (
-                <div>데이터가 없습니다</div>
+                <LoadingSpinner />
             )}
         </>
     )

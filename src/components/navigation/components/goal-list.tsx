@@ -4,17 +4,17 @@ import Image from 'next/image'
 import Link from 'next/link'
 
 import LoadingSpinner from '@/components/common/loading-spinner'
+import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import {useModal} from '@/hooks/use-modal'
 import {get} from '@/lib/api'
 
-import GoalModal from './goal-modal'
 import ButtonStyle from '../../style/button-style'
 
 import type {Goal, GoalResponse} from '@/types/goals'
 
 const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
-    const {openModal} = useModal(<GoalModal />)
+    const {openModal} = useModal(<AddTodoModal />)
 
     const getGoalsData = () => {
         return async (cursor: number | undefined) => {
@@ -64,7 +64,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
 
                     {isMobile && (
                         <ButtonStyle onClick={openModal} type="button" size="small" color="outline">
-                            + 새 목표
+                            + 새 할일
                         </ButtonStyle>
                     )}
                 </div>
@@ -108,7 +108,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
             </div>
             {!isMobile && (
                 <ButtonStyle type="button" onClick={openModal} size="full" color="outline">
-                    + 새 목표
+                    + 새 할일
                 </ButtonStyle>
             )}
         </section>

@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import {useRouter} from 'next/navigation'
-import {useCallback, useEffect, useState} from 'react'
+import {useCallback, useEffect, useMemo, useState} from 'react'
 
 import axios from 'axios'
 
@@ -16,6 +16,7 @@ import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useModal from '@/hooks/use-modal'
 import useToast from '@/hooks/use-toast'
 import {useModalStore} from '@/store/use-modal-store'
+import {getTextFromHtml} from '@/utils/text-from-html'
 
 import NoteSaveToast from '../common/note-save-toast'
 import InputStyle from '../style/input-style'
@@ -183,6 +184,27 @@ const NoteWriteCompo = ({
         saveNotes()
     }
 
+    const isChanged = useMemo(() => {
+        const original = {
+            title: '',
+            content: '',
+            linkUrl: '',
+        }
+
+        const current = {
+            title: subject,
+            content: getTextFromHtml(content),
+            linkUrl: linkButton ?? '',
+        }
+
+        const textChanged = original.content !== current.content
+
+        const titleChanged = original.title !== current.title
+        const urlChanged = original.linkUrl !== current.linkUrl
+
+        return (textChanged || urlChanged) && titleChanged
+    }, [subject, content, linkButton])
+
     return (
         <>
             <div className="w-full flex justify-between items-center">
@@ -196,8 +218,8 @@ const NoteWriteCompo = ({
                         임시작성
                     </ButtonStyle>
                     <ButtonStyle
-                        className={`w-24 !font-normal rounded-xl ${!content || content === '<p></p>' || content === '' ? 'bg-custom_slate-400' : 'bg-blue-500'}`}
-                        disabled={!content || content === '<p></p>' || content === ''}
+                        className={`w-24 !font-normal rounded-xl  ${isChanged ? 'bg-blue-500' : 'bg-custom_slate-400'}`}
+                        disabled={!isChanged}
                         onClick={() => handleSaveNoote()}
                     >
                         작성완료

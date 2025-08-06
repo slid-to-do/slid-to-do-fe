@@ -185,11 +185,11 @@ const NoteWriteCompo = ({
     }
 
     const isChanged = useMemo(() => {
-        const hasTitle = subject.trim() !== ''
-        const hasContent = getTextFromHtml(content).trim() !== ''
-        const hasLink = (linkButton ?? '').trim() !== ''
+        const titleChanged = subject.trim() !== ''
+        const textChanged = getTextFromHtml(content).trim() !== ''
+        const urlChanged = (linkButton ?? '').trim() !== ''
 
-        return hasTitle && (hasContent || hasLink)
+        return titleChanged && (textChanged || urlChanged)
     }, [subject, content, linkButton])
 
     return (

@@ -1,7 +1,7 @@
 import {cookies} from 'next/headers'
 import {NextResponse} from 'next/server'
 
-export async function GET(request: Request) {
+export const GET = async (request: Request) => {
     const cookieStore = await cookies()
 
     const accessToken = cookieStore.get('accessToken')?.value
@@ -32,7 +32,7 @@ export async function GET(request: Request) {
     }
 }
 
-export async function POST(request: Request) {
+export const POST = async (request: Request) => {
     const cookieStore = await cookies()
     const accessToken = cookieStore.get('accessToken')?.value
     const {searchParams} = new URL(request.url)
@@ -64,7 +64,7 @@ export async function POST(request: Request) {
     }
 }
 
-export async function PATCH(request: Request) {
+export const PATCH = async (request: Request) => {
     const cookieStore = await cookies()
     const accessToken = cookieStore.get('accessToken')?.value
     const {searchParams} = new URL(request.url)
@@ -96,7 +96,7 @@ export async function PATCH(request: Request) {
     }
 }
 
-export async function DELETE(request: Request) {
+export const DELETE = async (request: Request) => {
     const cookieStore = await cookies()
     const accessToken = cookieStore.get('accessToken')?.value
     const {searchParams} = new URL(request.url)

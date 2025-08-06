@@ -3,7 +3,7 @@ import {NextResponse} from 'next/server'
 
 const URL = process.env.NEXT_PUBLIC_BACKEND_API
 
-export async function POST() {
+export const POST = async () => {
     const cookie = await cookies()
     const refreshToken = cookie.get('refreshToken')?.value
 

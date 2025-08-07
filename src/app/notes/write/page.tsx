@@ -5,8 +5,8 @@ import {useEffect} from 'react'
 
 import axios from 'axios'
 
-import {goalDataApi} from '@/app/api/goal-api'
-import {todoDataApi} from '@/app/api/todo-api'
+import {goalDataApi} from '@/lib/goals/api'
+import {todoDataApi} from '@/lib/todos/api'
 import LoadingSpinner from '@/components/common/loading-spinner'
 import NoteEditCompo from '@/components/notes/edit'
 import NoteWriteCompo from '@/components/notes/write'

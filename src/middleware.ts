@@ -29,6 +29,8 @@ export const middleware = (request: NextRequest) => {
 
     if (isProtectedPath && (!accessToken || !refreshToken)) {
 
+
+
         return NextResponse.redirect(new URL('/login', request.url))
     }
 
@@ -37,6 +39,6 @@ export const middleware = (request: NextRequest) => {
 
 export const config = {
 
-    matcher: [String.raw`/((?!_next|_next/image|favicon.ico|api|.*\\.svg$).*)`],
+    matcher: [`/((?!_next|_next/image|favicon.ico|api|.*\\.svg$).*)`],
 
 }

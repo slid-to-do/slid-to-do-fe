@@ -4,10 +4,12 @@ import Image from 'next/image'
 import {useParams} from 'next/navigation'
 import {useEffect, useState} from 'react'
 
-import {useQuery} from '@tanstack/react-query'
+import axios from 'axios'
 
+import LoadingSpinner from '@/components/common/loading-spinner'
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
+import {useCustomQuery} from '@/hooks/use-custom-query'
 import {get} from '@/lib/api'
 
 import ProgressBar from './prograss-motion'
@@ -38,19 +40,30 @@ export default function GoalHeader({
     const [progress, setProgress] = useState<number>(0)
     const {goalId} = useParams()
     /** 목표 달성 API */
-    const {data: progressData} = useQuery<GoalProgress>({
-        queryKey: ['todos', goalId, 'progress'],
-        queryFn: async () => {
+    const {data: progressData, isLoading} = useCustomQuery<GoalProgress>(
+        ['goals', goalId, 'progress'],
+        async () => {
             const response = await get<GoalProgress>({
                 endpoint: `todos/progress?goalId=${goalId}`,
                 options: {
                     headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
                 },
             })
-
             return response.data
         },
-    })
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
+
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+
+                return typedError.message || '알 수 없는 오류가 발생했습니다.'
+            },
+        },
+    )
 
     useEffect(() => {
         if (goal && progressData) {
@@ -58,6 +71,7 @@ export default function GoalHeader({
         }
     }, [progressData, goal])
 
+    if (isLoading) return <LoadingSpinner />
     return (
         <div className="mt-4 py-4 px-6 bg-white rounded">
             <div className="flex justify-between items-center">
@@ -80,6 +94,9 @@ export default function GoalHeader({
                                 >
                                     수정
                                 </ButtonStyle>
+                                <ButtonStyle size="medium" onClick={() => setGoalEdit(false)} color="outline">
+                                    취소
+                                </ButtonStyle>
                             </div>
                         ) : (
                             <div className="text-custom_slate-800 font-semibold">{goal.title}</div>
@@ -89,7 +106,11 @@ export default function GoalHeader({
                     )}
                 </div>
                 {!goalEdit && (
-                    <div className="flex-shrink-0 cursor-pointer relative" onClick={() => setMoreButton(!moreButton)}>
+                    <div
+                        className="flex-shrink-0 cursor-pointer relative"
+                        onClick={() => setMoreButton(!moreButton)}
+                        role="moreButton"
+                    >
                         <Image src="/goals/ic-more.svg" alt="더보기버튼" width={24} height={24} />
                         {moreButton && (
                             <div className="w-24 py-2 absolute right-0 top-7 flex gap-2 flex-col rounded text-center shadow-md z-10 bg-white">

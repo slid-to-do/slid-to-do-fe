@@ -3,15 +3,17 @@
 import {useRouter, useSearchParams} from 'next/navigation'
 import {useEffect} from 'react'
 
-import {useQuery} from '@tanstack/react-query'
+import axios from 'axios'
 
+import {goalDataApi} from '@/app/api/goal-api'
+import {todoDataApi} from '@/app/api/todo-api'
+import LoadingSpinner from '@/components/common/loading-spinner'
 import NoteEditCompo from '@/components/notes/edit'
 import NoteWriteCompo from '@/components/notes/write'
+import {useCustomQuery} from '@/hooks/use-custom-query'
 import useToast from '@/hooks/use-toast'
-import {get} from '@/lib/api'
 
 import type {Goal} from '@/types/goals'
-import type {Todo} from '@/types/todos'
 
 const NoteWritePage = () => {
     const searchParameters = useSearchParams()
@@ -32,45 +34,58 @@ const NoteWritePage = () => {
             showToast('확인 할 데이터가 없습니다.')
             router.back()
         }
-    }, [todoId, goalId, router, noteId])
+    }, [todoId, goalId, router, noteId, showToast])
 
-    const {data: goalsData} = useQuery<Goal>({
-        queryKey: ['goals', goalId],
-        queryFn: async () => {
-            const response = await get<Goal>({
-                endpoint: `goals/${goalId}`,
-                options: {
-                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                },
-            })
-
-            return response.data
+    // goal API 호출
+    const {data: goalsData, isLoading: isLoadingGoals} = useCustomQuery<Goal>(
+        ['goals', goalId],
+        async () => {
+            if (!goalId) throw new Error('목표 없이 노트작성이 불가합니다.')
+            return goalDataApi(goalId)
         },
-        enabled: !noteId && !!goalId,
-    })
+        {
+            enabled: !!goalId,
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
 
-    const {data: todosData} = useQuery<Todo>({
-        queryKey: ['todos', todoId],
-        queryFn: async () => {
-            const response = await get<Todo>({
-                endpoint: `todos/${todoId}`,
-                options: {
-                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                },
-            })
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
 
-            return response.data
+                return typedError.message || '목표를 찾을 수 없습니다.'
+            },
         },
-        enabled: !noteId && !!todoId,
-    })
+    )
+
+    // todolist API 호출
+    const {data: todosData, isLoading: isLoadingTodos} = useCustomQuery(
+        ['todos', todoId],
+        async () => todoDataApi(Number(todoId)),
+        {
+            enabled: !!todoId,
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
+
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+
+                return typedError.message || '할일을 찾을 수 없습니다.'
+            },
+        },
+    )
+
+    const isAnyLoading = isLoadingGoals || isLoadingTodos
+    if (isAnyLoading) return <LoadingSpinner />
 
     return (
-        <div className="flex flex-col w-full min-h-screen p-6 desktop:px-20">
+        <div className="flex flex-col w-full min-h-screen desktop-layout">
             <div className="mt-6 w-full">
                 {isEdit ? (
                     <NoteEditCompo noteId={noteId!} />
                 ) : (
-                    /**작성하기 */
                     <NoteWriteCompo
                         goalId={String(goalId)}
                         todoId={String(todoId)}

@@ -4,8 +4,8 @@ import {del, get, patch, post} from '../../lib/api'
 
 import type {AxiosResponse} from 'axios'
 
-jest.mock('axios')
-const mockedAxios = axios as jest.Mocked<typeof axios>
+// jest.mock('axios')
+// const mockedAxios = axios as jest.Mocked<typeof axios>
 
 /** get통신 testcode */
 describe('get 통신 성공', () => {
@@ -91,7 +91,7 @@ describe('delete 통신 성공', () => {
         mockedAxios.request.mockResolvedValue(mockResponse)
 
         const spy = jest.spyOn(axios, 'request')
-        await del({endpoint: '/test'}) 
+        await del({endpoint: '/test'})
         expect(spy).toHaveBeenCalled()
     })
 })

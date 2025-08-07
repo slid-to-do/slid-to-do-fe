@@ -2,20 +2,21 @@
 
 import Image from 'next/image'
 import {useRouter} from 'next/navigation'
-import {useCallback, useEffect, useState} from 'react'
+import {useCallback, useEffect, useMemo, useState} from 'react'
 
 import axios from 'axios'
 
 import 'react-toastify/dist/ReactToastify.css'
 
-import {noteRegApi} from '@/app/api/note-api'
 import TwoButtonModal from '@/components/common/modal/two-buttom-modal'
 import MarkdownEditor from '@/components/markdown-editor/markdown-editor'
 import ButtonStyle from '@/components/style/button-style'
 import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useModal from '@/hooks/use-modal'
 import useToast from '@/hooks/use-toast'
+import {noteRegApi} from '@/lib/notes/api'
 import {useModalStore} from '@/store/use-modal-store'
+import {getTextFromHtml} from '@/utils/text-from-html'
 
 import NoteSaveToast from '../common/note-save-toast'
 import InputStyle from '../style/input-style'
@@ -183,6 +184,14 @@ const NoteWriteCompo = ({
         saveNotes()
     }
 
+    const isChanged = useMemo(() => {
+        const titleChanged = subject.trim() !== ''
+        const textChanged = getTextFromHtml(content).trim() !== ''
+        const urlChanged = (linkButton ?? '').trim() !== ''
+
+        return titleChanged && (textChanged || urlChanged)
+    }, [subject, content, linkButton])
+
     return (
         <>
             <div className="w-full flex justify-between items-center">
@@ -196,8 +205,8 @@ const NoteWriteCompo = ({
                         임시작성
                     </ButtonStyle>
                     <ButtonStyle
-                        className={`w-24 !font-normal rounded-xl ${!content || content === '<p></p>' || content === '' ? 'bg-custom_slate-400' : 'bg-blue-500'}`}
-                        disabled={!content || content === '<p></p>' || content === ''}
+                        className={`w-24 !font-normal rounded-xl  ${isChanged ? 'bg-blue-500' : 'bg-custom_slate-400'}`}
+                        disabled={!isChanged}
                         onClick={() => handleSaveNoote()}
                     >
                         작성완료

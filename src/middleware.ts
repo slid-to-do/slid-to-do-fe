@@ -2,11 +2,7 @@ import {NextResponse} from 'next/server'
 
 import type {NextRequest} from 'next/server'
 
-export const config = {
-    matcher: [`/((?!_next|_next/image|favicon.ico|api|.*\\.svg$).*)`],
-}
-
-export default function middleware(request: NextRequest) {
+export const middleware = (request: NextRequest) => {
     const {pathname} = request.nextUrl
     const accessToken = request.cookies.get('accessToken')?.value
     const refreshToken = request.cookies.get('refreshToken')?.value
@@ -35,4 +31,8 @@ export default function middleware(request: NextRequest) {
     }
 
     return NextResponse.next()
+}
+
+export const config = {
+    matcher: [String.raw`/((?!_next|_next/image|favicon.ico|api|.*\\.svg$).*)`],
 }

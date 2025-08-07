@@ -3,11 +3,13 @@
 import Image from 'next/image'
 import {useRef, useState} from 'react'
 
-import {useMutation, useQueryClient} from '@tanstack/react-query'
+import {useQueryClient} from '@tanstack/react-query'
+import axios from 'axios'
 import clsx from 'clsx'
 
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
+import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import useToast from '@/hooks/use-toast'
 import {get, patch} from '@/lib/api'
@@ -30,7 +32,6 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
     const [isCheckedFile, setIsCheckedFile] = useState<boolean>(!!todoDetail.fileUrl)
     const [isCheckedLink, setIsCheckedLink] = useState<boolean>(!!todoDetail.linkUrl)
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
-    const [error, setError] = useState<string>('')
     const [file, setFile] = useState<File | undefined>()
 
     const fileInputReference = useRef<HTMLInputElement>(null)
@@ -45,9 +46,6 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
             const urlParameter = cursor === undefined ? '' : `&cursor=${cursor}`
             const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
                 endpoint: `goals?size=3&sortOrder=newest${urlParameter}`,
-                options: {
-                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                },
             })
 
             return {
@@ -72,8 +70,8 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
         fetchFn: getGoalsData,
     })
 
-    const uploadFileMutation = useMutation({
-        mutationFn: async () => {
+    const uploadFileMutation = useCustomMutation<string>(
+        async () => {
             const formData = new FormData()
 
             if (!file) {
@@ -82,10 +80,9 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
 
             formData.append('file', file)
 
-            const response = await fetch(`${process.env.NEXT_PUBLIC_API_BASE_URL}/files`, {
+            const response = await fetch('/api/upload?endpoint=files', {
                 method: 'POST',
                 body: formData,
-                headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
             })
 
             if (!response.ok) {
@@ -96,13 +93,20 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
 
             return url
         },
-        onError: () => {
-            setError('파일 업로드에 실패했습니다.')
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error_) => {
+                const typedError = error_ as {message?: string; response?: {data?: {message?: string}}}
+                if (axios.isAxiosError(error_)) {
+                    return error_.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+                return typedError.message || '파일 업로드에 실패했습니다.'
+            },
         },
-    })
+    )
 
-    const submitForm = useMutation({
-        mutationFn: async () => {
+    const submitForm = useCustomMutation<void, Error, void>(
+        async () => {
             const payload: PatchTodoRequest = {
                 title: inputs.title,
                 goalId: inputs.goalId,
@@ -117,25 +121,29 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
                 payload.linkUrl = inputs.linkUrl
             }
 
-            return await patch({
+            await patch({
                 endpoint: `todos/${todoDetail.id}`,
                 data: payload,
-                options: {
-                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                },
             })
         },
-        onSuccess: () => {
-            showToast('할 일 수정이 완료되었습니다.')
-            queryClient.invalidateQueries({queryKey: ['todos']})
-            queryClient.invalidateQueries({queryKey: ['todo', 'done', todoDetail.goal.id]})
-            queryClient.invalidateQueries({queryKey: ['todo', 'notDone', todoDetail.goal.id]})
-            clearModal()
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error_) => {
+                const typedError = error_ as {message?: string; response?: {data?: {message?: string}}}
+                if (axios.isAxiosError(error_)) {
+                    return error_.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+                return typedError.message || '할 일 수정 중 오류가 발생했습니다.'
+            },
+            onSuccess: () => {
+                showToast('할 일 수정이 완료되었습니다.')
+                queryClient.invalidateQueries({queryKey: ['todos']})
+                queryClient.invalidateQueries({queryKey: ['todo', 'done', todoDetail.goal.id]})
+                queryClient.invalidateQueries({queryKey: ['todo', 'notDone', todoDetail.goal.id]})
+                clearModal()
+            },
         },
-        onError: () => {
-            setError('할 일 수정에 실패했습니다.')
-        },
-    })
+    )
 
     const handleInputUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {name, value} = event.target
@@ -160,15 +168,6 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
 
     const handleSubmit = () => {
         submitForm.mutate()
-    }
-
-    if (error) {
-        return (
-            <div className="absolute p-6 transform bg-white -translate-1/2 top-1/2 left-1/2 rounded-xl">
-                <div className="text-red-500">{error}</div>
-                <ButtonStyle onClick={clearModal}>닫기</ButtonStyle>
-            </div>
-        )
     }
 
     return (

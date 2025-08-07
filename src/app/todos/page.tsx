@@ -34,11 +34,6 @@ const Page = () => {
 
             const response = await get<TodoListDetailResponse>({
                 endpoint: `todos?${parameter.toString()}`,
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
             })
 
             return response.data
@@ -60,11 +55,6 @@ const Page = () => {
             const response = await patch<TodoListDetailResponse>({
                 endpoint: `todos/${todoId}`,
                 data: {done: newDone},
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
             })
 
             return response.data
@@ -92,11 +82,6 @@ const Page = () => {
 
             await del({
                 endpoint: `todos/${todoId}`,
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
             })
         },
         {

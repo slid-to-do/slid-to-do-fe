@@ -2,7 +2,11 @@ import {NextResponse} from 'next/server'
 
 import type {NextRequest} from 'next/server'
 
-export const middleware = (request: NextRequest) => {
+export const config = {
+    matcher: [`/((?!_next|_next/image|favicon.ico|api|.*\\.svg$).*)`],
+}
+
+export default function middleware(request: NextRequest) {
     const {pathname} = request.nextUrl
     const accessToken = request.cookies.get('accessToken')?.value
     const refreshToken = request.cookies.get('refreshToken')?.value
@@ -26,17 +30,9 @@ export const middleware = (request: NextRequest) => {
         !pathname.endsWith('.svg') &&
         !pathname.endsWith('.ico')
 
-
     if (isProtectedPath && (!accessToken || !refreshToken)) {
-
         return NextResponse.redirect(new URL('/login', request.url))
     }
 
     return NextResponse.next()
-}
-
-export const config = {
-
-    matcher: [String.raw`/((?!_next|_next/image|favicon.ico|api|.*\\.svg$).*)`],
-
 }

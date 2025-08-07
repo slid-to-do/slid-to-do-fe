@@ -8,12 +8,10 @@ import axios from 'axios'
 import LoadingSpinner from '@/components/common/loading-spinner'
 import NoteEditCompo from '@/components/notes/edit'
 import NoteWriteCompo from '@/components/notes/write'
-
 import {useCustomQuery} from '@/hooks/use-custom-query'
 import useToast from '@/hooks/use-toast'
 import {goalDataApi} from '@/lib/goals/api'
 import {todoDataApi} from '@/lib/todos/api'
-
 
 import type {Goal} from '@/types/goals'
 

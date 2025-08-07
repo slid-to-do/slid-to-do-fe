@@ -6,7 +6,6 @@ import {useForm} from 'react-hook-form'
 
 import {signupApi} from '@/app/api/signup-api'
 import InputForm from '@/components/common/input-form'
-
 import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useToast from '@/hooks/use-toast'
 
@@ -27,14 +26,12 @@ const SignPage = () => {
 
     const {showToast} = useToast()
 
-
     const {mutate: signup, isPending: loading} = useCustomMutation<void, ApiError, SignupFormData>(signupApi, {
         errorDisplayType: 'form',
         setError,
         onValidationError: (error) => {
             if (error.status === 400 || error.status === 404 || error.status === 409) {
                 return [{name: 'email', message: error.message}]
-
             }
             return []
         },

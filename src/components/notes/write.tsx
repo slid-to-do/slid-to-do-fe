@@ -15,7 +15,6 @@ import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useModal from '@/hooks/use-modal'
 import useToast from '@/hooks/use-toast'
 import {noteRegApi} from '@/lib/notes/api'
-
 import {useModalStore} from '@/store/use-modal-store'
 import {getTextFromHtml} from '@/utils/text-from-html'
 
@@ -161,7 +160,6 @@ const NoteWriteCompo = ({
                 ...(linkButton && {linkUrl: linkButton}),
             }
 
-
             noteRegApi(payload)
         },
         {
@@ -221,10 +219,8 @@ const NoteWriteCompo = ({
                         <Image
                             src={'/todos/ic-delete.svg'}
                             alt="delete"
-
                             width={24}
                             height={24}
-
                             className="w-6 h-6"
                             onClick={() => setSaveToastOpen(false)}
                         />

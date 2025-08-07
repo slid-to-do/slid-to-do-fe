@@ -17,11 +17,9 @@ import {useCustomQuery} from '@/hooks/use-custom-query'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import useModal from '@/hooks/use-modal'
 import useToast from '@/hooks/use-toast'
-
 import {get} from '@/lib/api'
 import {goalDataApi, goalDeleteApi, goalUpdateApi} from '@/lib/goals/api'
 import {todoDeleteApi, todoUpdateApi} from '@/lib/todos/api'
-
 import {useModalStore} from '@/store/use-modal-store'
 
 import type {Goal} from '@/types/goals'
@@ -34,8 +32,6 @@ const GoalsPage = () => {
     const [moreButton, setMoreButton] = useState<boolean>(false)
     const [goalEdit, setGoalEdit] = useState<boolean>(false)
     const [goalTitle, setGoalTitle] = useState<string>('')
-    const {showToast} = useToast()
-
     const {showToast} = useToast()
 
     const queryClient = useQueryClient()
@@ -90,7 +86,6 @@ const GoalsPage = () => {
                 showToast('수정이 완료되었습니다.')
                 queryClient.invalidateQueries({queryKey: ['goals']})
             },
-
         },
     )
 

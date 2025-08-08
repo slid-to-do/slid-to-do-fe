@@ -8,7 +8,6 @@ import userEvent from '@testing-library/user-event'
 
 import GoalHeader from '@/components/goals/goal-header'
 import useToast from '@/hooks/use-toast'
-
 import * as api from '@/lib/common-api'
 
 const mockGoal = {

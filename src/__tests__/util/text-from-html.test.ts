@@ -1,4 +1,4 @@
-import { getTextFromHtml } from "@/utils/text-from-html"
+import {getTextFromHtml} from "@/utils/text-from-html"
 
 
 describe('getTextFromHtml', () => {

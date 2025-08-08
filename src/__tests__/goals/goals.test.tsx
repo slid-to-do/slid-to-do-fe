@@ -6,7 +6,7 @@ import {render, waitFor, screen} from '@testing-library/react'
 
 import GoalsPage from '@/app/goals/[goalId]/page'
 import useToast from '@/hooks/use-toast'
-import * as api from '@/lib/api'
+import * as api from '@/lib/common-api'
 
 const mockGoal = {
     id: 2479,

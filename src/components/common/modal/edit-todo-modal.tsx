@@ -12,7 +12,7 @@ import InputStyle from '@/components/style/input-style'
 import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import useToast from '@/hooks/use-toast'
-import {get, patch} from '@/lib/api'
+import {get, patch} from '@/lib/common-api'
 import {useModalStore} from '@/store/use-modal-store'
 
 import type {Goal, GoalResponse} from '@/types/goals'

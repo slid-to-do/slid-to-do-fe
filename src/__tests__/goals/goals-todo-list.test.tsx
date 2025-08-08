@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event'
 
 import InfiniteTodoList from '@/components/goals/todo-list'
 import useToast from '@/hooks/use-toast'
-import * as api from '@/lib/api'
+import * as api from '@/lib/common-api'
 
 const mockGoal = {
     id: 2479,

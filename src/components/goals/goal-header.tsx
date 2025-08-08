@@ -10,7 +10,7 @@ import LoadingSpinner from '@/components/common/loading-spinner'
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
 import {useCustomQuery} from '@/hooks/use-custom-query'
-import {goalPrograssApi} from '@/lib/goals/api'
+import {get} from '@/lib/common-api'
 
 import ProgressBar from './prograss-motion'
 

@@ -5,7 +5,7 @@ import React from 'react'
 
 import {useQuery} from '@tanstack/react-query'
 
-import {get} from '@/lib/api'
+import {get} from '@/lib/common-api'
 
 import NewAddTodo from './new-addtodo'
 

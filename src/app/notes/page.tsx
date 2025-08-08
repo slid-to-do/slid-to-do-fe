@@ -6,33 +6,18 @@ import {useSearchParams} from 'next/navigation'
 import LoadingSpinner from '@/components/common/loading-spinner'
 import {useCustomQuery} from '@/hooks/use-custom-query'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
-import {get} from '@/lib/api'
+import {get} from '@/lib/common-api'
+import {noteListApi} from '@/lib/notes/api'
 
 import {NoteList} from '../../components/notes/list'
 
 import type {ApiError} from '@/types/api'
 import type {InfiniteScrollOptions} from '@/types/infinite-scroll'
-import type {NoteCommon, NoteListResponse} from '@/types/notes'
+import type {NoteCommon} from '@/types/notes'
 
 const Page = () => {
     const parameters = useSearchParams()
     const goalId = parameters.get('goalId')
-
-    const fetchNoteList = async (cursor?: number) => {
-        const urlParameter = new URLSearchParams()
-        urlParameter.set('size', '10')
-        if (goalId) urlParameter.set('goalId', goalId)
-        if (cursor !== undefined) urlParameter.set('cursor', String(cursor))
-
-        const endpoint = `notes?${urlParameter.toString()}`
-        const result = await get<NoteListResponse>({
-            endpoint,
-        })
-        return {
-            data: result.data.notes,
-            nextCursor: result.data.nextCursor,
-        }
-    }
 
     const {
         data: notes,
@@ -41,7 +26,7 @@ const Page = () => {
         hasMore,
     } = useInfiniteScrollQuery({
         queryKey: ['notes'],
-        fetchFn: fetchNoteList,
+        fetchFn: (cursor) => noteListApi(goalId ?? undefined, cursor),
         enabled: goalId !== null,
     } as InfiniteScrollOptions<NoteCommon>)
 

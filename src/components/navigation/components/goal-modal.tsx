@@ -8,7 +8,7 @@ import {useQueryClient, useMutation} from '@tanstack/react-query'
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
 import useToast from '@/hooks/use-toast'
-import {post} from '@/lib/api'
+import {post} from '@/lib/common-api'
 import {useModalStore} from '@/store/use-modal-store'
 
 const GoalModal = () => {

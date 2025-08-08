@@ -1,89 +1,55 @@
-// import {renderHook} from '@testing-library/react'
-// import {useIsNoteChanged} from '@/hooks/use-is-note-changed'
 
-// describe('useIsNotChanged', () => {
-//     it('original과 current가 동일하면 false를 반환한다', () => {
-//         const original = {
-//             title: '테스트 제목',
-//             content: '<p>내용</p>',
-//             linkUrl: 'https://test.com',
-//         }
+import {renderHook} from '@testing-library/react'
 
-//         const current = {
-//             title: '테스트 제목',
-//             content: '<p>내용</p>',
-//             linkUrl: 'https://test.com',
-//         }
+import {useIsNoteChanged} from '@/hooks/use-is-note-changed'
 
-//         const {result} = renderHook(() =>
-//             useIsNoteChanged({
-//                 original,
-//                 current,
-//             }),
-//         )
-//         expect(result.current).toBe(false)
-//     })
 
-//     it('original과 current가 다르면 true를 반환한다', () => {
-//         const original = {
-//             title: '테스트 제목',
-//             content: '<p>내용</p>',
-//             linkUrl: 'https://test.com',
-//         }
+describe('useIsNoteChanged', () => {
+    it('original과 current가 동일하면 false 반환', () => {
+        const original = {
+            title: '테스트 제목',
+            content: '<p>내용</p>',
+            linkUrl: 'https://test.com',
+        }
+        const current = {
+            title: '테스트 제목',
+            content: '<p>내용</p>',
+            linkUrl: 'https://test.com',
+        }
+        const {result} = renderHook(() => useIsNoteChanged({original, current}))
 
-//         const current = {
-//             title: '테스트 제목다름',
-//             content: '<p>내용 다름</p>',
-//             linkUrl: 'https://testtest.com',
-//         }
+        expect(result.current).toBe(false)
+    })
 
-//         const {result} = renderHook(() =>
-//             useIsNoteChanged({
-//                 original,
-//                 current,
-//             }),
-//         )
-//         expect(result.current).toBe(true)
-//     })
+    it('original과 current가 다르면 true 반환', () => {
+        const original = {
+            title: '제목',
+            content: '<p>내용</p>',
+            linkUrl: 'https://test.com',
+        }
+        const current = {
+            title: '수정된 제목',
+            content: '<p>수정된 내용</p>',
+            linkUrl: 'https://current.com',
+        }
+        const {result} = renderHook(() => useIsNoteChanged({original, current}))
 
-//     it('original과 current 둘 다 내용이 없을 경우 false ', () => {
-//         const original = {
-//             title: 'title',
-//             content: '',
-//             linkUrl: '',
-//         }
+        expect(result.current).toBe(true)
+    })
 
-//         const current = {
-//             title: 'title',
-//             content: '',
-//             linkUrl: '',
-//         }
+    it('original과 current의 내용이 없어도 변화가 없다면 false 반환', () => {
+        const original = {
+            title: 'title',
+            content: '',
+            linkUrl: '',
+        }
+        const current = {
+            title: 'title',
+            content: '',
+            linkUrl: '',
+        }
+        const {result} = renderHook(() => useIsNoteChanged({original, current}))
 
-//         const {result} = renderHook(() =>
-//             useIsNoteChanged({
-//                 original,
-//                 current,
-//             }),
-//         )
-//         expect(result.current).toBe(true)
-//     })
-
-//     test('original.content가 undefined이면 변경되지 않음으로 판단', () => {
-//         const {result} = renderHook(() =>
-//             useIsNoteChanged({
-//                 original: {
-//                     title: '제목',
-//                     content: undefined,
-//                     linkUrl: '',
-//                 },
-//                 current: {
-//                     title: '제목',
-//                     content: '<p>제목</p>',
-//                     linkUrl: '',
-//                 },
-//             }),
-//         )
-
-//         expect(result.current).toBe(false)
-//     })
-// })
+        expect(result.current).toBe(false)
+    })
+})

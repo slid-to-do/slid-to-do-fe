@@ -185,7 +185,7 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
                                     className=" w-2.5 h-auto"
                                 />
                             )}
-                            {hasMoreData ? '더 보기' : '추가 할 일이 없습니다.'}
+                            {hasMoreData && '더 보기'}
                         </div>
                     )}
                 </button>

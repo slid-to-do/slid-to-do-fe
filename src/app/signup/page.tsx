@@ -4,7 +4,7 @@ import {useRouter} from 'next/navigation'
 
 import {useForm} from 'react-hook-form'
 
-import {signupApi} from '@/app/api/signup-api'
+import {signupApi} from '@/lib/auth/signup-api'
 import InputForm from '@/components/common/input-form'
 import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useToast from '@/hooks/use-toast'

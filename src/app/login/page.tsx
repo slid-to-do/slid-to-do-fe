@@ -8,7 +8,7 @@ import InputForm from '@/components/common/input-form'
 import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useToast from '@/hooks/use-toast'
 
-import {loginApi} from '../api/login-api'
+import {loginApi} from '@/lib/auth/login-api'
 
 import type {ApiError} from '@/types/api'
 import type {LoginFormData} from '@/types/login'

@@ -1,6 +1,5 @@
 'use client'
 
-import Image from 'next/image'
 import React from 'react'
 
 import clsx from 'clsx'
@@ -21,11 +20,10 @@ const InputForm = <T extends Record<string, unknown>>({
     validationRules,
 }: InputFormProperties<T>) => {
     return (
-        <div className="min-h-screen flex flex-col items-center justify-center bg-white px-4">
-            <div className="relative w-[240px] h-[48px] mb-2">
-                <Image src="/common/img-logo.svg" alt="Logo" fill className="object-contain" />
+        <div className="flex flex-col items-center justify-center bg-white px-4">
+            <div className="tablet:hidden mobile:hidden relative w-[260px] h-[48px] mb-2 text-center">
+                <span className="text-lg font-semibold text-gray-800">하루를 계획하고, 성취하는 습관💪</span>
             </div>
-
             <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-xl flex flex-col gap-6">
                 {fields.map((field, index) => (
                     <div key={index} className="flex flex-col gap-1">

@@ -7,8 +7,7 @@ import {useForm} from 'react-hook-form'
 import InputForm from '@/components/common/input-form'
 import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useToast from '@/hooks/use-toast'
-
-import {loginApi} from '../api/login-api'
+import {loginApi} from '@/lib/auth/login-api'
 
 import type {ApiError} from '@/types/api'
 import type {LoginFormData} from '@/types/login'
@@ -27,15 +26,22 @@ const LoginPage = () => {
     const {mutate, isPending: loading} = useCustomMutation<void, ApiError, LoginFormData>(loginApi, {
         setError,
         errorDisplayType: 'form',
-        onValidationError: (error) => {
+        onError: (error) => {
             if (error.status === 404) {
+                showToast('로그인에 실패했습니다!', {type: 'error'})
                 return [{name: 'email', message: error.message}]
             }
             if (error.status === 400) {
+                showToast('로그인에 실패했습니다!', {type: 'error'})
+                return [{name: 'password', message: error.message}]
+            }
+            if (error.status === 401) {
+                showToast(error.message, {type: 'error'})
                 return [{name: 'password', message: error.message}]
             }
             return []
         },
+
         onSuccess: () => {
             showToast('로그인에 성공했습니다!', {type: 'success'})
             router.push('/dashboard')

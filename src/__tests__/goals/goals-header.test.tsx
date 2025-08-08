@@ -7,7 +7,13 @@ import {waitFor} from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 
 import GoalHeader from '@/components/goals/goal-header'
+import useToast from '@/hooks/use-toast'
 import * as api from '@/lib/api'
+
+const mockGoal = {
+    id: 2479,
+    title: '아바타 사진찍기!!',
+}
 
 // useParams 모킹
 jest.mock('next/navigation', () => ({
@@ -15,13 +21,23 @@ jest.mock('next/navigation', () => ({
     useParams: jest.fn(),
     useRouter: jest.fn(),
 }))
-beforeEach(() => {
-    ;(nextNavigation.useParams as jest.Mock).mockReturnValue({goalId: 2479})
-})
+
+// useToast 모킹
+jest.mock('@/hooks/use-toast')
+let mockShowToast: jest.Mock
 
 // api통신 모킹
 jest.mock('@/lib/api')
 const mockedGet = api.get as jest.MockedFunction<typeof api.get>
+
+beforeEach(() => {
+    mockShowToast = jest.fn()
+    ;(nextNavigation.useParams as jest.Mock).mockReturnValue({goalId: String(mockGoal.id)})
+    ;(useToast as jest.Mock).mockReturnValue({
+        showToast: mockShowToast,
+    })
+    mockedGet.mockReset()
+})
 
 const createQueryClient = () =>
     new QueryClient({
@@ -31,11 +47,6 @@ const createQueryClient = () =>
 function renderWithClient(ui: React.ReactElement) {
     const queryClient = createQueryClient()
     return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>)
-}
-
-const mockGoal = {
-    id: 2479,
-    title: '아바타 사진찍기!!',
 }
 
 // 테스트를 위한 GoalHeader props 객체
@@ -205,6 +216,19 @@ describe('버튼 클릭 이벤트', () => {
         expect(await screen.findByText('수정하기')).toBeInTheDocument()
         expect(await screen.findByText('삭제하기')).toBeInTheDocument()
     })
+
+    it('목표 빈 제목이면 수정되지 않고 toast 호출', async () => {
+        const user = userEvent.setup()
+
+        renderWithClient(<GoalHeader {...headerProperties({goalEdit: true, goalTitle: ''})} />)
+
+        const updateButton = await screen.findByRole('button', {name: '수정'})
+
+        await user.click(updateButton)
+        expect(mockShowToast).toHaveBeenCalled()
+        mockShowToast.mockClear()
+    })
+
     it('수정하기 클릭 시 setGoalEdit(true) 호출', async () => {
         const user = userEvent.setup()
         const mockSetGoalEditButton = jest.fn()

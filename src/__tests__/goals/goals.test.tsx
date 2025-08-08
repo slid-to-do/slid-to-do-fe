@@ -8,30 +8,34 @@ import GoalsPage from '@/app/goals/[goalId]/page'
 import useToast from '@/hooks/use-toast'
 import * as api from '@/lib/api'
 
+const mockGoal = {
+    id: 2479,
+    title: '아바타 사진찍기!!',
+}
+
 // useParams 모킹
 jest.mock('next/navigation', () => ({
     ...jest.requireActual('next/navigation'),
     useParams: jest.fn(),
     useRouter: jest.fn(),
-    useToast: jest.fn(),
 }))
-beforeEach(() => {
-    ;(nextNavigation.useParams as jest.Mock).mockReturnValue({goalId: 2479})
-})
 
 // useToast 모킹
 jest.mock('@/hooks/use-toast')
-beforeEach(() => {
-    ;(useToast as jest.Mock).mockReturnValue({
-        showToast: jest.fn(),
-    })
-})
+let mockShowToast: jest.Mock
 
 // api통신 모킹
 jest.mock('@/lib/api')
 const mockedGet = api.get as jest.MockedFunction<typeof api.get>
-// const mockedPatch = api.patch as jest.MockedFunction<typeof api.patch>
-// const mockedDel = api.del as jest.MockedFunction<typeof api.del>
+
+beforeEach(() => {
+    mockShowToast = jest.fn()
+    ;(nextNavigation.useParams as jest.Mock).mockReturnValue({goalId: String(mockGoal.id)})
+    ;(useToast as jest.Mock).mockReturnValue({
+        showToast: mockShowToast,
+    })
+    mockedGet.mockReset()
+})
 
 const createQueryClient = () =>
     new QueryClient({
@@ -43,11 +47,6 @@ const createQueryClient = () =>
 function renderWithClient(ui: React.ReactElement) {
     const queryClient = createQueryClient()
     return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>)
-}
-
-const mockGoal = {
-    id: 2479,
-    title: '아바타 사진찍기!!',
 }
 
 describe('api 호출 테스트', () => {
@@ -86,7 +85,7 @@ describe('api 호출 테스트', () => {
         })
     })
     it('API 로딩 중이면 loading-spinner 가 화면에 나타나야 한다', async () => {
-        mockedGet.mockImplementation(
+        mockedGet.mockImplementationOnce(
             () =>
                 new Promise(() => {
                     //응답지연
@@ -102,12 +101,8 @@ describe('api 호출 테스트', () => {
         ['done=true', '할 일을 불러오는 중 오류가 발생했습니다.'],
         ['done=false', '할 일을 불러오는 중 오류가 발생했습니다.'],
     ])('endpoint가 %s일 때 toast가 호출되는지 확인', async (endpointSubstring, expectedToastMessage) => {
-        // 1. showToast 함수 모킹
-        const mockShowToast = jest.fn()
-        ;(useToast as jest.Mock).mockReturnValue({showToast: mockShowToast})
-
-        // 2. API 에러 상황 강제 트리거
-        mockedGet.mockImplementation(({endpoint}) => {
+        // API 에러 상황 강제 트리거
+        mockedGet.mockImplementationOnce(({endpoint}) => {
             if (endpoint.includes(endpointSubstring)) {
                 return Promise.reject(new Error('API 실패'))
             }
@@ -117,21 +112,38 @@ describe('api 호출 테스트', () => {
             })
         })
 
-        // 3. 렌더링
         renderWithClient(<GoalsPage />)
 
-        // 4. 기대 결과 확인
         await waitFor(() => {
             expect(mockShowToast).toHaveBeenCalledWith(expectedToastMessage)
         })
+        mockShowToast.mockClear()
     })
 })
 
 describe('클릭 이벤트', () => {
-    it('노트 링크가 goalId에 따라 정확히 렌더링 되는지 확인', async () => {
+    it('/notes?goalId={goalId}로 이동하는 링크가 렌더링되는지 확인', async () => {
+        // 1. goal 데이터
+        mockedGet.mockResolvedValueOnce({
+            data: mockGoal,
+            status: 200,
+        })
+
+        // 2. todosNotDone
+        mockedGet.mockResolvedValueOnce({
+            data: {todos: [], nextCursor: 1},
+            status: 200,
+        })
+
+        // 3. todosDone
+        mockedGet.mockResolvedValueOnce({
+            data: {todos: [], nextCursor: 1},
+            status: 200,
+        })
+
         renderWithClient(<GoalsPage />)
 
-        const noteLink = screen.getByRole('link', {name: /노트 모아보기/i})
-        expect(noteLink).toHaveAttribute('href', `/notes?goalId=${mockGoal.id}`)
+        const link = await screen.findByRole('link', {name: /노트 모아보기/i})
+        expect(link).toHaveAttribute('href', `/notes?goalId=${mockGoal.id}`)
     })
 })

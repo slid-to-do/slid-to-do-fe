@@ -4,7 +4,7 @@ import Image from 'next/image'
 import {useEffect, useState} from 'react'
 
 import {dateformat} from '@/components/style/utils'
-import {get} from '@/lib/api'
+import {get} from '@/lib/common-api'
 import {useModalStore} from '@/store/use-modal-store'
 
 import type {NoteItemResponse} from '@/types/notes'

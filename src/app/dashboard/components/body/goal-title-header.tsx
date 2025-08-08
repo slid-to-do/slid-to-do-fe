@@ -8,7 +8,7 @@ import {useQuery} from '@tanstack/react-query'
 import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import ProgressBar from '@/components/goals/prograss-motion'
 import {useModal} from '@/hooks/use-modal'
-import {get} from '@/lib/api'
+import {get} from '@/lib/common-api'
 
 import type {GoalProgress} from '@/types/goals'
 

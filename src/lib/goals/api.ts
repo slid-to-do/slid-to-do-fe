@@ -1,4 +1,4 @@
-import {del, get, patch} from '@/lib/api'
+import {del, get, patch} from '@/lib/common-api'
 
 import type {Goal, GoalProgress} from '@/types/goals'
 import type {TodoResponse} from '@/types/todos'

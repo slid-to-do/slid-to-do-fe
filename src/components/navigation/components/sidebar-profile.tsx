@@ -8,7 +8,7 @@ import {useQuery} from '@tanstack/react-query'
 import axios from 'axios'
 
 import useToast from '@/hooks/use-toast'
-import {get} from '@/lib/api'
+import {get} from '@/lib/common-api'
 
 import type {UserType} from '@/types/user'
 

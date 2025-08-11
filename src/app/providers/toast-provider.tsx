@@ -9,7 +9,7 @@ const ToastProvider = () => {
             position="top-center"
             toastClassName="custom-toast"
             theme="dark"
-            autoClose={3000}
+            autoClose={1500}
             hideProgressBar={false}
             limit={1}
         />

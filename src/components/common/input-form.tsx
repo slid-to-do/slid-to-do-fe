@@ -27,8 +27,11 @@ const InputForm = <T extends Record<string, unknown>>({
             <form onSubmit={handleSubmit(onSubmit)} className="w-full max-w-xl flex flex-col gap-6">
                 {fields.map((field, index) => (
                     <div key={index} className="flex flex-col gap-1">
-                        <label className="text-custom_slate-800 font-semibold">{field.label}</label>
+                        <label htmlFor={field.name} className="text-custom_slate-800 font-semibold">
+                            {field.label}
+                        </label>
                         <InputStyle
+                            id={field.name}
                             type={field.type}
                             placeholder={field.placeholder}
                             {...register(field.name, {

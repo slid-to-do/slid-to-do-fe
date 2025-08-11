@@ -26,7 +26,7 @@ jest.mock('@/hooks/use-toast')
 let mockShowToast: jest.Mock
 
 // api통신 모킹
-jest.mock('@/lib/api')
+jest.mock('@/lib/common-api')
 const mockedGet = api.get as jest.MockedFunction<typeof api.get>
 
 beforeEach(() => {

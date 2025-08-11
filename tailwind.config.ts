@@ -6,6 +6,9 @@ const config: Config = {
     content: ['./pages/**/*.{js,ts,jsx,tsx}', './components/**/*.{js,ts,jsx,tsx}'],
     theme: {
         extend: {
+            fontFamily: {
+                sans: ['var(--font-pretendard)', 'system-ui', 'sans-serif'],
+            },
             keyframes: {
                 sidebarOpen: {
                     '0%': {width: '50px', height: '100vh'},

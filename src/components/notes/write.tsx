@@ -154,7 +154,7 @@ const NoteWriteCompo = ({
     const {mutate: saveNotes} = useCustomMutation(
         async () => {
             const payload = {
-                id: Number(todoId),
+                todoId: Number(todoId),
                 title: subject,
                 content,
                 ...(linkButton && {linkUrl: linkButton}),
@@ -221,7 +221,7 @@ const NoteWriteCompo = ({
                             alt="delete"
                             width={24}
                             height={24}
-                            className="w-6 h-6"
+                            className="w-6 h-6 cursor-pointer"
                             onClick={() => setSaveToastOpen(false)}
                         />
                         <div className="text-custom_blue-500 text-sm font-semibold">
@@ -235,7 +235,7 @@ const NoteWriteCompo = ({
             )}
 
             <div className="mt-4 flex items-center gap-2">
-                <Image src="/goals/flag-goal.svg" alt="목표깃발" width={24} height={24} />
+                <Image src="/goals/flag-goal.svg" alt="goal-flag" width={24} height={24} />
                 <h2 className="text-subTitle-sm">{goalTitle}</h2>
             </div>
             <div className="mt-3 flex items-center gap-2">

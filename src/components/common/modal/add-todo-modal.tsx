@@ -12,7 +12,7 @@ import InputStyle from '@/components/style/input-style'
 import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import useToast from '@/hooks/use-toast'
-import {get, post} from '@/lib/api'
+import {get, post} from '@/lib/common-api'
 import {useModalStore} from '@/store/use-modal-store'
 
 import type {GoalResponse} from '@/types/goals'
@@ -35,6 +35,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
     const [isCheckedLink, setIsCheckedLink] = useState<boolean>(false)
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [file, setFile] = useState<File | undefined>()
+    const [selectedGoalIndex, setSelectedGoalIndex] = useState<number>(-1)
 
     const fileInputReference = useRef<HTMLInputElement>(null)
 
@@ -180,7 +181,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
     }
 
     return (
-        <div className="absolute p-6 transform bg-white -translate-1/2 top-1/2 left-1/2 md:rounded-xl md:h-auto w-full h-full md:w-lg flex flex-col justify-between">
+        <div className="absolute flex flex-col justify-between w-full h-full p-6 transform bg-white -translate-1/2 top-1/2 left-1/2 md:rounded-xl md:h-auto md:w-lg">
             <div>
                 <div className="flex items-center justify-between">
                     <div className="text-lg font-bold">할 일 생성</div>
@@ -203,6 +204,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                         value={inputs.title}
                         name="title"
                         onChange={handleInputUpdate}
+                        maxLength={30}
                     />
                 </div>
 
@@ -211,12 +213,51 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                 <div className="mt-6">
                     <div className="text-base font-semibold">목표</div>
 
-                    <div className="relative px-5 py-3 bg-custom_slate-50 rounded-md">
+                    <div
+                        tabIndex={0}
+                        className="relative px-5 py-3 rounded-md bg-custom_slate-50"
+                        onKeyDown={(event) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault()
+                                if (!isDropdownOpen) {
+                                    setIsDropdownOpen(true)
+                                    setSelectedGoalIndex(-1)
+                                } else if (selectedGoalIndex >= 0) {
+                                    const selectedGoal = fetchGoals[selectedGoalIndex]
+                                    if (selectedGoal) {
+                                        setInputs((previous) => ({...previous, goalId: selectedGoal.id}))
+                                        setIsDropdownOpen(false)
+                                        setSelectedGoalIndex(-1)
+                                    }
+                                }
+                            } else if (event.key === 'ArrowDown' && isDropdownOpen) {
+                                event.preventDefault()
+                                setSelectedGoalIndex((previous) =>
+                                    previous < fetchGoals.length - 1 ? previous + 1 : 0,
+                                )
+                            } else if (event.key === 'ArrowUp' && isDropdownOpen) {
+                                event.preventDefault()
+                                setSelectedGoalIndex((previous) =>
+                                    previous > 0 ? previous - 1 : fetchGoals.length - 1,
+                                )
+                            } else if (event.key === 'Escape' && isDropdownOpen) {
+                                event.preventDefault()
+                                setIsDropdownOpen(false)
+                                setSelectedGoalIndex(-1)
+                            }
+                        }}
+                    >
                         <div
-                            className={clsx('text-custom_slate-400 cursor-pointer', {
-                                'text-custom_slate-800': inputs.goalId,
-                            })}
-                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                            className={clsx(
+                                'text-custom_slate-400 cursor-pointer text-ellipsis overflow-hidden whitespace-nowrap',
+                                {
+                                    'text-custom_slate-800': inputs.goalId,
+                                },
+                            )}
+                            onClick={() => {
+                                setIsDropdownOpen(!isDropdownOpen)
+                                setSelectedGoalIndex(-1)
+                            }}
                         >
                             {inputs.goalId
                                 ? fetchGoals.find((goal) => goal.id === inputs.goalId)?.title
@@ -224,7 +265,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                         </div>
 
                         {isDropdownOpen && (
-                            <div className="absolute left-0 w-full top-12 h-72 overflow-auto bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                            <div className="absolute left-0 z-10 w-full overflow-auto bg-white border border-gray-200 rounded-md shadow-lg top-12 h-72">
                                 {loadingGoals && fetchGoals.length === 0 ? (
                                     <div className="flex items-center justify-center w-full h-full text-sm text-custom_slate-400">
                                         로딩 중...
@@ -240,15 +281,26 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                                                 {fetchGoals.map((goal, index) => (
                                                     <div
                                                         key={goal.id}
+                                                        tabIndex={-1}
                                                         ref={
                                                             index === fetchGoals.length - 1 ? goalReference : undefined
                                                         } // 마지막 요소에 ref 연결
-                                                        className="px-3 py-2 text-sm cursor-pointer hover:bg-custom_slate-100"
+                                                        className={clsx(
+                                                            'px-3 py-2 overflow-hidden text-sm cursor-pointer text-ellipsis whitespace-nowrap outline-none',
+                                                            {
+                                                                'bg-custom_slate-100': selectedGoalIndex === index,
+                                                                'hover:bg-custom_slate-100':
+                                                                    selectedGoalIndex !== index,
+                                                            },
+                                                        )}
                                                         onClick={(event_) => {
                                                             event_.stopPropagation()
                                                             setInputs((previous) => ({...previous, goalId: goal.id}))
                                                             setIsDropdownOpen(false)
+                                                            setSelectedGoalIndex(-1)
                                                         }}
+                                                        onMouseEnter={() => setSelectedGoalIndex(index)}
+                                                        onMouseLeave={() => setSelectedGoalIndex(-1)}
                                                     >
                                                         {goal.title}
                                                     </div>
@@ -281,13 +333,19 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                     <div className="text-base font-semibold">자료</div>
                     <div className="flex items-center gap-3">
                         <div
+                            tabIndex={0}
                             className={clsx(
-                                'flex items-center gap-2 p-2 font-medium rounded-lg',
+                                'flex items-center gap-2 p-2 font-medium rounded-lg cursor-pointer',
                                 isCheckedFile
                                     ? 'bg-custom_slate-900 text-white'
                                     : 'bg-custom_slate-100 text-custom_slate-800',
                             )}
                             onClick={() => setIsCheckedFile(!isCheckedFile)}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter') {
+                                    setIsCheckedFile(!isCheckedFile)
+                                }
+                            }}
                         >
                             <Image
                                 src={
@@ -303,13 +361,19 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                         </div>
 
                         <div
+                            tabIndex={0}
                             className={clsx(
-                                'flex items-center gap-2 p-2 font-medium rounded-lg',
+                                'flex items-center gap-2 p-2 font-medium rounded-lg cursor-pointer',
                                 isCheckedLink
                                     ? 'bg-custom_slate-900 text-white'
                                     : 'bg-custom_slate-100 text-custom_slate-800',
                             )}
                             onClick={() => setIsCheckedLink(!isCheckedLink)}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter') {
+                                    setIsCheckedLink(!isCheckedLink)
+                                }
+                            }}
                         >
                             <Image
                                 src={
@@ -337,9 +401,15 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
 
                     {isCheckedFile && (
                         <div
-                            className="flex flex-col items-center justify-center gap-2 py-16 bg-custom_slate-50 rounded-xl"
+                            tabIndex={0}
+                            className="flex flex-col items-center justify-center gap-2 py-16 bg-custom_slate-50 rounded-xl cursor-pointer"
                             onClick={() => {
                                 fileInputReference.current?.click()
+                            }}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter') {
+                                    fileInputReference.current?.click()
+                                }
                             }}
                         >
                             {file ? (
@@ -359,7 +429,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
             <div className="mt-6">
                 <ButtonStyle
                     size="full"
-                    disabled={!inputs.title.trim() || !inputs.goalId}
+                    disabled={!inputs.title.trim() || !inputs.goalId || submitForm.isPending}
                     onClick={() => submitForm.mutate()}
                 >
                     확인

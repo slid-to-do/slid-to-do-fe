@@ -5,7 +5,7 @@ import React from 'react'
 
 import LoadingSpinner from '@/components/common/loading-spinner'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
-import {get} from '@/lib/api'
+import {get} from '@/lib/common-api'
 
 import GoalListBody from './goal-list-body'
 import GoalTitleHeader from './goal-title-header'
@@ -19,10 +19,6 @@ const GoalTodoContainer = () => {
                 const urlParameter = cursor === undefined ? '' : `&cursor=${cursor}`
                 const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
                     endpoint: `goals?size=3&sortOrder=newest${urlParameter}`,
-
-                    options: {
-                        headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                    },
                 })
 
                 return {

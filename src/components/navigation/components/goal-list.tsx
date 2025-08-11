@@ -7,7 +7,7 @@ import LoadingSpinner from '@/components/common/loading-spinner'
 import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import {useModal} from '@/hooks/use-modal'
-import {get} from '@/lib/api'
+import {get} from '@/lib/common-api'
 
 import ButtonStyle from '../../style/button-style'
 
@@ -22,10 +22,6 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                 const urlParameter = cursor === undefined ? '' : `&cursor=${cursor}`
                 const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
                     endpoint: `goals?size=10&sortOrder=newest${urlParameter}`,
-
-                    options: {
-                        headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                    },
                 })
 
                 return {

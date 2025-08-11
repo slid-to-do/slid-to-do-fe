@@ -1,4 +1,4 @@
-import {Geist, Geist_Mono} from 'next/font/google'
+import {pretendard} from '@/font/pretendard-variable'
 
 import ModalProvider from './providers/modal-provider'
 import QueryProvider from './providers/query-provider'
@@ -9,16 +9,6 @@ import 'react-toastify/dist/ReactToastify.css'
 import type {Metadata} from 'next'
 
 import './globals.css'
-
-const geistSans = Geist({
-    variable: '--font-geist-sans',
-    subsets: ['latin'],
-})
-
-const geistMono = Geist_Mono({
-    variable: '--font-geist-mono',
-    subsets: ['latin'],
-})
 
 export const metadata: Metadata = {
     title: {
@@ -38,7 +28,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="en">
-            <body className={`${geistSans.variable} ${geistMono.variable} antialiased`}>
+            <body className={`${pretendard.variable} antialiased`}>
                 <QueryProvider>
                     {children}
                     <ModalProvider />

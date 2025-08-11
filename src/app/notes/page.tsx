@@ -62,8 +62,8 @@ const Page = () => {
 
                 <div className="w-full mt-4 flex-1 flex flex-col">
                     <div className="flex gap-2 items-center bg-white rounded-xl border border-custom_slate-100 py-3.5 px-6">
-                        <Image src="/goals/flag-goal.svg" alt="목표깃발" width={28} height={28} />
-                        <h2 className="text-subTitle-sm">
+                        <Image src="/goals/flag-goal.svg" alt="goal-flag" width={28} height={28} />
+                        <h2 className="text-subTitle-sm truncate">
                             {' '}
                             {notes.length > 0 ? notes?.[0]?.goal.title : goalData?.title}
                         </h2>

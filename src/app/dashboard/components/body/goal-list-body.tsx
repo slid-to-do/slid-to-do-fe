@@ -160,36 +160,36 @@ const GoalListBody = ({goalId}: {goalId: number | undefined}) => {
             </section>
 
             {/* 통합 더보기 버튼 */}
-
-            <div className="mt-4 flex justify-center">
-                <button
-                    onClick={handleLoadMore}
-                    disabled={isLoadingMore || !hasMoreData}
-                    className="px-4 py-1 text-sm bg-white rounded-full border after:border-transparent border-transparent hover:text-custom_blue-800 hover:border-custom_blue-800 disabled:text-custom_slate-400 disabled:hover:border-transparent disabled:cursor-not-allowed transition-colors"
-                >
-                    {isLoadingMore ? (
-                        <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin">
-                                -
+            {hasMoreData && (
+                <div className="mt-4 flex justify-center">
+                    <button
+                        onClick={handleLoadMore}
+                        disabled={isLoadingMore}
+                        className="px-4 py-1 text-sm bg-white rounded-full border border-transparent hover:text-custom_blue-800 hover:border-custom_blue-800 disabled:text-custom_slate-400 disabled:hover:border-transparent disabled:cursor-not-allowed transition-colors"
+                    >
+                        {isLoadingMore ? (
+                            <div className="flex items-center gap-2">
+                                <div
+                                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+                                    aria-label="로딩중"
+                                />
+                                로딩중...
                             </div>
-                            로딩중...
-                        </div>
-                    ) : (
-                        <div className="w-full h-full flex min-w-[65px]  gap-3">
-                            {hasMoreData && (
+                        ) : (
+                            <div className="flex items-center gap-3 min-w-[65px]">
                                 <Image
-                                    src={'/dashboard/down-arrow.svg'}
-                                    alt={'downArrow'}
+                                    src="/dashboard/down-arrow.svg"
+                                    alt="더 보기 화살표"
                                     width={9}
                                     height={9}
-                                    className=" w-2.5 h-auto"
+                                    className="w-2.5 h-auto"
                                 />
-                            )}
-                            {hasMoreData && '더 보기'}
-                        </div>
-                    )}
-                </button>
-            </div>
+                                더 보기
+                            </div>
+                        )}
+                    </button>
+                </div>
+            )}
         </>
     )
 }

@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import {useParams} from 'next/navigation'
-import {useEffect, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 
 import axios from 'axios'
 
@@ -10,7 +10,7 @@ import LoadingSpinner from '@/components/common/loading-spinner'
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
 import {useCustomQuery} from '@/hooks/use-custom-query'
-import {get} from '@/lib/api'
+import {goalPrograssApi} from '@/lib/goals/api'
 
 import ProgressBar from './prograss-motion'
 
@@ -42,15 +42,7 @@ export default function GoalHeader({
     /** 목표 달성 API */
     const {data: progressData, isLoading} = useCustomQuery<GoalProgress>(
         ['goals', goalId, 'progress'],
-        async () => {
-            const response = await get<GoalProgress>({
-                endpoint: `todos/progress?goalId=${goalId}`,
-                options: {
-                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                },
-            })
-            return response.data
-        },
+        async () => goalPrograssApi(Number(goalId)),
         {
             errorDisplayType: 'toast',
             mapErrorMessage: (error) => {
@@ -71,21 +63,31 @@ export default function GoalHeader({
         }
     }, [progressData, goal])
 
+    const inputReference = useRef<HTMLInputElement>(null)
+    useEffect(() => {
+        if (goalEdit) {
+            inputReference.current?.focus()
+        }
+    }, [goalEdit])
+
     if (isLoading) return <LoadingSpinner />
     return (
         <div className="mt-4 py-4 px-6 bg-white rounded">
             <div className="flex justify-between items-center">
-                <div className="flex flex-grow gap-2 items-center">
-                    <Image src="/goals/flag-goal.svg" alt="목표깃발" width={40} height={40} />
+                <div className="flex flex-grow gap-2 items-center flex-1 min-w-0">
+                    <Image src="/goals/flag-goal.svg" alt="goal-flag" width={40} height={40} />
                     {goal ? (
                         goalEdit ? (
-                            <div className="w-full flex gap-3 items-center">
+                            <form onSubmit={() => handleGoalAction('edit')} className="w-full flex gap-3 items-center">
                                 <InputStyle
                                     type="text"
-                                    placeholder="할 일의 제목을 적어주세요"
+                                    placeholder="목표를 입력해주세요"
                                     value={goalTitle}
                                     name="title"
+                                    className="max-w-full"
                                     onChange={handleInputUpdate}
+                                    maxLength={100}
+                                    ref={inputReference}
                                 />
                                 <ButtonStyle
                                     size="medium"
@@ -97,9 +99,13 @@ export default function GoalHeader({
                                 <ButtonStyle size="medium" onClick={() => setGoalEdit(false)} color="outline">
                                     취소
                                 </ButtonStyle>
-                            </div>
+                            </form>
                         ) : (
-                            <div className="text-custom_slate-800 font-semibold">{goal.title}</div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-custom_slate-800 font-semibold truncate block max-w-full">
+                                    {goal.title}
+                                </p>
+                            </div>
                         )
                     ) : (
                         <div className="text-custom_slate-800 font-semibold">loading...</div>

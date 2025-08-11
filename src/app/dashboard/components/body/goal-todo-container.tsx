@@ -5,7 +5,7 @@ import React from 'react'
 
 import LoadingSpinner from '@/components/common/loading-spinner'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
-import {get} from '@/lib/api'
+import {get} from '@/lib/common-api'
 
 import GoalListBody from './goal-list-body'
 import GoalTitleHeader from './goal-title-header'

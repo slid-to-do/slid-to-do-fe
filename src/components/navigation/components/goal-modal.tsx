@@ -9,7 +9,7 @@ import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
 import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useToast from '@/hooks/use-toast'
-import {post} from '@/lib/api'
+import {post} from '@/lib/common-api'
 import {useModalStore} from '@/store/use-modal-store'
 
 const GoalModal = () => {
@@ -74,6 +74,7 @@ const GoalModal = () => {
                     placeholder="새 목표를 작성해주세요."
                     className="w-full outline"
                     onChange={(changeEvent) => inputOnChange(changeEvent)}
+                    maxLength={100}
                 />
                 <span className=" w-full px-2 text-subBody-sm font-medium text-red-500">{inputError}</span>
             </main>

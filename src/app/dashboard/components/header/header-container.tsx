@@ -4,7 +4,7 @@ import dynamic from 'next/dynamic'
 import React from 'react'
 
 import {useCustomQuery} from '@/hooks/use-custom-query'
-import {get} from '@/lib/api'
+import {get} from '@/lib/common-api'
 
 import NewAddTodo from './new-addtodo'
 

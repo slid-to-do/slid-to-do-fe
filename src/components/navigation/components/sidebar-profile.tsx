@@ -8,7 +8,7 @@ import axios from 'axios'
 
 import {useCustomQuery} from '@/hooks/use-custom-query'
 import useToast from '@/hooks/use-toast'
-import {get} from '@/lib/api'
+import {get} from '@/lib/common-api'
 
 import type {UserType} from '@/types/user'
 
@@ -47,7 +47,7 @@ const SidebarProfile = () => {
     }
 
     return (
-        <div className="flex w-full h-auto  gap-2 mb-4 justify-between items-center ">
+        <div className="flex w-full h-auto gap-2 mb-4 justify-between items-center">
             <Image
                 src={'/sidebar/profile.svg'}
                 alt="profile"

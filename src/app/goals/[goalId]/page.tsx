@@ -7,8 +7,6 @@ import {useEffect, useState} from 'react'
 import {useQueryClient} from '@tanstack/react-query'
 import axios from 'axios'
 
-import {goalDataApi, goalDeleteApi, goalUpdateApi} from '@/app/api/goal-api'
-import {todoDeleteApi, todoUpdateApi} from '@/app/api/todo-api'
 import LoadingSpinner from '@/components/common/loading-spinner'
 import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import TwoButtonModal from '@/components/common/modal/two-buttom-modal'
@@ -19,7 +17,9 @@ import {useCustomQuery} from '@/hooks/use-custom-query'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import useModal from '@/hooks/use-modal'
 import useToast from '@/hooks/use-toast'
-import {get} from '@/lib/api'
+import {get} from '@/lib/common-api'
+import {goalDataApi, goalDeleteApi, goalUpdateApi} from '@/lib/goals/api'
+import {todoDeleteApi, todoUpdateApi} from '@/lib/todos/api'
 import {useModalStore} from '@/store/use-modal-store'
 
 import type {Goal} from '@/types/goals'
@@ -258,58 +258,57 @@ const GoalsPage = () => {
     const error = [doneIsError && doneError, notDoneIsError && notDoneError].find(Boolean)
 
     if (error) {
-        return showToast('할 일을 불러오는 중 오류가 발생했습니다.')
+        showToast('할 일을 불러오는 중 오류가 발생했습니다.')
+        return <></>
     }
 
     return (
-        <div className="w-full bg-custom_slate-100 overflow-y-auto">
-            <div className={`desktop-layout`}>
-                <div className="text-subTitle">목표</div>
-                <GoalHeader
-                    goal={goal}
-                    goalTitle={goalTitle}
-                    goalEdit={goalEdit}
-                    setGoalEdit={setGoalEdit}
-                    moreButton={moreButton}
-                    setMoreButton={setMoreButton}
-                    goalDeleteModal={goalDeleteModal}
-                    handleInputUpdate={handleInputUpdate}
-                    handleGoalAction={handleGoalAction}
+        <div className="w-full desktop-layout">
+            <div className="text-subTitle">목표</div>
+            <GoalHeader
+                goal={goal}
+                goalTitle={goalTitle}
+                goalEdit={goalEdit}
+                setGoalEdit={setGoalEdit}
+                moreButton={moreButton}
+                setMoreButton={setMoreButton}
+                goalDeleteModal={goalDeleteModal}
+                handleInputUpdate={handleInputUpdate}
+                handleGoalAction={handleGoalAction}
+            />
+
+            <Link
+                className="mt-6 py-4 px-6 bg-custom_blue-100 flex items-center justify-between rounded-xl cursor-pointer"
+                href={`/notes?goalId=${goalId}`}
+            >
+                <div className="flex gap-2 items-center">
+                    <Image src="/goals/note.svg" alt="노트" width={24} height={24} />
+                    <div className="text-subTitle">노트 모아보기</div>
+                </div>
+                <Image src="/goals/ic-arrow-right.svg" alt="노트보기 페이지 이동" width={24} height={24} />
+            </Link>
+
+            <div className="mt-6 flex flex-col lg:flex-row gap-6 justify-between">
+                <InfiniteTodoList
+                    title="To do"
+                    todos={todosNotDone}
+                    isLoading={loadingNotDone}
+                    hasMore={hasMoreNotDone}
+                    refCallback={notDoneReference}
+                    onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
+                    onDelete={(todoId: number) => handleTodoDelete(todoId)}
+                    onAddClick={todoAddModal}
                 />
 
-                <Link
-                    className="mt-6 py-4 px-6 bg-custom_blue-100 flex items-center justify-between rounded-xl cursor-pointer"
-                    href={`/notes?goalId=${goalId}`}
-                >
-                    <div className="flex gap-2 items-center">
-                        <Image src="/goals/note.svg" alt="노트" width={24} height={24} />
-                        <div className="text-subTitle">노트 모아보기</div>
-                    </div>
-                    <Image src="/goals/ic-arrow-right.svg" alt="노트보기 페이지 이동" width={24} height={24} />
-                </Link>
-
-                <div className="mt-6 flex flex-col lg:flex-row gap-6 justify-between">
-                    <InfiniteTodoList
-                        title="To do"
-                        todos={todosNotDone}
-                        isLoading={loadingNotDone}
-                        hasMore={hasMoreNotDone}
-                        refCallback={notDoneReference}
-                        onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
-                        onDelete={(todoId: number) => handleTodoDelete(todoId)}
-                        onAddClick={todoAddModal}
-                    />
-
-                    <InfiniteTodoList
-                        title="Done"
-                        todos={todosDone}
-                        isLoading={loadingDone}
-                        hasMore={haseMoreDone}
-                        refCallback={doneReference}
-                        onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
-                        onDelete={(todoId: number) => handleTodoDelete(todoId)}
-                    />
-                </div>
+                <InfiniteTodoList
+                    title="Done"
+                    todos={todosDone}
+                    isLoading={loadingDone}
+                    hasMore={haseMoreDone}
+                    refCallback={doneReference}
+                    onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
+                    onDelete={(todoId: number) => handleTodoDelete(todoId)}
+                />
             </div>
         </div>
     )

@@ -36,7 +36,7 @@ describe('Dashboard 컴포넌트', () => {
     })
 })
 
-jest.mock('@/lib/api', () => ({
+jest.mock('@/lib/common-api', () => ({
     get: jest.fn(() =>
         Promise.resolve({
             data: {

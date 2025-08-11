@@ -6,7 +6,7 @@ import React from 'react'
 import {useInfiniteQuery, useMutation, useQueryClient} from '@tanstack/react-query'
 
 import useToast from '@/hooks/use-toast'
-import {del, get, patch} from '@/lib/api'
+import {del, get, patch} from '@/lib/common-api'
 
 import TodoList from './todo-list'
 

@@ -62,8 +62,6 @@ axiosInstance.interceptors.response.use(
     },
 )
 
-const isTestEnvironment = process.env.NODE_ENV === 'test'
-
 /** 통합 HTTP 요청 함수 - axios 버전 */
 export const request = async <T>({method, endpoint, data, options}: RequestParameters): Promise<ApiResponse<T>> => {
     try {
@@ -74,8 +72,7 @@ export const request = async <T>({method, endpoint, data, options}: RequestParam
             params: {endpoint: endpoint},
         }
 
-        const sender = isTestEnvironment ? axios : axiosInstance
-        const response = await sender.request<ApiPayload<T>>(config)
+        const response = await axiosInstance.request<ApiPayload<T>>(config)
 
         return {
             data: response.data.data ?? (response.data as unknown as T),

@@ -10,7 +10,7 @@ import EditTodoModal from '@/components/common/modal/edit-todo-modal'
 import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import {useCustomQuery} from '@/hooks/use-custom-query'
 import {useModal} from '@/hooks/use-modal'
-import {del, get, patch} from '@/lib/api'
+import {del, get, patch} from '@/lib/common-api'
 
 import Filter from './components/filter'
 import TodoItem from '../../components/common/todo-item'
@@ -34,11 +34,6 @@ const Page = () => {
 
             const response = await get<TodoListDetailResponse>({
                 endpoint: `todos?${parameter.toString()}`,
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
             })
 
             return response.data
@@ -60,11 +55,6 @@ const Page = () => {
             const response = await patch<TodoListDetailResponse>({
                 endpoint: `todos/${todoId}`,
                 data: {done: newDone},
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
             })
 
             return response.data
@@ -92,11 +82,6 @@ const Page = () => {
 
             await del({
                 endpoint: `todos/${todoId}`,
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
             })
         },
         {

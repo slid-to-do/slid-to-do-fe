@@ -18,20 +18,27 @@ jest.mock('../../hooks/use-toast', () => ({
     }),
 }))
 
-import {renderHook, act, waitFor} from '@testing-library/react'
+import React from 'react'
+
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
+import {renderHook, act, waitFor} from '@testing-library/react'
+
 import {useCustomMutation} from '../../hooks/use-custom-mutation'
 
-const createWrapper = () => {
+function createWrapper() {
     const queryClient = new QueryClient({
         defaultOptions: {
             queries: {retry: false},
             mutations: {retry: false},
         },
     })
-    return ({children}: {children: React.ReactNode}) => (
+
+    const QueryClientTestWrapper: React.FC<{children: React.ReactNode}> = ({children}) => (
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     )
+    QueryClientTestWrapper.displayName = 'QueryClientTestWrapper'
+
+    return QueryClientTestWrapper
 }
 
 describe('useCustomMutation', () => {
@@ -46,8 +53,8 @@ describe('useCustomMutation', () => {
     })
 
     it('mutate 호출 후 성공 시 상태를 업데이트한다', async () => {
-        const mockFn = jest.fn().mockResolvedValue('success')
-        const {result} = renderHook(() => useCustomMutation(mockFn), {
+        const mockFunction = jest.fn().mockResolvedValue('success') // ← rename
+        const {result} = renderHook(() => useCustomMutation(mockFunction), {
             wrapper: createWrapper(),
         })
 
@@ -60,14 +67,14 @@ describe('useCustomMutation', () => {
             expect(result.current.isError).toBe(false)
             expect(result.current.data).toBe('success')
         })
-        expect(mockFn).toHaveBeenCalledWith('test')
+        expect(mockFunction).toHaveBeenCalledWith('test')
         expect(result.current.error).toBeNull()
     })
 
     it('에러가 발생했을 때 상태를 처리한다', async () => {
         const error = new Error('fail')
-        const mockFn = jest.fn().mockRejectedValue(error)
-        const {result} = renderHook(() => useCustomMutation(mockFn), {
+        const mockFunction = jest.fn().mockRejectedValue(error) // ← rename
+        const {result} = renderHook(() => useCustomMutation(mockFunction), {
             wrapper: createWrapper(),
         })
 

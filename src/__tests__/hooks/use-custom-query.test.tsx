@@ -18,17 +18,24 @@ jest.mock('../../hooks/use-toast', () => ({
     }),
 }))
 
-import {renderHook, waitFor} from '@testing-library/react'
+import React from 'react'
+
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
+import {renderHook, waitFor} from '@testing-library/react'
+
 import {useCustomQuery} from '../../hooks/use-custom-query'
 
-const createWrapper = () => {
+function createWrapper() {
     const queryClient = new QueryClient({
         defaultOptions: {queries: {retry: false}},
     })
-    return ({children}: {children: React.ReactNode}) => (
+
+    const QueryClientTestWrapper: React.FC<{children: React.ReactNode}> = ({children}) => (
         <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
     )
+    QueryClientTestWrapper.displayName = 'QueryClientTestWrapper'
+
+    return QueryClientTestWrapper
 }
 
 describe('useCustomQuery', () => {
@@ -42,7 +49,12 @@ describe('useCustomQuery', () => {
     })
 
     it('로딩 상태를 처리한다', () => {
-        const {result} = renderHook(() => useCustomQuery(['loading-key'], () => new Promise(() => {})), {
+        // 빈 함수 대신 jest.fn() 사용 → 빈 arrow function 린트 에러 방지
+        const neverResolvingPromise = new Promise<string>(() => {
+            /* intentionally never resolves */
+        })
+
+        const {result} = renderHook(() => useCustomQuery(['loading-key'], () => neverResolvingPromise), {
             wrapper: createWrapper(),
         })
 

@@ -1,28 +1,43 @@
+// src/__tests__/common/input-form.test.tsx
 import React from 'react'
+
 import {render, screen, fireEvent} from '@testing-library/react'
+
 import '@testing-library/jest-dom'
+
 import InputForm from '../../components/common/input-form'
+
+import type {Field, LoginFormData} from '@/types/login'
+import type {SubmitHandler, UseFormRegister, UseFormRegisterReturn, Path, RegisterOptions} from 'react-hook-form'
+
+const DUMMY_EMAIL = 'test@test.com'
+/* eslint-disable-next-line sonarjs/no-hardcoded-passwords */
+const DUMMY_PASSWORD = 'p@ssw0rd123'
 
 const mockFields = [
     {name: 'email', label: '이메일', type: 'text', placeholder: '이메일 입력'},
     {name: 'password', label: '비밀번호', type: 'password', placeholder: '비밀번호 입력'},
-]
+] satisfies readonly Field<LoginFormData>[]
 
-const mockRegister = jest.fn((name, options) => ({
+const mockRegisterImpl = (
+    name: Path<LoginFormData>,
+    _options?: RegisterOptions<LoginFormData, Path<LoginFormData>>,
+): UseFormRegisterReturn => ({
     name,
     onChange: jest.fn(),
     onBlur: jest.fn(),
     ref: jest.fn(),
-}))
+})
+const mockRegister = mockRegisterImpl as unknown as UseFormRegister<LoginFormData>
 
-const mockHandleSubmit = (fn: any) => (e: any) => {
-    e.preventDefault()
-    fn({email: 'test@test.com', password: '1234'})
+const mockHandleSubmit = (onValid: SubmitHandler<LoginFormData>) => (event?: React.BaseSyntheticEvent) => {
+    event?.preventDefault()
+    onValid({email: DUMMY_EMAIL, password: DUMMY_PASSWORD})
 }
 
-const mockOnSubmit = jest.fn()
+const mockOnSubmit = jest.fn<ReturnType<SubmitHandler<LoginFormData>>, Parameters<SubmitHandler<LoginFormData>>>()
 
-const mockValidationRules = {
+const mockValidationRules: Partial<Record<keyof LoginFormData, RegisterOptions<LoginFormData, Path<LoginFormData>>>> = {
     email: {required: '이메일을 입력하세요.'},
     password: {required: '비밀번호를 입력하세요.'},
 }
@@ -30,7 +45,7 @@ const mockValidationRules = {
 describe('InputForm', () => {
     it('모든 입력 필드와 라벨을 렌더링한다', () => {
         render(
-            <InputForm
+            <InputForm<LoginFormData>
                 fields={mockFields}
                 submitText="로그인"
                 bottomText="계정이 없으신가요?"
@@ -51,7 +66,7 @@ describe('InputForm', () => {
 
     it('에러가 있을 때 에러 메시지를 표시한다', () => {
         render(
-            <InputForm
+            <InputForm<LoginFormData>
                 fields={mockFields}
                 submitText="로그인"
                 bottomText="계정이 없으신가요?"
@@ -72,7 +87,7 @@ describe('InputForm', () => {
 
     it('폼 제출 시 onSubmit이 호출된다', () => {
         render(
-            <InputForm
+            <InputForm<LoginFormData>
                 fields={mockFields}
                 submitText="로그인"
                 bottomText="계정이 없으신가요?"
@@ -85,12 +100,12 @@ describe('InputForm', () => {
             />,
         )
         fireEvent.click(screen.getByRole('button', {name: '로그인'}))
-        expect(mockOnSubmit).toHaveBeenCalledWith({email: 'test@test.com', password: '1234'})
+        expect(mockOnSubmit).toHaveBeenCalledWith({email: DUMMY_EMAIL, password: DUMMY_PASSWORD}, expect.anything())
     })
 
     it('상단 설명 문구를 렌더링한다', () => {
         render(
-            <InputForm
+            <InputForm<LoginFormData>
                 fields={mockFields}
                 submitText="로그인"
                 bottomText="계정이 없으신가요?"
@@ -107,7 +122,7 @@ describe('InputForm', () => {
 
     it('하단 링크가 올바른 href 속성을 가진다', () => {
         render(
-            <InputForm
+            <InputForm<LoginFormData>
                 fields={mockFields}
                 submitText="로그인"
                 bottomText="계정이 없으신가요?"

@@ -23,6 +23,7 @@ jest.mock('next/image', () => {
 })
 
 jest.mock('@/lib/common-api')
+
 const mockedGet = api.get as jest.MockedFunction<typeof api.get>
 
 const createQueryClient = () => new QueryClient({defaultOptions: {queries: {retry: false, gcTime: 0, staleTime: 0}}})

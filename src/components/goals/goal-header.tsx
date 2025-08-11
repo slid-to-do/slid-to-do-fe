@@ -2,7 +2,7 @@
 
 import Image from 'next/image'
 import {useParams} from 'next/navigation'
-import {useEffect, useState} from 'react'
+import {useEffect, useRef, useState} from 'react'
 
 import axios from 'axios'
 
@@ -63,6 +63,13 @@ export default function GoalHeader({
         }
     }, [progressData, goal])
 
+    const inputReference = useRef<HTMLInputElement>(null)
+    useEffect(() => {
+        if (goalEdit) {
+            inputReference.current?.focus()
+        }
+    }, [goalEdit])
+
     if (isLoading) return <LoadingSpinner />
     return (
         <div className="mt-4 py-4 px-6 bg-white rounded">
@@ -71,7 +78,7 @@ export default function GoalHeader({
                     <Image src="/goals/flag-goal.svg" alt="goal-flag" width={40} height={40} />
                     {goal ? (
                         goalEdit ? (
-                            <div className="w-full flex gap-3 items-center">
+                            <form onSubmit={() => handleGoalAction('edit')} className="w-full flex gap-3 items-center">
                                 <InputStyle
                                     type="text"
                                     placeholder="목표를 입력해주세요"
@@ -80,6 +87,7 @@ export default function GoalHeader({
                                     className="max-w-full"
                                     onChange={handleInputUpdate}
                                     maxLength={100}
+                                    ref={inputReference}
                                 />
                                 <ButtonStyle
                                     size="medium"
@@ -91,7 +99,7 @@ export default function GoalHeader({
                                 <ButtonStyle size="medium" onClick={() => setGoalEdit(false)} color="outline">
                                     취소
                                 </ButtonStyle>
-                            </div>
+                            </form>
                         ) : (
                             <div className="flex-1 min-w-0">
                                 <p className="text-custom_slate-800 font-semibold truncate block max-w-full">

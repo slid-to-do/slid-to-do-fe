@@ -35,6 +35,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
     const [isCheckedLink, setIsCheckedLink] = useState<boolean>(false)
     const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [file, setFile] = useState<File | undefined>()
+    const [selectedGoalIndex, setSelectedGoalIndex] = useState<number>(-1)
 
     const fileInputReference = useRef<HTMLInputElement>(null)
 
@@ -212,7 +213,40 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                 <div className="mt-6">
                     <div className="text-base font-semibold">목표</div>
 
-                    <div className="relative px-5 py-3 rounded-md bg-custom_slate-50">
+                    <div
+                        tabIndex={0}
+                        className="relative px-5 py-3 rounded-md bg-custom_slate-50"
+                        onKeyDown={(event) => {
+                            if (event.key === 'Enter' || event.key === ' ') {
+                                event.preventDefault()
+                                if (!isDropdownOpen) {
+                                    setIsDropdownOpen(true)
+                                    setSelectedGoalIndex(-1)
+                                } else if (selectedGoalIndex >= 0) {
+                                    const selectedGoal = fetchGoals[selectedGoalIndex]
+                                    if (selectedGoal) {
+                                        setInputs((previous) => ({...previous, goalId: selectedGoal.id}))
+                                        setIsDropdownOpen(false)
+                                        setSelectedGoalIndex(-1)
+                                    }
+                                }
+                            } else if (event.key === 'ArrowDown' && isDropdownOpen) {
+                                event.preventDefault()
+                                setSelectedGoalIndex((previous) =>
+                                    previous < fetchGoals.length - 1 ? previous + 1 : 0,
+                                )
+                            } else if (event.key === 'ArrowUp' && isDropdownOpen) {
+                                event.preventDefault()
+                                setSelectedGoalIndex((previous) =>
+                                    previous > 0 ? previous - 1 : fetchGoals.length - 1,
+                                )
+                            } else if (event.key === 'Escape' && isDropdownOpen) {
+                                event.preventDefault()
+                                setIsDropdownOpen(false)
+                                setSelectedGoalIndex(-1)
+                            }
+                        }}
+                    >
                         <div
                             className={clsx(
                                 'text-custom_slate-400 cursor-pointer text-ellipsis overflow-hidden whitespace-nowrap',
@@ -220,7 +254,10 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                                     'text-custom_slate-800': inputs.goalId,
                                 },
                             )}
-                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                            onClick={() => {
+                                setIsDropdownOpen(!isDropdownOpen)
+                                setSelectedGoalIndex(-1)
+                            }}
                         >
                             {inputs.goalId
                                 ? fetchGoals.find((goal) => goal.id === inputs.goalId)?.title
@@ -244,15 +281,26 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                                                 {fetchGoals.map((goal, index) => (
                                                     <div
                                                         key={goal.id}
+                                                        tabIndex={-1}
                                                         ref={
                                                             index === fetchGoals.length - 1 ? goalReference : undefined
                                                         } // 마지막 요소에 ref 연결
-                                                        className="px-3 py-2 overflow-hidden text-sm cursor-pointer hover:bg-custom_slate-100 text-ellipsis whitespace-nowrap"
+                                                        className={clsx(
+                                                            'px-3 py-2 overflow-hidden text-sm cursor-pointer text-ellipsis whitespace-nowrap outline-none',
+                                                            {
+                                                                'bg-custom_slate-100': selectedGoalIndex === index,
+                                                                'hover:bg-custom_slate-100':
+                                                                    selectedGoalIndex !== index,
+                                                            },
+                                                        )}
                                                         onClick={(event_) => {
                                                             event_.stopPropagation()
                                                             setInputs((previous) => ({...previous, goalId: goal.id}))
                                                             setIsDropdownOpen(false)
+                                                            setSelectedGoalIndex(-1)
                                                         }}
+                                                        onMouseEnter={() => setSelectedGoalIndex(index)}
+                                                        onMouseLeave={() => setSelectedGoalIndex(-1)}
                                                     >
                                                         {goal.title}
                                                     </div>
@@ -285,6 +333,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                     <div className="text-base font-semibold">자료</div>
                     <div className="flex items-center gap-3">
                         <div
+                            tabIndex={0}
                             className={clsx(
                                 'flex items-center gap-2 p-2 font-medium rounded-lg',
                                 isCheckedFile
@@ -292,6 +341,11 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                                     : 'bg-custom_slate-100 text-custom_slate-800',
                             )}
                             onClick={() => setIsCheckedFile(!isCheckedFile)}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter') {
+                                    setIsCheckedFile(!isCheckedFile)
+                                }
+                            }}
                         >
                             <Image
                                 src={
@@ -307,6 +361,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                         </div>
 
                         <div
+                            tabIndex={0}
                             className={clsx(
                                 'flex items-center gap-2 p-2 font-medium rounded-lg',
                                 isCheckedLink
@@ -314,6 +369,11 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                                     : 'bg-custom_slate-100 text-custom_slate-800',
                             )}
                             onClick={() => setIsCheckedLink(!isCheckedLink)}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter') {
+                                    setIsCheckedLink(!isCheckedLink)
+                                }
+                            }}
                         >
                             <Image
                                 src={
@@ -341,9 +401,15 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
 
                     {isCheckedFile && (
                         <div
+                            tabIndex={0}
                             className="flex flex-col items-center justify-center gap-2 py-16 bg-custom_slate-50 rounded-xl"
                             onClick={() => {
                                 fileInputReference.current?.click()
+                            }}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter') {
+                                    fileInputReference.current?.click()
+                                }
                             }}
                         >
                             {file ? (

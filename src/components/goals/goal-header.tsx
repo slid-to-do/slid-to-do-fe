@@ -67,17 +67,19 @@ export default function GoalHeader({
     return (
         <div className="mt-4 py-4 px-6 bg-white rounded">
             <div className="flex justify-between items-center">
-                <div className="flex flex-grow gap-2 items-center">
-                    <Image src="/goals/flag-goal.svg" alt="목표깃발" width={40} height={40} />
+                <div className="flex flex-grow gap-2 items-center flex-1 min-w-0">
+                    <Image src="/goals/flag-goal.svg" alt="goal-flag" width={40} height={40} />
                     {goal ? (
                         goalEdit ? (
                             <div className="w-full flex gap-3 items-center">
                                 <InputStyle
                                     type="text"
-                                    placeholder="할 일의 제목을 적어주세요"
+                                    placeholder="목표를 입력해주세요"
                                     value={goalTitle}
                                     name="title"
+                                    className="max-w-full"
                                     onChange={handleInputUpdate}
+                                    maxLength={100}
                                 />
                                 <ButtonStyle
                                     size="medium"
@@ -91,7 +93,11 @@ export default function GoalHeader({
                                 </ButtonStyle>
                             </div>
                         ) : (
-                            <div className="text-custom_slate-800 font-semibold">{goal.title}</div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-custom_slate-800 font-semibold truncate block max-w-full">
+                                    {goal.title}
+                                </p>
+                            </div>
                         )
                     ) : (
                         <div className="text-custom_slate-800 font-semibold">loading...</div>

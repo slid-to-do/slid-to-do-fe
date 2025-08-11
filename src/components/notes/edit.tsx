@@ -17,7 +17,6 @@ import LoadingSpinner from '../common/loading-spinner'
 import MarkdownEditor from '../markdown-editor/markdown-editor'
 import ButtonStyle from '../style/button-style'
 
-
 import type {ApiError} from '@/types/api'
 
 const NoteEditCompo = ({noteId}: {noteId: string}) => {
@@ -128,7 +127,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
                         </div>
                     </div>
                     <div className="mt-4 flex items-center gap-2">
-                        <Image src="/goals/flag-goal.svg" alt="목표깃발" width={24} height={24} />
+                        <Image src="/goals/flag-goal.svg" alt="goal-flag" width={24} height={24} />
                         <h2 className="text-subTitle-sm">{data.goal.title}</h2>
                     </div>
                     <div className="mt-3 flex items-center gap-2">
@@ -147,6 +146,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
                                 onBlur={() => {
                                     if (title !== '') setIsEditingTitle(false)
                                 }}
+                                maxLength={30}
                                 className="w-full text-lg font-medium text-custom_slate-800 bg-transparent outline-none border-none"
                             />
                         ) : (

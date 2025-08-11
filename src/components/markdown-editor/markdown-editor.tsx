@@ -11,6 +11,9 @@ import {EditorContent, useEditor} from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 
 import useModal from '@/hooks/use-modal'
+import useToast from '@/hooks/use-toast'
+import {MaxLines} from '@/lib/notes/editor/max-lines'
+import {PasteLimiter} from '@/lib/notes/editor/paste-limiter'
 
 import LinkModal from '../common/modal/link-modal'
 
@@ -28,7 +31,7 @@ const MarkdownEditor = ({
     onSetLinkButton?: (link: string | undefined) => void
 }) => {
     const [internalLink, setInternalLink] = useState(linkButton ?? '')
-
+    const {showToast} = useToast()
     useEffect(() => {
         setInternalLink(linkButton ?? '')
     }, [linkButton])
@@ -47,8 +50,16 @@ const MarkdownEditor = ({
                 placeholder: '이 곳을 클릭해 노트 작성을 시작해주세요',
             }),
             CharacterCount.configure({
+                limit: 5000,
                 textCounter: (text) => [...new Intl.Segmenter().segment(text)].length,
                 wordCounter: (text) => text.split(/\s+/).filter((word) => word !== '').length,
+            }),
+            MaxLines.configure({limit: 10, allowSoftBreak: true}),
+            PasteLimiter.configure({
+                limit: 5000,
+                onTruncate: () => {
+                    showToast(`붙여넣기 최대 5000자 까지 허용됩니다`)
+                },
             }),
         ],
         content: '',
@@ -75,7 +86,10 @@ const MarkdownEditor = ({
     }
 
     return (
-        <div className={`relative max-w-screen min-w-64 min-h-64 ${className}`}>
+        <div
+            onClick={() => editorInstance?.commands.focus('end')}
+            className={`relative max-w-full min-w-64 min-h-64 cursor-pointer ${className}`}
+        >
             <div className="text-xs font-medium">
                 글자 수 : {editorInstance.storage.characterCount.characters()} | 단어 수 :{' '}
                 {editorInstance.storage.characterCount.words()}
@@ -107,7 +121,9 @@ const MarkdownEditor = ({
             )}
 
             <div className="w-full mt-2 text-body text-custom_slate-700">
-                <EditorContent editor={editorInstance} className="max-w-full" />
+                <div className="max-h-56 overflow-y-auto rounded">
+                    <EditorContent editor={editorInstance} className="max-w-full" />
+                </div>
             </div>
 
             <Toolbar editorInstance={editorInstance} linkButton={linkButton} onSetLinkButton={onSetLinkButton} />

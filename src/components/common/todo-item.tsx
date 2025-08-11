@@ -10,7 +10,7 @@ import SideModal from './modal/side-modal'
 
 import type {TodoResponse} from '@/types/todos'
 
-export default function TodoItem({
+const TodoItem = ({
     todoDetail,
     onToggle,
     onEdit,
@@ -22,7 +22,7 @@ export default function TodoItem({
     onEdit?: (todoId: number) => void
     onDelete?: (todoId: number) => void
     isGoal?: boolean
-}) {
+}) => {
     const [isGoalTitleOpen, setIsGoalTitleOpen] = useState<boolean>(false)
     const [isContextMenuOpen, setIsContextMenuOpen] = useState<boolean>(false)
 
@@ -177,3 +177,5 @@ export default function TodoItem({
         </div>
     )
 }
+
+export default TodoItem

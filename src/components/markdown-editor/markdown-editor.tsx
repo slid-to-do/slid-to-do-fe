@@ -15,6 +15,7 @@ import useToast from '@/hooks/use-toast'
 import {MaxLines} from '@/lib/notes/editor/max-lines'
 import {PasteLimiter} from '@/lib/notes/editor/paste-limiter'
 
+
 import LinkModal from '../common/modal/link-modal'
 
 const MarkdownEditor = ({
@@ -131,7 +132,7 @@ const MarkdownEditor = ({
     )
 }
 
-function Toolbar({
+const Toolbar = ({
     editorInstance,
     linkButton,
     onSetLinkButton,
@@ -139,7 +140,7 @@ function Toolbar({
     editorInstance: ReturnType<typeof useEditor>
     linkButton?: string | undefined
     onSetLinkButton?: (link: string | undefined) => void
-}) {
+}) => {
     /** 링크 modal */
     const {openModal, closeModal} = useModal(
         () => (
@@ -226,5 +227,6 @@ function Toolbar({
         </div>
     )
 }
+
 
 export default MarkdownEditor

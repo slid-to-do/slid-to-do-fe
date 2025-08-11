@@ -30,7 +30,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
     const router = useRouter()
 
     /** 노트 단일 조회 통신 */
-    const {data} = useCustomQuery<NoteItemResponse>(['noteEdit', noteId], () => noteDetailApi(Number(noteId)), {
+    const {data} = useCustomQuery<NoteItemResponse>(['noteDetail', noteId], () => noteDetailApi(Number(noteId)), {
         enabled: !!noteId,
         errorDisplayType: 'toast',
         mapErrorMessage: (error) => {
@@ -100,7 +100,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
             onSuccess: (successData) => {
                 showToast('수정이 완료되었습니다!')
                 router.push(`/notes?goalId=${successData.goal.id}`)
-                queryClient.invalidateQueries({queryKey: ['noteEdit', noteId]})
+                queryClient.invalidateQueries({queryKey: ['noteDetail', noteId]})
             },
         },
     )

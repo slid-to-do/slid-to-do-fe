@@ -4,7 +4,7 @@ import {AnimatePresence} from 'motion/react'
 
 import {useModalStore} from '@/store/use-modal-store'
 
-export default function ModalProvider() {
+const ModalProvider = () => {
     const {currentModal: modal} = useModalStore()
 
     return (
@@ -13,3 +13,5 @@ export default function ModalProvider() {
         </div>
     )
 }
+
+export default ModalProvider

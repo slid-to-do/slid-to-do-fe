@@ -180,7 +180,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
     }
 
     return (
-        <div className="absolute p-6 transform bg-white -translate-1/2 top-1/2 left-1/2 md:rounded-xl md:h-auto w-full h-full md:w-lg flex flex-col justify-between">
+        <div className="absolute flex flex-col justify-between w-full h-full p-6 transform bg-white -translate-1/2 top-1/2 left-1/2 md:rounded-xl md:h-auto md:w-lg">
             <div>
                 <div className="flex items-center justify-between">
                     <div className="text-lg font-bold">할 일 생성</div>
@@ -211,11 +211,14 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                 <div className="mt-6">
                     <div className="text-base font-semibold">목표</div>
 
-                    <div className="relative px-5 py-3 bg-custom_slate-50 rounded-md">
+                    <div className="relative px-5 py-3 rounded-md bg-custom_slate-50">
                         <div
-                            className={clsx('text-custom_slate-400 cursor-pointer', {
-                                'text-custom_slate-800': inputs.goalId,
-                            })}
+                            className={clsx(
+                                'text-custom_slate-400 cursor-pointer text-ellipsis overflow-hidden whitespace-nowrap',
+                                {
+                                    'text-custom_slate-800': inputs.goalId,
+                                },
+                            )}
                             onClick={() => setIsDropdownOpen(!isDropdownOpen)}
                         >
                             {inputs.goalId
@@ -224,7 +227,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                         </div>
 
                         {isDropdownOpen && (
-                            <div className="absolute left-0 w-full top-12 h-72 overflow-auto bg-white border border-gray-200 rounded-md shadow-lg z-10">
+                            <div className="absolute left-0 z-10 w-full overflow-auto bg-white border border-gray-200 rounded-md shadow-lg top-12 h-72">
                                 {loadingGoals && fetchGoals.length === 0 ? (
                                     <div className="flex items-center justify-center w-full h-full text-sm text-custom_slate-400">
                                         로딩 중...
@@ -243,7 +246,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                                                         ref={
                                                             index === fetchGoals.length - 1 ? goalReference : undefined
                                                         } // 마지막 요소에 ref 연결
-                                                        className="px-3 py-2 text-sm cursor-pointer hover:bg-custom_slate-100"
+                                                        className="px-3 py-2 overflow-hidden text-sm cursor-pointer hover:bg-custom_slate-100 text-ellipsis whitespace-nowrap"
                                                         onClick={(event_) => {
                                                             event_.stopPropagation()
                                                             setInputs((previous) => ({...previous, goalId: goal.id}))

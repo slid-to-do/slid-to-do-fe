@@ -1,13 +1,26 @@
 import React from 'react'
-import {render, screen, waitFor} from '@testing-library/react'
+
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
-import * as api from '@/lib/common-api'
+import {render, screen, waitFor} from '@testing-library/react'
 
 import Header from '@/app/dashboard/components/header/header-container'
+import * as api from '@/lib/common-api'
 
-// dynamic import 모킹 (Progress 컴포넌트 SSR false)
-jest.mock('next/dynamic', () => () => (props: any) => <div data-testid="mock-progress" {...props} />)
-jest.mock('next/image', () => (props: any) => <img {...props} alt={props.alt || 'image'} />)
+jest.mock('next/dynamic', () => {
+    const MockProgressComponent = (properties: Record<string, unknown>) => (
+        <div data-testid="mock-progress" {...properties} />
+    )
+    MockProgressComponent.displayName = 'MockProgressComponent'
+    return () => MockProgressComponent
+})
+
+jest.mock('next/image', () => {
+    const MockImageComponent = (properties: React.ImgHTMLAttributes<HTMLImageElement>) => (
+        <img {...properties} alt={properties.alt || 'image'} />
+    )
+    MockImageComponent.displayName = 'MockImageComponent'
+    return MockImageComponent
+})
 
 jest.mock('@/lib/common-api')
 const mockedGet = api.get as jest.MockedFunction<typeof api.get>

@@ -1,8 +1,10 @@
 import React from 'react'
+
 import {QueryClient, QueryClientProvider} from '@tanstack/react-query'
 import {render, screen, waitFor} from '@testing-library/react'
-import * as api from '@/lib/common-api'
+
 import GoalTodoContainer from '@/app/dashboard/components/body/goal-todo-container'
+import * as api from '@/lib/common-api'
 
 jest.mock('@/lib/common-api')
 const mockedGet = api.get as jest.MockedFunction<typeof api.get>
@@ -37,7 +39,12 @@ describe('GoalTodoContainer', () => {
     })
 
     it('로딩 중일 때 스피너가 표시된다', async () => {
-        mockedGet.mockImplementationOnce(() => new Promise(() => {}))
+        mockedGet.mockImplementationOnce(
+            () =>
+                new Promise(() => {
+                    /*로딩*/
+                }),
+        )
         const {container} = renderWithClient(<GoalTodoContainer />)
         expect(container.querySelector('.animate-spin')).toBeInTheDocument()
     })

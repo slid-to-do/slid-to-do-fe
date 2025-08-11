@@ -3,8 +3,9 @@
 import Image from 'next/image'
 import React from 'react'
 
-import {useInfiniteQuery, useMutation, useQueryClient} from '@tanstack/react-query'
+import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query'
 
+import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useToast from '@/hooks/use-toast'
 import {del, get, patch} from '@/lib/api'
 
@@ -29,9 +30,6 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
                 nextCursor: number | undefined
             }>({
                 endpoint,
-                options: {
-                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                },
             })
 
             return {
@@ -79,65 +77,57 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
     const todosDone = doneData?.pages.flatMap((page) => page.data) ?? []
 
     /**할일 checkbox update */
-    const updateTodo = useMutation({
-        mutationFn: async ({todoId, newDone}: {todoId: number; newDone: boolean}) => {
+    const updateTodo = useCustomMutation(
+        async ({todoId, newDone}: {todoId: number; newDone: boolean}) => {
             const response = await patch<TodoResponse>({
                 endpoint: `todos/${todoId}`,
                 data: {done: newDone},
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
             })
             return response.data
         },
-        onSuccess: (_, value) => {
-            queryClient.invalidateQueries({queryKey: ['todo']})
-            queryClient.invalidateQueries({queryKey: ['allProgress']})
-            queryClient.invalidateQueries({queryKey: ['newTodo']})
-            queryClient.invalidateQueries({queryKey: ['todo', 'notDone', goalId]})
-            queryClient.invalidateQueries({queryKey: ['todo', 'done', goalId]})
-            queryClient.invalidateQueries({queryKey: ['todos', goalId, 'dashProgress']})
-            if (value.newDone) showToast('할 일이 완료되었습니다.', {type: 'info'})
-            else showToast('할 일이 다시 추가되었습니다.', {type: 'info'})
+        {
+            onSuccess: (_, value) => {
+                queryClient.invalidateQueries({queryKey: ['todo']})
+                queryClient.invalidateQueries({queryKey: ['allProgress']})
+                queryClient.invalidateQueries({queryKey: ['newTodo']})
+                queryClient.invalidateQueries({queryKey: ['todo', 'notDone', goalId]})
+                queryClient.invalidateQueries({queryKey: ['todo', 'done', goalId]})
+                queryClient.invalidateQueries({queryKey: ['todos', goalId, 'dashProgress']})
+                if (value.newDone) showToast('할 일이 완료되었습니다.', {type: 'info'})
+                else showToast('할 일이 다시 추가되었습니다.', {type: 'info'})
+            },
         },
-    })
+    )
 
     /**할일 삭제 */
-    const deleteTodo = useMutation({
-        mutationFn: async (todoId: number) => {
+    const deleteTodo = useCustomMutation(
+        async (todoId: number) => {
             if (!confirm('정말로 이 할 일을 삭제하시겠습니까?')) return
 
             const response = await del({
                 endpoint: `todos/${todoId}`,
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
             })
             return response
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['todo']})
-            queryClient.invalidateQueries({queryKey: ['allProgress']})
-            queryClient.invalidateQueries({queryKey: ['newTodo']})
-            queryClient.invalidateQueries({queryKey: ['todo', 'notDone', goalId]})
-            queryClient.invalidateQueries({queryKey: ['todo', 'done', goalId]})
-            queryClient.invalidateQueries({queryKey: ['todos', 'progress']})
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: ['todo']})
+                queryClient.invalidateQueries({queryKey: ['allProgress']})
+                queryClient.invalidateQueries({queryKey: ['newTodo']})
+                queryClient.invalidateQueries({queryKey: ['todo', 'notDone', goalId]})
+                queryClient.invalidateQueries({queryKey: ['todo', 'done', goalId]})
+                queryClient.invalidateQueries({queryKey: ['todos', 'progress']})
+            },
         },
-    })
+    )
 
-    // 더보기 함수 - 두 리스트 모두 추가 로드
     const handleLoadMore = () => {
         fetchNextNotDone()
         fetchNextDone()
     }
 
-    // 둘 중 하나라도 더 불러올 데이터가 있으면 더보기 버튼 표시
     const hasMoreData = hasNextNotDone || hasNextDone
-    // 둘 중 하나라도 로딩 중이면 로딩 상태 표시
+
     const isLoadingMore = isFetchingNextPageNotDone || isFetchingNextPageDone
 
     return (

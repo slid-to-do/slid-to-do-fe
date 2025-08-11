@@ -359,7 +359,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
             <div className="mt-6">
                 <ButtonStyle
                     size="full"
-                    disabled={!inputs.title.trim() || !inputs.goalId}
+                    disabled={!inputs.title.trim() || !inputs.goalId || submitForm.isPending}
                     onClick={() => submitForm.mutate()}
                 >
                     확인

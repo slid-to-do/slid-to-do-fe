@@ -355,7 +355,11 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
 
             {/* 확인 버튼 */}
             <div className="mt-6">
-                <ButtonStyle size="full" disabled={!inputs.title.trim() || !inputs.goalId} onClick={handleSubmit}>
+                <ButtonStyle
+                    size="full"
+                    disabled={!inputs.title.trim() || !inputs.goalId || submitForm.isPending}
+                    onClick={handleSubmit}
+                >
                     수정하기
                 </ButtonStyle>
             </div>

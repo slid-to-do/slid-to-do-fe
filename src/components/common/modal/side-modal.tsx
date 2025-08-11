@@ -13,7 +13,7 @@ import LoadingSpinner from '../loading-spinner'
 
 import type {NoteItemResponse} from '@/types/notes'
 
-export default function SideModal({noteId}: {noteId: number}) {
+const SideModal = ({noteId}: {noteId: number}) => {
     const {data, isLoading} = useCustomQuery<NoteItemResponse>(['noteDetail', noteId], () => noteDetailApi(noteId), {
         errorDisplayType: 'toast',
         mapErrorMessage: (error_) => {
@@ -80,3 +80,5 @@ export default function SideModal({noteId}: {noteId: number}) {
         </div>
     )
 }
+
+export default SideModal

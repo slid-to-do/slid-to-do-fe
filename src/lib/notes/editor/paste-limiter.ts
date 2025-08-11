@@ -1,4 +1,3 @@
-// extensions/pasteLimiter.ts
 import {Extension} from '@tiptap/core'
 import {Plugin} from 'prosemirror-state'
 
@@ -9,10 +8,6 @@ export interface PasteLimiterOptions {
     onTruncate?: (info: {before: number; pasted: number; allowed: number}) => void
 }
 
-/**
- * 리치 포맷을 유지하지 않고 '텍스트'만 허용하는 간단한 제한 버전입니다.
- * (리치 유지가 필요하면 handlePaste에서 HTML 파싱 로직을 확장하세요)
- */
 export const PasteLimiter = Extension.create<PasteLimiterOptions>({
     name: 'pasteLimiter',
     addOptions() {

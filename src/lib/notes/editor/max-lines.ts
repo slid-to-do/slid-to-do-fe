@@ -1,4 +1,3 @@
-// extensions/maxLines.ts
 import {Extension} from '@tiptap/core'
 
 export interface MaxLinesOptions {

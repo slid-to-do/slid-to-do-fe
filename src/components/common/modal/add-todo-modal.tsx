@@ -286,7 +286,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                     <div className="flex items-center gap-3">
                         <div
                             className={clsx(
-                                'flex items-center gap-2 p-2 font-medium rounded-lg',
+                                'flex items-center gap-2 p-2 font-medium rounded-lg cursor-pointer',
                                 isCheckedFile
                                     ? 'bg-custom_slate-900 text-white'
                                     : 'bg-custom_slate-100 text-custom_slate-800',
@@ -308,7 +308,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
 
                         <div
                             className={clsx(
-                                'flex items-center gap-2 p-2 font-medium rounded-lg',
+                                'flex items-center gap-2 p-2 font-medium rounded-lg cursor-pointer',
                                 isCheckedLink
                                     ? 'bg-custom_slate-900 text-white'
                                     : 'bg-custom_slate-100 text-custom_slate-800',
@@ -341,7 +341,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
 
                     {isCheckedFile && (
                         <div
-                            className="flex flex-col items-center justify-center gap-2 py-16 bg-custom_slate-50 rounded-xl"
+                            className="flex flex-col items-center justify-center gap-2 py-16 bg-custom_slate-50 rounded-xl cursor-pointer"
                             onClick={() => {
                                 fileInputReference.current?.click()
                             }}

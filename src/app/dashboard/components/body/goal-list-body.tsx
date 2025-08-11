@@ -13,7 +13,7 @@ import TodoList from './todo-list'
 
 import type {TodoResponse} from '@/types/todos'
 
-const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
+const GoalListBody = ({goalId}: {goalId: number | undefined}) => {
     const queryClient = useQueryClient()
     const {showToast} = useToast()
 

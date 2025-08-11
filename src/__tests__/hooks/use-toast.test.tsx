@@ -1,9 +1,20 @@
 import {renderHook, act} from '@testing-library/react'
-import useToast from '../../hooks/use-toast'
 import {toast} from 'react-toastify'
 
+import useToast from '../../hooks/use-toast'
+
+type ToastFunctionMock = jest.Mock & {
+    clearWaitingQueue: jest.Mock
+    dismiss: jest.Mock
+    isActive: jest.Mock
+    info: jest.Mock
+    success: jest.Mock
+    error: jest.Mock
+    warning: jest.Mock
+}
+
 jest.mock('react-toastify', () => {
-    const mockToast: any = jest.fn()
+    const mockToast = jest.fn() as ToastFunctionMock
     mockToast.clearWaitingQueue = jest.fn()
     mockToast.dismiss = jest.fn()
     mockToast.isActive = jest.fn()

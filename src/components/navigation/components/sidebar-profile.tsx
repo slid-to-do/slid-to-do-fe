@@ -4,38 +4,33 @@ import Image from 'next/image'
 import {useRouter} from 'next/navigation'
 import React from 'react'
 
-import {useQuery} from '@tanstack/react-query'
 import axios from 'axios'
 
+import {useCustomQuery} from '@/hooks/use-custom-query'
 import useToast from '@/hooks/use-toast'
 import {get} from '@/lib/common-api'
 
 import type {UserType} from '@/types/user'
 
+const getProfile = async (): Promise<UserType> => {
+    const response = await get<UserType>({endpoint: `user`})
+    return response.data
+}
+
 // 로고 및 유저 정보 Component
 const SidebarProfile = () => {
     const router = useRouter()
     const {showToast} = useToast()
-    const {data: userData} = useQuery({
-        queryKey: ['userData'],
-        queryFn: async () => {
-            try {
-                const response = await get<UserType>({
-                    endpoint: `user`,
-                    options: {
-                        headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                    },
-                })
+    const {data: userData} = useCustomQuery<UserType>(['userData'], async () => getProfile(), {
+        errorDisplayType: 'toast',
+        mapErrorMessage: (error) => {
+            const typedError = error as {message?: string; response?: {data?: {message?: string}}}
 
-                return {
-                    data: response.data,
-                }
-            } catch (error: unknown) {
-                if (error instanceof Error) {
-                    throw error
-                }
-                throw new Error(String(error))
+            if (axios.isAxiosError(error)) {
+                return error.response?.data.message || '서버 오류가 발생했습니다.'
             }
+
+            return typedError.message || '알 수 없는 오류가 발생했습니다.'
         },
     })
     const handleLogout = async () => {
@@ -60,10 +55,10 @@ const SidebarProfile = () => {
                 height={24}
                 className=" w-16 h-16 p-2 rounded-full mobile:w-5 mobile:h-5 mobile:p-0"
             />
-            <div className="w-full flex-1 min-w-0  h-auto mobile:flex mobile: justify-between mobile:items-end ">
-                <div className="flex-1 min-w-0 w-full">
-                    <p className="text-sm font-medium truncate">{userData?.data.name}</p>
-                    <p className="text-sm font-medium truncate">{userData?.data.email}</p>
+            <div className="w-full h-auto mobile:flex mobile: justify-between mobile:items-end">
+                <div className="flex flex-col">
+                    <p className="text-sm font-medium overflow-x-hidden w-full">{userData?.name}</p>
+                    <p className="text-sm font-medium overflow-x-hidden w-full">{userData?.email}</p>
                 </div>
 
                 <button className="text-xs text-gray-500 hover:underline" onClick={handleLogout}>

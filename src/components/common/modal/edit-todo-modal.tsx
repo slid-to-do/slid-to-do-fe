@@ -194,6 +194,7 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
                         value={inputs.title}
                         name="title"
                         onChange={handleInputUpdate}
+                        maxLength={30}
                     />
                 </div>
 

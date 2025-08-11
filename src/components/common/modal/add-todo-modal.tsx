@@ -203,6 +203,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                         value={inputs.title}
                         name="title"
                         onChange={handleInputUpdate}
+                        maxLength={30}
                     />
                 </div>
 

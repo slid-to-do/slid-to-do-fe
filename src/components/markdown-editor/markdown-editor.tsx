@@ -114,7 +114,7 @@ const MarkdownEditor = ({
                             setInternalLink('')
                             onSetLinkButton?.(undefined)
                         }}
-                        className="shrink-0 ml-2"
+                        className="shrink-0 ml-2 cuesor-pointer"
                     >
                         <Image src="/todos/ic-delete.svg" alt="삭제" width={24} height={24} />
                     </button>

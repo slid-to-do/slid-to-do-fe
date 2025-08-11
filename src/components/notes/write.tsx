@@ -221,7 +221,7 @@ const NoteWriteCompo = ({
                             alt="delete"
                             width={24}
                             height={24}
-                            className="w-6 h-6"
+                            className="w-6 h-6 cursor-pointer"
                             onClick={() => setSaveToastOpen(false)}
                         />
                         <div className="text-custom_blue-500 text-sm font-semibold">

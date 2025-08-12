@@ -10,12 +10,15 @@ import clsx from 'clsx'
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
 import {useCustomMutation} from '@/hooks/use-custom-mutation'
-import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
+import {useCustomQuery} from '@/hooks/use-custom-query'
 import useToast from '@/hooks/use-toast'
-import {get, patch} from '@/lib/common-api'
+import {patch} from '@/lib/common-api'
+import {goalListApi} from '@/lib/goals/api'
 import {useModalStore} from '@/store/use-modal-store'
 
-import type {Goal, GoalResponse} from '@/types/goals'
+import LoadingSpinner from '../loading-spinner'
+
+import type {GoalsListResponse} from '@/types/goals'
 import type {PatchTodoRequest, PostTodoRequest, TodoResponse} from '@/types/todos'
 
 const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
@@ -28,12 +31,9 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
         linkUrl: todoDetail.linkUrl || '',
     })
 
-    const [selectedGoal, setSelectedGoal] = useState<Goal>(todoDetail.goal)
     const [isCheckedFile, setIsCheckedFile] = useState<boolean>(!!todoDetail.fileUrl)
     const [isCheckedLink, setIsCheckedLink] = useState<boolean>(!!todoDetail.linkUrl)
-    const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [file, setFile] = useState<File | undefined>()
-    const [selectedGoalIndex, setSelectedGoalIndex] = useState<number>(-1)
 
     const fileInputReference = useRef<HTMLInputElement>(null)
 
@@ -41,34 +41,17 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
 
     const {showToast} = useToast()
 
-    // 무한 스크롤 목표 데이터
-    const getGoalsData = async (cursor: number | undefined) => {
-        try {
-            const urlParameter = cursor === undefined ? '' : `&cursor=${cursor}`
-            const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
-                endpoint: `goals?size=3&sortOrder=newest${urlParameter}`,
-            })
+    const {data: goals, isLoading: isLoadingGoals} = useCustomQuery<GoalsListResponse>(['goals'], goalListApi, {
+        errorDisplayType: 'toast',
+        mapErrorMessage: (error) => {
+            const typedError = error as {message?: string; response?: {data?: {message?: string}}}
 
-            return {
-                data: response.data.goals,
-                nextCursor: response.data.nextCursor,
+            if (axios.isAxiosError(error)) {
+                return error.response?.data.message || '서버 오류가 발생했습니다.'
             }
-        } catch (fetchError) {
-            if (fetchError instanceof Error) {
-                throw fetchError
-            }
-            throw new Error(String(fetchError))
-        }
-    }
 
-    const {
-        data: fetchGoals,
-        ref: goalReference,
-        isLoading: loadingGoals,
-        hasMore: hasMoreGoals,
-    } = useInfiniteScrollQuery<GoalResponse>({
-        queryKey: ['myGoals'],
-        fetchFn: getGoalsData,
+            return typedError.message || '알 수 없는 오류가 발생했습니다.'
+        },
     })
 
     const uploadFileMutation = useCustomMutation<string>(
@@ -199,123 +182,27 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
                     />
                 </div>
 
-                {/* 목표 드롭다운 - 무한 스크롤 */}
+                {/* 목표 드롭다운 */}
                 <div className="mt-6">
                     <div className="text-base font-semibold">목표</div>
-
-                    <div
-                        tabIndex={0}
-                        className="relative px-5 py-3 rounded-md bg-custom_slate-50"
-                        onKeyDown={(event) => {
-                            if (event.key === 'Enter' || event.key === ' ') {
-                                event.preventDefault()
-                                if (!isDropdownOpen) {
-                                    setIsDropdownOpen(true)
-                                    setSelectedGoalIndex(-1)
-                                } else if (selectedGoalIndex >= 0) {
-                                    const selectedGoalItem = fetchGoals[selectedGoalIndex]
-                                    if (selectedGoalItem) {
-                                        setInputs((previous) => ({...previous, goalId: selectedGoalItem.id}))
-                                        setSelectedGoal(selectedGoalItem)
-                                        setIsDropdownOpen(false)
-                                        setSelectedGoalIndex(-1)
-                                    }
-                                }
-                            } else if (event.key === 'ArrowDown' && isDropdownOpen) {
-                                event.preventDefault()
-                                setSelectedGoalIndex((previous) =>
-                                    previous < fetchGoals.length - 1 ? previous + 1 : 0,
-                                )
-                            } else if (event.key === 'ArrowUp' && isDropdownOpen) {
-                                event.preventDefault()
-                                setSelectedGoalIndex((previous) =>
-                                    previous > 0 ? previous - 1 : fetchGoals.length - 1,
-                                )
-                            } else if (event.key === 'Escape' && isDropdownOpen) {
-                                event.preventDefault()
-                                setIsDropdownOpen(false)
-                                setSelectedGoalIndex(-1)
-                            }
-                        }}
-                    >
-                        <div
-                            className={clsx(
-                                'text-custom_slate-400 cursor-pointer text-ellipsis overflow-hidden whitespace-nowrap',
-                                {
-                                    'text-custom_slate-800': inputs.goalId,
-                                },
-                            )}
-                            onClick={() => {
-                                setIsDropdownOpen(!isDropdownOpen)
-                                setSelectedGoalIndex(-1)
-                            }}
+                    {isLoadingGoals ? (
+                        <LoadingSpinner />
+                    ) : (
+                        <select
+                            value={inputs.goalId || ''}
+                            onChange={(event) => setInputs({...inputs, goalId: Number(event.target.value)})}
+                            className="w-full px-5 py-3 rounded-md bg-custom_slate-50 appearance-none"
                         >
-                            {inputs.goalId ? selectedGoal.title : '목표를 선택해주세요'}
-                        </div>
-
-                        {isDropdownOpen && (
-                            <div className="absolute left-0 z-10 w-full overflow-auto bg-white border border-gray-200 rounded-md shadow-lg top-12 h-72">
-                                {loadingGoals && fetchGoals.length === 0 ? (
-                                    <div className="flex items-center justify-center w-full h-full text-sm text-custom_slate-400">
-                                        로딩 중...
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col">
-                                        {fetchGoals.length === 0 ? (
-                                            <div className="px-3 py-2 text-sm text-custom_slate-400">
-                                                등록된 목표가 없어요
-                                            </div>
-                                        ) : (
-                                            <>
-                                                {fetchGoals.map((goal, index) => (
-                                                    <div
-                                                        key={goal.id}
-                                                        tabIndex={-1}
-                                                        ref={
-                                                            index === fetchGoals.length - 1 ? goalReference : undefined
-                                                        }
-                                                        className={clsx(
-                                                            'px-3 py-2 overflow-hidden text-sm cursor-pointer text-ellipsis whitespace-nowrap outline-none',
-                                                            {
-                                                                'bg-custom_slate-100': selectedGoalIndex === index,
-                                                                'hover:bg-custom_slate-100':
-                                                                    selectedGoalIndex !== index,
-                                                            },
-                                                        )}
-                                                        onClick={(event_) => {
-                                                            event_.stopPropagation()
-                                                            setInputs((previous) => ({...previous, goalId: goal.id}))
-                                                            setSelectedGoal(goal)
-                                                            setIsDropdownOpen(false)
-                                                            setSelectedGoalIndex(-1)
-                                                        }}
-                                                        onMouseEnter={() => setSelectedGoalIndex(index)}
-                                                        onMouseLeave={() => setSelectedGoalIndex(-1)}
-                                                    >
-                                                        {goal.title}
-                                                    </div>
-                                                ))}
-
-                                                {/* 로딩 인디케이터 */}
-                                                {loadingGoals && (
-                                                    <div className="px-3 py-2 text-sm text-center text-custom_slate-400">
-                                                        더 불러오는 중...
-                                                    </div>
-                                                )}
-
-                                                {/* 더 이상 데이터가 없을 때 */}
-                                                {!hasMoreGoals && fetchGoals.length > 0 && (
-                                                    <div className="px-3 py-2 text-sm text-center text-custom_slate-400">
-                                                        모든 목표를 불러왔습니다
-                                                    </div>
-                                                )}
-                                            </>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
+                            <option value="" disabled>
+                                목표를 선택하세요
+                            </option>
+                            {goals?.goals?.map((goal) => (
+                                <option key={goal.id} value={goal.id}>
+                                    {goal.title}
+                                </option>
+                            ))}
+                        </select>
+                    )}
                 </div>
 
                 {/* 자료 */}

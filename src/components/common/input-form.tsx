@@ -20,7 +20,10 @@ const InputForm = <T extends Record<string, unknown>>({
     onSubmit,
     validationRules,
     isValid,
+    isLoading,
 }: InputFormProperties<T>) => {
+    const isDisabled = isLoading || isValid === false
+
     return (
         <div className="flex flex-col items-center justify-center bg-white px-4">
             <div className="tablet:hidden mobile:hidden relative w-[260px] h-[48px] mb-2 text-center">
@@ -52,8 +55,8 @@ const InputForm = <T extends Record<string, unknown>>({
                     type="submit"
                     size="full"
                     color="default"
-                    disabled={isValid === false}
-                    aria-disabled={isValid === false}
+                    disabled={isDisabled}
+                    aria-disabled={isDisabled}
                     className="mt-6"
                 >
                     {submitText}

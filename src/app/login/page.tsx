@@ -78,6 +78,7 @@ const LoginPage = () => {
                     register={register}
                     errors={errors}
                     isValid={isValid}
+                    isLoading={loading}
                     validationRules={{
                         email: {
                             required: '이메일은 필수입니다.',

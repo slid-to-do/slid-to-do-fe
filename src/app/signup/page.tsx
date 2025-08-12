@@ -48,6 +48,7 @@ const SignPage = () => {
             register={register}
             errors={errors}
             isValid={isValid}
+            isLoading={loading}
             validationRules={{
                 name: {
                     required: '이름은 필수입니다.',

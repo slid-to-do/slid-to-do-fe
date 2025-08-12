@@ -81,7 +81,7 @@ const NoteWritePage = () => {
     if (isAnyLoading) return <LoadingSpinner />
 
     return (
-        <div className="flex flex-col w-full min-h-screen desktop-layout">
+        <div className="flex flex-col w-full min-h-screen desktop-layout min-w-0">
             <div className="mt-6 w-full">
                 {isEdit ? (
                     <NoteEditCompo noteId={noteId!} />

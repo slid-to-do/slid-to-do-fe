@@ -72,7 +72,7 @@ const SideModal = ({noteId}: {noteId: number}) => {
                     )}
 
                     <p
-                        className="text-custom_slate-700 prose"
+                        className="text-custom_slate-700 prose break-words"
                         dangerouslySetInnerHTML={{__html: data?.content || ''}}
                     />
                 </>

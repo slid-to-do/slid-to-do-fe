@@ -34,19 +34,42 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_BASE_URL
 /** axios 인스턴스 생성 */
 const axiosInstance = axios.create({
     baseURL: API_BASE_URL,
+    withCredentials: true,
     headers: {
         'Content-Type': 'application/json',
     },
 })
 
+axiosInstance.interceptors.response.use(
+    (response) => response,
+    async (error) => {
+        if (error.response.status === 401 && !error.config._retry) {
+            error.config._retry = true
+            try {
+                await axios.post(
+                    '/api/auth/refresh',
+                    {},
+                    {
+                        withCredentials: true,
+                    },
+                )
+                return axiosInstance(error.config)
+            } catch (refreshError) {
+                return refreshError
+            }
+        }
+        throw error
+    },
+)
+
 /** 통합 HTTP 요청 함수 - axios 버전 */
-const request = async <T>({method, endpoint, data, options}: RequestParameters): Promise<ApiResponse<T>> => {
+export const request = async <T>({method, endpoint, data, options}: RequestParameters): Promise<ApiResponse<T>> => {
     try {
         const config: AxiosRequestConfig = {
-            url: endpoint,
             method,
             data,
             headers: options?.headers,
+            params: {endpoint: endpoint},
         }
 
         const response = await axiosInstance.request<ApiPayload<T>>(config)
@@ -57,15 +80,23 @@ const request = async <T>({method, endpoint, data, options}: RequestParameters):
             message: response.data.message,
         }
     } catch (error) {
-        if (axios.isAxiosError(error)) {
-            const status = error.response?.status ?? 500
-            const message = error.response?.data?.message || error.message || '에러 발생'
-            const customError = new Error(message) as Error & {status: number}
-            customError.status = status
-            throw customError
-        }
+        let status = 500
+        let message = '에러 발생'
 
-        throw error
+        /** axios 에러일 경우: 서버 응답(response)에 접근 가능 */
+        if (axios.isAxiosError(error)) {
+            status = error.response?.status ?? 500
+            message = error.response?.data?.message || error.message || '에러 발생'
+            /** 일반 JS 에러일 경우: Error 객체의 message 사용 */
+        } else if (error instanceof Error) {
+            const customError = error as Error & {status?: number}
+            message = customError.message
+            status = customError.status ?? 500
+        }
+        const customError = new Error(message) as Error & {status: number}
+        customError.status = status
+        throw customError
+        /** console.error(err.status, err.message)해서 접근 */
     }
 }
 

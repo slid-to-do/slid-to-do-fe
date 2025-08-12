@@ -3,39 +3,45 @@
 import {useRouter} from 'next/navigation'
 import React, {useEffect, useRef, useState} from 'react'
 
-import {useMutation, useQueryClient} from '@tanstack/react-query'
+import {useQueryClient} from '@tanstack/react-query'
+import axios from 'axios'
 import clsx from 'clsx'
 
+import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useModal from '@/hooks/use-modal'
-import {del} from '@/lib/api'
+import useToast from '@/hooks/use-toast'
+import {noteDeleteApi} from '@/lib/notes/api'
 
 import TwoButtonModal from '../common/modal/two-buttom-modal'
 
 const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
+    const {showToast} = useToast()
     const [isOpen, setIsOpen] = useState(false)
     const containerReferance = useRef<HTMLDivElement>(null)
     const router = useRouter()
 
     const queryClient = useQueryClient()
 
-    const deleteMutation = useMutation<void, Error, number>({
-        mutationFn: (id) =>
-            del({
-                endpoint: `notes/${id}`,
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
-            }),
-        onSuccess: () => {
-            /**삭제 성공 후 'notes' 쿼리 무효화 → 자동 리페치*/
-            queryClient.invalidateQueries({queryKey: ['notes']})
+    const {mutate: deletNote} = useCustomMutation<void, Error, number>(
+        noteDeleteApi,
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const apiError = error as {message?: string; response?: {data?: {message?: string}}}
+                if (axios.isAxiosError(apiError)) {
+                    return apiError.response?.data.message('서버 오류가 발생했습니다.')
+                }
+
+                return apiError.message || '알 수 없는 오류가 발생했습니다.'
+            },
+
+            onSuccess: () => {
+                /**삭제 성공 후 'notes' 쿼리 무효화 → 자동 리페치*/
+                queryClient.invalidateQueries({queryKey: ['notes']})
+                showToast('삭제가 완료되었습니다')
+            },
         },
-        onError: () => {
-            throw Error
-        },
-    })
+    )
 
     /**노트 삭제 확인 모달 */
     const {openModal, closeModal} = useModal(
@@ -44,7 +50,7 @@ const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
                 closeModal()
             }}
             handleRightBtn={() => {
-                deleteMutation.mutate(noteId)
+                deletNote(noteId)
                 closeModal()
             }}
             topText="노트를 삭제하시겠어요?"
@@ -94,7 +100,7 @@ const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
             >
                 <button
                     role="menuitem"
-                    className="block w-full text-sm font-normal px-4 py-2 hover:bg-gray-100 text-custom_slate-700 focus:outline-none"
+                    className="block w-full text-sm font-normal py-2 hover:bg-gray-100 text-custom_slate-700 focus:outline-none"
                     onClick={() => {
                         setIsOpen(false)
                         router.push(`/notes/write?noteId=${noteId}`)
@@ -105,7 +111,7 @@ const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
 
                 <button
                     role="menuitem"
-                    className="block w-full text-sm font-normal px-4 py-2 hover:bg-gray-100 text-custom_slate-700 focus:outline-none"
+                    className="block w-full text-sm font-normal py-2 hover:bg-gray-100 text-custom_slate-700 focus:outline-none"
                     onClick={() => {
                         openModal()
                         setIsOpen(false)

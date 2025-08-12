@@ -1,20 +1,24 @@
 'use client'
 
 import Image from 'next/image'
-import {useEffect, useState} from 'react'
+import {useParams} from 'next/navigation'
+import {useEffect, useRef, useState} from 'react'
 
-import {useQuery} from '@tanstack/react-query'
+import axios from 'axios'
 
+import LoadingSpinner from '@/components/common/loading-spinner'
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
-import {get} from '@/lib/api'
+import {useCustomQuery} from '@/hooks/use-custom-query'
+import {goalPrograssApi} from '@/lib/goals/api'
 
 import ProgressBar from './prograss-motion'
 
 import type {Goal, GoalProgress} from '@/types/goals'
 
 export default function GoalHeader({
-    posts,
+    goal,
+    goalTitle,
     goalEdit,
     setGoalEdit,
     moreButton,
@@ -23,7 +27,8 @@ export default function GoalHeader({
     handleInputUpdate,
     handleGoalAction,
 }: {
-    posts?: Goal
+    goal?: Goal
+    goalTitle?: string
     goalEdit: boolean
     setGoalEdit: (edit: boolean) => void
     moreButton: boolean
@@ -33,55 +38,85 @@ export default function GoalHeader({
     handleGoalAction: (mode: string) => void
 }) {
     const [progress, setProgress] = useState<number>(0)
+    const {goalId} = useParams()
     /** 목표 달성 API */
-    const {data: progressData} = useQuery<GoalProgress>({
-        queryKey: ['todos', posts?.id, 'progress'],
-        queryFn: async () => {
-            const response = await get<GoalProgress>({
-                endpoint: `todos/progress?goalId=${posts?.id}`,
-                options: {
-                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                },
-            })
+    const {data: progressData, isLoading} = useCustomQuery<GoalProgress>(
+        ['goals', goalId, 'progress'],
+        async () => goalPrograssApi(Number(goalId)),
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
 
-            return response.data
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+
+                return typedError.message || '알 수 없는 오류가 발생했습니다.'
+            },
         },
-    })
+    )
 
     useEffect(() => {
-        if (progressData) {
+        if (goal && progressData) {
             setProgress(progressData.progress)
         }
-    }, [progressData])
+    }, [progressData, goal])
 
+    const inputReference = useRef<HTMLInputElement>(null)
+    useEffect(() => {
+        if (goalEdit) {
+            inputReference.current?.focus()
+        }
+    }, [goalEdit])
+
+    if (isLoading) return <LoadingSpinner />
     return (
         <div className="mt-4 py-4 px-6 bg-white rounded">
             <div className="flex justify-between items-center">
-                <div className="flex flex-grow gap-2 items-center">
-                    <Image src="/goals/flag-goal.svg" alt="목표깃발" width={40} height={40} />
-                    {posts ? (
+                <div className="flex flex-grow gap-2 items-center flex-1 min-w-0">
+                    <Image src="/goals/flag-goal.svg" alt="goal-flag" width={40} height={40} />
+                    {goal ? (
                         goalEdit ? (
-                            <div className="w-full flex gap-3 items-center">
+                            <form onSubmit={() => handleGoalAction('edit')} className="w-full flex gap-3 items-center">
                                 <InputStyle
                                     type="text"
-                                    placeholder="할 일의 제목을 적어주세요"
-                                    value={posts.title}
+                                    placeholder="목표를 입력해주세요"
+                                    value={goalTitle}
                                     name="title"
+                                    className="max-w-full"
                                     onChange={handleInputUpdate}
+                                    maxLength={100}
+                                    ref={inputReference}
                                 />
-                                <ButtonStyle size="medium" onClick={() => handleGoalAction('edit')}>
+                                <ButtonStyle
+                                    size="medium"
+                                    onClick={() => handleGoalAction('edit')}
+                                    disabled={goal.title === goalTitle}
+                                >
                                     수정
                                 </ButtonStyle>
-                            </div>
+                                <ButtonStyle size="medium" onClick={() => setGoalEdit(false)} color="outline">
+                                    취소
+                                </ButtonStyle>
+                            </form>
                         ) : (
-                            <div className="text-custom_slate-800 font-semibold">{posts.title}</div>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-custom_slate-800 font-semibold truncate block max-w-full">
+                                    {goal.title}
+                                </p>
+                            </div>
                         )
                     ) : (
                         <div className="text-custom_slate-800 font-semibold">loading...</div>
                     )}
                 </div>
                 {!goalEdit && (
-                    <div className="flex-shrink-0 cursor-pointer relative" onClick={() => setMoreButton(!moreButton)}>
+                    <div
+                        className="flex-shrink-0 cursor-pointer relative"
+                        onClick={() => setMoreButton(!moreButton)}
+                        role="moreButton"
+                    >
                         <Image src="/goals/ic-more.svg" alt="더보기버튼" width={24} height={24} />
                         {moreButton && (
                             <div className="w-24 py-2 absolute right-0 top-7 flex gap-2 flex-col rounded text-center shadow-md z-10 bg-white">
@@ -98,7 +133,7 @@ export default function GoalHeader({
             </div>
             <div className="mt-6 text-subBody font-semibold">Progress</div>
             <div className="mt-3.5">
-                <ProgressBar progress={progress} />
+                <ProgressBar progress={progress || 0} />
             </div>
         </div>
     )

@@ -3,9 +3,8 @@
 import dynamic from 'next/dynamic'
 import React from 'react'
 
-import {useQuery} from '@tanstack/react-query'
-
-import {get} from '@/lib/api'
+import {useCustomQuery} from '@/hooks/use-custom-query'
+import {get} from '@/lib/common-api'
 
 import NewAddTodo from './new-addtodo'
 
@@ -22,10 +21,6 @@ const getProgressData = async () => {
     try {
         const response = await get<{progress: number}>({
             endpoint: `todos/progress`,
-
-            options: {
-                headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-            },
         })
 
         return {
@@ -43,9 +38,6 @@ const getGoalsData = async () => {
     try {
         const response = await get<{todos: TodoResponse[]}>({
             endpoint: `todos`,
-            options: {
-                headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-            },
         })
 
         return {
@@ -60,9 +52,7 @@ const getGoalsData = async () => {
 }
 
 const Header = () => {
-    const {data: todoData} = useQuery<TodoPage>({
-        queryKey: ['newTodo'],
-        queryFn: getGoalsData,
+    const {data: todoData} = useCustomQuery<TodoPage>(['newTodo'], async () => getGoalsData(), {
         select: (data: TodoPage): TodoPage => ({
             data: data.data
                 .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
@@ -70,15 +60,10 @@ const Header = () => {
                 .slice(0, 5),
         }),
     })
-    const {data: progress} = useQuery({
-        queryKey: ['allProgress'],
-        queryFn: getProgressData,
-    })
+    const {data: progress} = useCustomQuery<{data: number}>(['allProgress'], async () => getProgressData(), {})
 
     return (
-
         <header className="w-full h-auto min-w-[200px]  lg:flex-row flex-col mb-4  flex justify-center items-start gap-4">
-
             <NewAddTodo data={todoData?.data} />
             <NoSsrProgress percent={typeof progress?.data === 'number' ? progress.data : 0} />
         </header>

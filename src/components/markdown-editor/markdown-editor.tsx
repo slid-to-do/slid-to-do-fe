@@ -11,111 +11,13 @@ import {EditorContent, useEditor} from '@tiptap/react'
 import StarterKit from '@tiptap/starter-kit'
 
 import useModal from '@/hooks/use-modal'
+import useToast from '@/hooks/use-toast'
+import {MaxLines} from '@/lib/notes/editor/max-lines'
+import {PasteLimiter} from '@/lib/notes/editor/paste-limiter'
 
 import LinkModal from '../common/modal/link-modal'
 
-const MarkdownEditor = ({
-    value,
-    onUpdate,
-    className,
-    linkButton,
-    onSetLinkButton,
-}: {
-    value: string
-    onUpdate: (content: string) => void
-    className?: string
-    linkButton?: string | undefined
-    onSetLinkButton?: (link: string | undefined) => void
-}) => {
-    const [internalLink, setInternalLink] = useState(linkButton ?? '')
-
-    useEffect(() => {
-        setInternalLink(linkButton ?? '')
-    }, [linkButton])
-
-    const editorInstance = useEditor({
-        extensions: [
-            StarterKit,
-            Underline,
-            Link.configure({
-                openOnClick: false,
-                autolink: false,
-                linkOnPaste: false,
-            }),
-            TextAlign.configure({types: ['heading', 'paragraph']}),
-            Placeholder.configure({
-                placeholder: '이 곳을 클릭해 노트 작성을 시작해주세요',
-            }),
-            CharacterCount.configure({
-                textCounter: (text) => [...new Intl.Segmenter().segment(text)].length,
-                wordCounter: (text) => text.split(/\s+/).filter((word) => word !== '').length,
-            }),
-        ],
-        content: '',
-        immediatelyRender: false,
-
-        onUpdate: ({editor}) => {
-            onUpdate(editor.getHTML())
-        },
-        editorProps: {
-            attributes: {
-                class: 'prose focus:outline-none',
-            },
-        },
-    })
-
-    useEffect(() => {
-        if (editorInstance && value !== editorInstance.getHTML()) {
-            editorInstance.commands.setContent(value)
-        }
-    }, [value, editorInstance])
-
-    if (!editorInstance) {
-        return <div>Loading editor...</div>
-    }
-
-    return (
-        <div className={`relative max-w-screen min-w-64 min-h-64 ${className}`}>
-            <div className="text-xs font-medium">
-                글자 수 : {editorInstance.storage.characterCount.characters()} | 단어 수 :{' '}
-                {editorInstance.storage.characterCount.words()}
-            </div>
-
-            {internalLink && (
-                <div className="mt-2 bg-custom_slate-200 p-1 rounded-full flex justify-between items-center">
-                    <div className="flex items-end gap-2 flex-1 min-w-0  p-1 max-w-fit ">
-                        <Image src="/markdown-editor/ic-save-link.svg" alt="링크아이콘" width={24} height={24} />
-                        <a
-                            href={internalLink}
-                            target="_blank"
-                            className="truncate whitespace-nowrap break-all text-ellipsis block text-body text-custom_slate-800"
-                            rel="noreferrer"
-                        >
-                            {internalLink}
-                        </a>
-                    </div>
-                    <button
-                        onClick={() => {
-                            setInternalLink('')
-                            onSetLinkButton?.(undefined)
-                        }}
-                        className="shrink-0 ml-2"
-                    >
-                        <Image src="/todos/ic-delete.svg" alt="삭제" width={24} height={24} />
-                    </button>
-                </div>
-            )}
-
-            <div className="w-full mt-2 text-body text-custom_slate-700">
-                <EditorContent editor={editorInstance} className="max-w-full" />
-            </div>
-
-            <Toolbar editorInstance={editorInstance} linkButton={linkButton} onSetLinkButton={onSetLinkButton} />
-        </div>
-    )
-}
-
-function Toolbar({
+const Toolbar = ({
     editorInstance,
     linkButton,
     onSetLinkButton,
@@ -123,7 +25,7 @@ function Toolbar({
     editorInstance: ReturnType<typeof useEditor>
     linkButton?: string | undefined
     onSetLinkButton?: (link: string | undefined) => void
-}) {
+}) => {
     /** 링크 modal */
     const {openModal, closeModal} = useModal(
         () => (
@@ -141,7 +43,7 @@ function Toolbar({
     )
 
     return (
-        <div className="absolute flex w-full gap-4 p-2 bg-white rounded-full shadow-sm -bottom-20 border-slate-200">
+        <div className="absolute flex w-full gap-4 p-2 bg-white rounded-full shadow-sm -bottom-24 border-slate-200">
             <div className="flex gap-1">
                 <button
                     onClick={() => editorInstance?.chain().focus().toggleBold().run()}
@@ -207,6 +109,123 @@ function Toolbar({
                     <Image src="/markdown-editor/ic-link.svg" alt="Link Button" width={24} height={24} />
                 </button>
             )}
+        </div>
+    )
+}
+
+const MarkdownEditor = ({
+    value,
+    onUpdate,
+    className,
+    linkButton,
+    onSetLinkButton,
+}: {
+    value: string
+    onUpdate: (content: string) => void
+    className?: string
+    linkButton?: string | undefined
+    onSetLinkButton?: (link: string | undefined) => void
+}) => {
+    const [internalLink, setInternalLink] = useState(linkButton ?? '')
+    const {showToast} = useToast()
+    useEffect(() => {
+        setInternalLink(linkButton ?? '')
+    }, [linkButton])
+
+    const editorInstance = useEditor({
+        extensions: [
+            StarterKit,
+            Underline,
+            Link.configure({
+                openOnClick: false,
+                autolink: false,
+                linkOnPaste: false,
+            }),
+            TextAlign.configure({types: ['heading', 'paragraph']}),
+            Placeholder.configure({
+                placeholder: '이 곳을 클릭해 노트 작성을 시작해주세요',
+            }),
+            CharacterCount.configure({
+                limit: 5000,
+                textCounter: (text) => [...new Intl.Segmenter().segment(text)].length,
+                wordCounter: (text) => text.split(/\s+/).filter((word) => word !== '').length,
+            }),
+            MaxLines.configure({limit: 10, allowSoftBreak: true}),
+            PasteLimiter.configure({
+                limit: 5000,
+                onTruncate: () => {
+                    showToast(`붙여넣기 최대 5000자 까지 허용됩니다`)
+                },
+            }),
+        ],
+        content: '',
+        immediatelyRender: false,
+
+        onUpdate: ({editor}) => {
+            onUpdate(editor.getHTML())
+        },
+        editorProps: {
+            attributes: {
+                class: 'prose focus:outline-none',
+            },
+        },
+    })
+
+    useEffect(() => {
+        if (editorInstance && value !== editorInstance.getHTML()) {
+            editorInstance.commands.setContent(value)
+        }
+    }, [value, editorInstance])
+
+    if (!editorInstance) {
+        return <div>Loading editor...</div>
+    }
+
+    return (
+        <div
+            onClick={(event) => {
+                if ((event.target as HTMLElement).closest('.ProseMirror')) return
+                editorInstance?.commands.focus('end')
+            }}
+            className={`relative max-w-full min-w-64 min-h-64 cursor-pointer ${className}`}
+        >
+            <div className="text-xs font-medium">
+                글자 수 : {editorInstance.storage.characterCount.characters()} | 단어 수 :{' '}
+                {editorInstance.storage.characterCount.words()}
+            </div>
+
+            {internalLink && (
+                <div className="mt-2 bg-custom_slate-200 p-1 rounded-full flex justify-between items-center">
+                    <div className="flex items-end gap-2 flex-1 min-w-0 max-w-full p-1 ">
+                        <Image src="/markdown-editor/ic-save-link.svg" alt="링크아이콘" width={24} height={24} />
+                        <a
+                            href={internalLink}
+                            target="_blank"
+                            rel="noreferrer"
+                            className="block overflow-hidden text-ellipsis whitespace-nowrap max-w-full text-body text-custom_slate-800"
+                        >
+                            {internalLink}
+                        </a>
+                    </div>
+                    <button
+                        onClick={() => {
+                            setInternalLink('')
+                            onSetLinkButton?.(undefined)
+                        }}
+                        className="shrink-0 ml-2 cuesor-pointer"
+                    >
+                        <Image src="/todos/ic-delete.svg" alt="삭제" width={24} height={24} />
+                    </button>
+                </div>
+            )}
+
+            <div className="w-full mt-2 text-body text-custom_slate-700">
+                <div className="max-h-56 overflow-y-auto rounded">
+                    <EditorContent editor={editorInstance} className="max-w-full" />
+                </div>
+            </div>
+
+            <Toolbar editorInstance={editorInstance} linkButton={linkButton} onSetLinkButton={onSetLinkButton} />
         </div>
     )
 }

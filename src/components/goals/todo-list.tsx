@@ -37,7 +37,7 @@ export default function InfiniteTodoList({
 
     return (
         <div
-            className={`py-4 px-6 h-[228px] rounded-xl flex flex-col min-h-0 lg:flex-1 ${
+            className={`py-4 px-6 h-[228px] rounded-xl flex flex-col min-h-0 min-w-0 lg:flex-1 ${
                 isBlue ? 'bg-custom_blue-50' : title === 'To do' ? 'bg-white' : 'bg-custom_slate-200'
             }`}
         >
@@ -52,7 +52,7 @@ export default function InfiniteTodoList({
                     </div>
                 )}
             </div>
-            <div className="mt-4 flex-1 min-h-0 overflow-y-auto scrollbar-custom">
+            <div className="mt-4 min-h-0 overflow-y-auto scrollbar-custom">
                 {todos.length > 0 ? (
                     <>
                         {isLoading ? (
@@ -66,13 +66,11 @@ export default function InfiniteTodoList({
                                             onToggle={onToggle}
                                             onDelete={onDelete}
                                             onEdit={() => openEditTodoModal(todo)}
+                                            isGoal
                                         />
                                     </div>
                                 ))}
                                 {hasMore && <div ref={refCallback} style={{height: '1px'}} />}
-                                {!hasMore && (
-                                    <div className="mt-4 text-gray-400 text-sm">모든 할일을 다 불러왔어요</div>
-                                )}
                             </>
                         )}
                     </>

@@ -4,15 +4,22 @@ import Link from 'next/link'
 import {useParams, useRouter} from 'next/navigation'
 import {useEffect, useState} from 'react'
 
-import {useMutation, useQuery, useQueryClient} from '@tanstack/react-query'
+import {useQueryClient} from '@tanstack/react-query'
+import axios from 'axios'
 
+import LoadingSpinner from '@/components/common/loading-spinner'
 import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import TwoButtonModal from '@/components/common/modal/two-buttom-modal'
 import GoalHeader from '@/components/goals/goal-header'
 import InfiniteTodoList from '@/components/goals/todo-list'
+import {useCustomMutation} from '@/hooks/use-custom-mutation'
+import {useCustomQuery} from '@/hooks/use-custom-query'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import useModal from '@/hooks/use-modal'
-import {del, get, patch} from '@/lib/api'
+import useToast from '@/hooks/use-toast'
+import {get} from '@/lib/common-api'
+import {goalDataApi, goalDeleteApi, goalUpdateApi} from '@/lib/goals/api'
+import {todoDeleteApi, todoUpdateApi} from '@/lib/todos/api'
 import {useModalStore} from '@/store/use-modal-store'
 
 import type {Goal} from '@/types/goals'
@@ -20,9 +27,13 @@ import type {TodoResponse} from '@/types/todos'
 
 const GoalsPage = () => {
     const router = useRouter()
-    const [posts, setPosts] = useState<Goal>()
+
+    const [goal, setGoal] = useState<Goal>()
     const [moreButton, setMoreButton] = useState<boolean>(false)
     const [goalEdit, setGoalEdit] = useState<boolean>(false)
+    const [goalTitle, setGoalTitle] = useState<string>('')
+
+    const {showToast} = useToast()
 
     const queryClient = useQueryClient()
 
@@ -32,96 +43,94 @@ const GoalsPage = () => {
     /**모달 닫기 */
     const {clearModal} = useModalStore()
 
-    /** [ S ] 목표 */
-    /** 목표 API */
-    const {data: goalsData} = useQuery<Goal>({
-        queryKey: ['goals', goalId],
-        queryFn: async () => {
-            const response = await get<Goal>({
-                endpoint: `goals/${goalId}`,
-                options: {
-                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                },
-            })
+    /** 목표 GET API */
+    const {data: goalData, isLoading: goalGetLoading} = useCustomQuery<Goal>(
+        ['goal', goalId],
+        async () => goalDataApi(goalId),
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
 
-            return response.data
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+
+                return typedError.message || '알 수 없는 오류가 발생했습니다.'
+            },
+            // errorRedirectPath: '/',
         },
-    })
+    )
 
     useEffect(() => {
-        if (goalsData) {
-            setPosts(goalsData)
+        if (goalData) {
+            setGoal(goalData)
+            setGoalTitle(goalData?.title)
         }
-    }, [goalsData])
+    }, [goalData])
 
     /** 목표 수정 */
-    const updateGoals = useMutation({
-        mutationFn: async () => {
-            const response = await patch<TodoResponse>({
-                endpoint: `goals/${goalId}`,
-                data: {title: posts?.title},
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
-            })
+    const {mutate: updateGoals, isPending: goalUpdateLoading} = useCustomMutation<TodoResponse>(
+        async () => goalUpdateApi(goalId, goalTitle),
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
 
-            if (response.status === 200) {
-                alert('수정되었습니다.')
-            } else {
-                alert(response.message)
-            }
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
 
-            return response.data
+                return typedError.message || '알 수 없는 오류가 발생했습니다.'
+            },
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: ['goals']})
+                showToast('수정이 완료되었습니다.')
+            },
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['goals']})
-        },
-    })
+    )
+
     /** 목표 삭제 */
-    const deleteGoals = useMutation({
-        mutationFn: async () => {
-            const response = await del({
-                endpoint: `goals/${goalId}`,
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
-            })
-            if (response === undefined) {
+    const {mutate: deleteGoals, isPending: goalDeleteLoading} = useCustomMutation<void>(
+        async () => goalDeleteApi(goalId),
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
+
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+
+                return typedError.message || '알 수 없는 오류가 발생했습니다.'
+            },
+            onSuccess: () => {
                 clearModal()
-                alert('삭제가 완료되었습니다.')
+                showToast('삭제가 완료되었습니다.')
                 router.push('/')
-            }
+            },
         },
-    })
+    )
 
     /** 목표 수정&삭제 분기 함수 */
     const handleGoalAction = async (mode: string) => {
         if (mode === 'edit') {
-            if (posts?.title === '') {
-                alert('제목을 입력해주세요.')
+            if (goal?.title === '') {
+                showToast('제목을 입력해주세요.')
                 return
             }
-            updateGoals.mutate()
+            updateGoals()
 
             setGoalEdit(false)
         } else if (mode === 'delete') {
-            deleteGoals.mutate()
+            deleteGoals()
         }
     }
 
     /**목표 수정 시 input값 변경 */
     const handleInputUpdate = (event: React.ChangeEvent<HTMLInputElement>) => {
         const {value} = event.target
-
-        setPosts((previous) => ({
-            ...previous,
-            title: value,
-            id: previous?.id ?? 0,
-        }))
+        setGoalTitle(value)
     }
 
     /** 목표 삭제 모달 */
@@ -141,7 +150,6 @@ const GoalsPage = () => {
         },
     )
 
-    /** [ S ] 할일 */
     /** 할일 API 호출 */
     const GetTodoList = (done: boolean) => {
         return async (cursor: number | undefined) => {
@@ -155,9 +163,6 @@ const GoalsPage = () => {
                 nextCursor: number | undefined
             }>({
                 endpoint,
-                options: {
-                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                },
             })
             return {
                 data: result.data.todos,
@@ -193,89 +198,98 @@ const GoalsPage = () => {
     })
 
     /**할일 추가 모달 */
-    const {openModal: todoAddModal} = useModal(<AddTodoModal />)
+    const {openModal: todoAddModal} = useModal(<AddTodoModal goalId={Number(goalId)} />)
 
     /**할일 checkbox update */
-    const updateTodo = useMutation({
-        mutationFn: async ({todoId, newDone}: {todoId: number; newDone: boolean}) => {
-            const response = await patch<TodoResponse>({
-                endpoint: `todos/${todoId}`,
-                data: {done: newDone},
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
-            })
+    const {mutate: updateTodo, isPending: todoCheckboxLoading} = useCustomMutation(
+        async ({todoId, newDone}: {todoId: number; newDone: boolean}) => todoUpdateApi(todoId, newDone),
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
 
-            return response.data
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
+
+                return typedError.message || '할 일 변경 중 오류가 발생했습니다.'
+            },
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: ['todos']})
+            },
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['todos']})
-        },
-    })
+    )
+
     /**할일 삭제 */
-    const deleteTodo = useMutation({
-        mutationFn: async (todoId: number) => {
-            if (!confirm('정말로 이 할 일을 삭제하시겠습니까?')) return
+    const {mutate: deleteTodo, isPending: todoDeleteLoading} = useCustomMutation(
+        async (todoId: number) => todoDeleteApi(todoId),
+        {
+            errorDisplayType: 'toast',
+            mapErrorMessage: (error) => {
+                const typedError = error as {message?: string; response?: {data?: {message?: string}}}
 
-            const response = await del({
-                endpoint: `todos/${todoId}`,
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
-            })
-            return response
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['todos']})
-        },
-    })
+                if (axios.isAxiosError(error)) {
+                    return error.response?.data.message || '서버 오류가 발생했습니다.'
+                }
 
-    /**할일 에러 발생 구현 화면 */
-    let error
-    if (doneIsError) {
-        error = doneError
-    } else if (notDoneIsError) {
-        error = notDoneError
+                return typedError.message || '할 일 삭제 중 오류가 발생했습니다.'
+            },
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: ['todos']})
+            },
+        },
+    )
+    const handleTodoDelete = (todoId: number) => {
+        if (!confirm('정말로 이 할 일을 삭제하시겠습니까?')) return
+        deleteTodo(todoId)
     }
 
+    // Loading일 때 화면
+    const isAnyLoading = [
+        todoDeleteLoading,
+        todoCheckboxLoading,
+        goalDeleteLoading,
+        goalUpdateLoading,
+        goalGetLoading,
+    ].includes(true)
+
+    /**할일 에러 발생 구현 화면 */
+    const error = [doneIsError && doneError, notDoneIsError && notDoneError].find(Boolean)
+
     if (error) {
-        return (
-            <div className="flex items-center justify-center w-full h-full text-sm text-red-500">
-                {error instanceof Error ? error.message : '할 일을 불러오는 중 오류가 발생했습니다.'}
-            </div>
-        )
+        showToast('할 일을 불러오는 중 오류가 발생했습니다.')
+        return <></>
     }
 
     return (
-        <div className="w-full bg-custom_slate-100 overflow-y-auto">
-            <div className={`p-6 desktop:px-20`}>
-                <div className="text-subTitle">목표</div>
-                <GoalHeader
-                    posts={posts}
-                    goalEdit={goalEdit}
-                    setGoalEdit={setGoalEdit}
-                    moreButton={moreButton}
-                    setMoreButton={setMoreButton}
-                    goalDeleteModal={goalDeleteModal}
-                    handleInputUpdate={handleInputUpdate}
-                    handleGoalAction={handleGoalAction}
-                />
+        <div className="w-full desktop-layout flex-1 min-w-0">
+            <div className="text-subTitle">목표</div>
+            <GoalHeader
+                goal={goal}
+                goalTitle={goalTitle}
+                goalEdit={goalEdit}
+                setGoalEdit={setGoalEdit}
+                moreButton={moreButton}
+                setMoreButton={setMoreButton}
+                goalDeleteModal={goalDeleteModal}
+                handleInputUpdate={handleInputUpdate}
+                handleGoalAction={handleGoalAction}
+            />
 
-                <Link
-                    className="mt-6 py-4 px-6 bg-custom_blue-100 flex items-center justify-between rounded-xl cursor-pointer"
-                    href={`/notes?goalId=${goalId}`}
-                >
-                    <div className="flex gap-2 items-center">
-                        <Image src="/goals/note.svg" alt="노트" width={24} height={24} />
-                        <div className="text-subTitle">노트 모아보기</div>
-                    </div>
-                    <Image src="/goals/ic-arrow-right.svg" alt="노트보기 페이지 이동" width={24} height={24} />
-                </Link>
+            <Link
+                className="mt-6 py-4 px-6 bg-custom_blue-100 flex items-center justify-between rounded-xl cursor-pointer"
+                href={`/notes?goalId=${goalId}`}
+            >
+                <div className="flex gap-2 items-center">
+                    <Image src="/goals/note.svg" alt="노트" width={24} height={24} />
+                    <div className="text-subTitle">노트 모아보기</div>
+                </div>
+                <Image src="/goals/ic-arrow-right.svg" alt="노트보기 페이지 이동" width={24} height={24} />
+            </Link>
 
+            {isAnyLoading ? (
+                <LoadingSpinner />
+            ) : (
                 <div className="mt-6 flex flex-col lg:flex-row gap-6 justify-between">
                     <InfiniteTodoList
                         title="To do"
@@ -283,8 +297,8 @@ const GoalsPage = () => {
                         isLoading={loadingNotDone}
                         hasMore={hasMoreNotDone}
                         refCallback={notDoneReference}
-                        onToggle={(todoId: number, newDone: boolean) => updateTodo.mutate({todoId, newDone})}
-                        onDelete={(todoId: number) => deleteTodo.mutate(todoId)}
+                        onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
+                        onDelete={(todoId: number) => handleTodoDelete(todoId)}
                         onAddClick={todoAddModal}
                     />
 
@@ -294,11 +308,11 @@ const GoalsPage = () => {
                         isLoading={loadingDone}
                         hasMore={haseMoreDone}
                         refCallback={doneReference}
-                        onToggle={(todoId: number, newDone: boolean) => updateTodo.mutate({todoId, newDone})}
-                        onDelete={(todoId: number) => deleteTodo.mutate(todoId)}
+                        onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
+                        onDelete={(todoId: number) => handleTodoDelete(todoId)}
                     />
                 </div>
-            </div>
+            )}
         </div>
     )
 }

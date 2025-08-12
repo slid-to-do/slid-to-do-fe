@@ -25,6 +25,8 @@ export interface InputFormProperties<T extends object> {
     handleSubmit: (onValid: SubmitHandler<T>) => (event?: React.BaseSyntheticEvent) => void
     onSubmit: SubmitHandler<T>
     validationRules?: Partial<Record<keyof T, RegisterOptions<T, Path<T>>>>
+    isValid?: boolean
+    isLoading?: boolean
 }
 
 export interface LoginFormData {

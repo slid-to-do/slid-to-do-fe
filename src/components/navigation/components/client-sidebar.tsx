@@ -4,13 +4,12 @@ import Image from 'next/image'
 import Link from 'next/link'
 import React from 'react'
 
-import Expand from '@/../public/sidebar/ic_expand.svg'
-import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import HamburgerToggle from '@/components/style/hamburger-toggle'
 import useLayout from '@/hooks/use-layout'
 import useModal from '@/hooks/use-modal'
 
 import SidebarList from './goal-list'
+import GoalModal from './goal-modal'
 import SidebarProfile from './sidebar-profile'
 import ButtonStyle from '../../style/button-style'
 
@@ -18,7 +17,7 @@ import type {ClientInterface} from '@/types/sidebar'
 
 const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
     const isMobile = useLayout('mobile')
-    const {openModal} = useModal(<AddTodoModal />)
+    const {openModal} = useModal(<GoalModal />)
 
     return (
         <>
@@ -44,7 +43,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                         />
                     </div>
                 </Link>
-                {isMobile ? (
+                {isMobile === true ? (
                     <button onClick={onClickHandler} className=" w-8 h-5 bg-red flex justify-center items-center ">
                         <HamburgerToggle group={isOpen} />
                     </button>
@@ -53,7 +52,13 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                         className={` mobile:hidden absolute right-2 top-2 group  rounded-lg w-8 h-8 flex justify-center items-center z-10  ${isOpen === 'noState' ? 'rotate-180 tablet:rotate-0 ' : isOpen ? 'rotate-180 ' : 'rotate-0 '} `}
                         onClick={onClickHandler}
                     >
-                        <Expand className=" w-6 h-6 fill-white text-slate-400 group-hover:text-slate-300" />
+                        <Image
+                            src={'/sidebar/ic-expand.svg'}
+                            alt="expand"
+                            width={26}
+                            height={25}
+                            className=" w-6 h-6 fill-white text-slate-400 group-hover:text-slate-300"
+                        />
                     </button>
                 )}
             </header>
@@ -63,7 +68,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                 <SidebarProfile />
                 {!isMobile && (
                     <ButtonStyle size="full" onClick={openModal}>
-                        + 새 할일
+                        + 새 목표
                     </ButtonStyle>
                 )}
                 <hr className=" mt-5 -mx-5 border-t-2 border-gray-200" />
@@ -85,9 +90,9 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                         />
                         대시보드
                     </Link>
-                    {isMobile && (
+                    {isMobile === true && (
                         <ButtonStyle onClick={openModal} size="small">
-                            + 새 할일
+                            + 새 목표
                         </ButtonStyle>
                     )}
                 </nav>

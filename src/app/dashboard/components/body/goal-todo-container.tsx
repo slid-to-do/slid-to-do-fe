@@ -5,7 +5,7 @@ import React from 'react'
 
 import LoadingSpinner from '@/components/common/loading-spinner'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
-import {get} from '@/lib/api'
+import {get} from '@/lib/common-api'
 
 import GoalListBody from './goal-list-body'
 import GoalTitleHeader from './goal-title-header'
@@ -19,10 +19,6 @@ const GoalTodoContainer = () => {
                 const urlParameter = cursor === undefined ? '' : `&cursor=${cursor}`
                 const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
                     endpoint: `goals?size=3&sortOrder=newest${urlParameter}`,
-
-                    options: {
-                        headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                    },
                 })
 
                 return {
@@ -53,7 +49,7 @@ const GoalTodoContainer = () => {
             <header className="w-full h-auto mb-4 flex justify-start items-center pl-4 pt-4 gap-2">
                 <Image src={'/dashboard/goals-todo.svg'} alt="goal-todo" width={40} height={40} />
 
-                <h1 className=" text-title-base font-semibold">목표 별 할일</h1>
+                <h1 className=" text-title-base font-semibold">목표 별 할 일</h1>
             </header>
             {loadingGoals ? (
                 <div className="  absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 ">

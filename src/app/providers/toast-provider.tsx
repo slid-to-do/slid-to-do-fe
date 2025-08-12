@@ -3,6 +3,17 @@
 
 import {ToastContainer} from 'react-toastify'
 
-export default function ToastProvider() {
-    return <ToastContainer position="bottom-center" autoClose={3000} hideProgressBar={false} />
+const ToastProvider = () => {
+    return (
+        <ToastContainer
+            position="top-center"
+            toastClassName="custom-toast"
+            theme="dark"
+            autoClose={1500}
+            hideProgressBar={false}
+            limit={1}
+        />
+    )
 }
+
+export default ToastProvider

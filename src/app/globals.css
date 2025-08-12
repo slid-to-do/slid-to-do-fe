@@ -10,15 +10,12 @@
 @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
-
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
 }
 
 body {
     background: var(--background);
     color: var(--foreground);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-pretendard), Arial, Helvetica, sans-serif;
 }
 
 .ProseMirror p.is-editor-empty:first-child::before {
@@ -76,6 +73,14 @@ button:disabled {
         /* #D1D5DB - gray-300 */ rgba(96, 99, 103, 0.5),
         rgba(23, 24, 24, 0.5)
     ) !important;
+}
+
+.custom-toast {
+    background-color: rgba(0, 0, 0, 0.7); /* ✅ 검정색 + 80% 불투명 */
+    color: white;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
 }
 
 /* note 임시작성 toast custom */

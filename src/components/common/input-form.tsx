@@ -4,10 +4,10 @@ import React from 'react'
 
 import clsx from 'clsx'
 
+import ButtonStyle from '../style/button-style'
 import InputStyle from '../style/input-style'
 
 import type {InputFormProperties} from '@/types/login'
-import ButtonStyle from '../style/button-style'
 
 const InputForm = <T extends Record<string, unknown>>({
     fields,

@@ -87,7 +87,6 @@ const GoalListBody = ({goalId}: {goalId: number | undefined}) => {
         },
         {
             onSuccess: (_, value) => {
-                queryClient.invalidateQueries({queryKey: ['todo']})
                 queryClient.invalidateQueries({queryKey: ['allProgress']})
                 queryClient.invalidateQueries({queryKey: ['newTodo']})
                 queryClient.invalidateQueries({queryKey: ['todo', 'notDone', goalId]})
@@ -132,7 +131,7 @@ const GoalListBody = ({goalId}: {goalId: number | undefined}) => {
 
     return (
         <>
-            <section className="flex w-full h-auto flex-col lg:flex-row">
+            <section className="flex w-full h-auto flex-col lg:flex-row flex-1 min-w-0">
                 <TodoList
                     title="To do"
                     todos={todosNotDone}

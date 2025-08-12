@@ -8,7 +8,7 @@ import type {TodoResponse} from '@/types/todos'
 
 const NewAddTodo = ({data}: {data: TodoResponse[] | undefined}) => {
     return (
-        <article className=" w-full h-[200px] p-3 min-w-65 bg-white rounded-lg    ">
+        <article className=" w-full  h-[200px] p-3 min-w-65 bg-white rounded-lg    ">
             <header className="flex justify-between items-center mb-4">
                 <div className="flex justify-center items-center gap-2">
                     <Image src={'/dashboard/todo-recently.svg'} alt="최근 등록한 할일" width={40} height={40} />
@@ -28,9 +28,9 @@ const NewAddTodo = ({data}: {data: TodoResponse[] | undefined}) => {
                             className="flex w-full h-auto text-body-sm text-custom_slate-700 hover:opacity-70"
                         >
                             <Link href={`/goals/${item.goal.id}`} className="w-full flex">
-                                <span className="mr-2 text-body-base">・</span>
+                                <span className="mr-2 text-body-base ">・</span>
 
-                                {item.title}
+                                <p className="overflow-ellipsis whitespace-nowrap truncate">{item.title}</p>
                             </Link>
                         </li>
                     ))}

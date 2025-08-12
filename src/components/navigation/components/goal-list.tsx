@@ -58,7 +58,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                         목표
                     </h2>
 
-                    {isMobile && (
+                    {isMobile === true && goals.length > 0 && (
                         <ButtonStyle onClick={openModal} type="button" size="small" color="outline">
                             + 새 할일
                         </ButtonStyle>
@@ -102,7 +102,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                     )}
                 </div>
             </div>
-            {!isMobile && (
+            {!isMobile && goals.length > 0 && (
                 <ButtonStyle type="button" onClick={openModal} size="full" color="outline">
                     + 새 할일
                 </ButtonStyle>

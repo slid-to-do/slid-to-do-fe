@@ -263,7 +263,7 @@ const GoalsPage = () => {
     }
 
     return (
-        <div className="w-full desktop-layout flex-1 min-w-0 min-h-screen overflow-y-auto">
+        <div className="w-full desktop-layout flex-1 min-w-0">
             <div className="text-subTitle">목표</div>
             <GoalHeader
                 goal={goal}
@@ -288,7 +288,7 @@ const GoalsPage = () => {
                 <Image src="/goals/ic-arrow-right.svg" alt="노트보기 페이지 이동" width={24} height={24} />
             </Link>
 
-            <div className="mt-6 flex flex-col lg:flex-row gap-6 justify-between">
+            <div className="mt-6 flex flex-col flex-1 min-w-0 lg:flex-row gap-6 justify-between">
                 <InfiniteTodoList
                     title="To do"
                     todos={todosNotDone}

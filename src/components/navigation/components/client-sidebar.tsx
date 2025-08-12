@@ -43,7 +43,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                         />
                     </div>
                 </Link>
-                {isMobile ? (
+                {isMobile === true ? (
                     <button onClick={onClickHandler} className=" w-8 h-5 bg-red flex justify-center items-center ">
                         <HamburgerToggle group={isOpen} />
                     </button>
@@ -90,7 +90,7 @@ const ClientSidebar = ({isOpen, onClickHandler}: ClientInterface) => {
                         />
                         대시보드
                     </Link>
-                    {isMobile && (
+                    {isMobile === true && (
                         <ButtonStyle onClick={openModal} size="small">
                             + 새 목표
                         </ButtonStyle>

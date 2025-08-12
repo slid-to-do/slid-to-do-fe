@@ -196,7 +196,7 @@ const TodoItem = ({
                         className="fixed z-50 flex flex-col overflow-hidden text-sm bg-white shadow-lg rounded-xl"
                         style={{top: pos.top, left: pos.left}}
                     >
-                        {todoDetail?.noteId === undefined && (
+                        {(todoDetail?.noteId <= 0 || todoDetail?.noteId === undefined) && (
                             <Link
                                 className="px-4 py-2 transition cursor-pointer hover:bg-gray-100"
                                 href={`/notes/write?goalId=${todoDetail.goal.id}&todoId=${todoDetail.id}`}

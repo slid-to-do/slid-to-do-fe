@@ -131,7 +131,7 @@ const GoalListBody = ({goalId}: {goalId: number | undefined}) => {
 
     return (
         <>
-            <section className="flex w-full h-auto flex-col lg:flex-row">
+            <section className="flex w-full h-auto flex-col lg:flex-row flex-1 min-w-0">
                 <TodoList
                     title="To do"
                     todos={todosNotDone}

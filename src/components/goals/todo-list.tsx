@@ -37,7 +37,7 @@ export default function InfiniteTodoList({
 
     return (
         <div
-            className={`py-4 px-6 h-[228px] rounded-xl flex flex-col min-h-0 lg:flex-1 ${
+            className={`py-4 px-6 h-[228px] rounded-xl flex flex-col min-h-0 min-w-0 lg:flex-1 ${
                 isBlue ? 'bg-custom_blue-50' : title === 'To do' ? 'bg-white' : 'bg-custom_slate-200'
             }`}
         >
@@ -52,7 +52,7 @@ export default function InfiniteTodoList({
                     </div>
                 )}
             </div>
-            <div className="mt-4 flex-1 min-h-0 overflow-y-auto scrollbar-custom">
+            <div className="mt-4   min-h-0 overflow-y-auto scrollbar-custom">
                 {todos.length > 0 ? (
                     <>
                         {isLoading ? (

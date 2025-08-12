@@ -87,7 +87,6 @@ const GoalListBody = ({goalId}: {goalId: number | undefined}) => {
         },
         {
             onSuccess: (_, value) => {
-                queryClient.invalidateQueries({queryKey: ['todo']})
                 queryClient.invalidateQueries({queryKey: ['allProgress']})
                 queryClient.invalidateQueries({queryKey: ['newTodo']})
                 queryClient.invalidateQueries({queryKey: ['todo', 'notDone', goalId]})

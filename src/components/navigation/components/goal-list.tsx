@@ -12,6 +12,7 @@ import {get} from '@/lib/common-api'
 import ButtonStyle from '../../style/button-style'
 
 import type {Goal, GoalResponse} from '@/types/goals'
+import {useEffect} from 'react'
 
 const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
     const {openModal} = useModal(<AddTodoModal />)
@@ -58,7 +59,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                         목표
                     </h2>
 
-                    {isMobile && (
+                    {isMobile && goals.length > 0 && (
                         <ButtonStyle onClick={openModal} type="button" size="small" color="outline">
                             + 새 할일
                         </ButtonStyle>
@@ -102,7 +103,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                     )}
                 </div>
             </div>
-            {!isMobile && (
+            {!isMobile && goals.length > 0 && (
                 <ButtonStyle type="button" onClick={openModal} size="full" color="outline">
                     + 새 할일
                 </ButtonStyle>

@@ -12,7 +12,6 @@ import {get} from '@/lib/common-api'
 import ButtonStyle from '../../style/button-style'
 
 import type {Goal, GoalResponse} from '@/types/goals'
-import {useEffect} from 'react'
 
 const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
     const {openModal} = useModal(<AddTodoModal />)

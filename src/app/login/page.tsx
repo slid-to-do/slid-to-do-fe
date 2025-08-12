@@ -17,9 +17,9 @@ const LoginPage = () => {
     const {
         register,
         handleSubmit,
-        formState: {errors},
+        formState: {errors, isValid},
         setError,
-    } = useForm<LoginFormData>()
+    } = useForm<LoginFormData>({mode: 'onChange'})
 
     const router = useRouter()
     const {showToast} = useToast()
@@ -77,6 +77,7 @@ const LoginPage = () => {
                     onSubmit={onSubmit}
                     register={register}
                     errors={errors}
+                    isValid={isValid}
                     validationRules={{
                         email: {
                             required: '이메일은 필수입니다.',

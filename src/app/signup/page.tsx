@@ -17,7 +17,7 @@ const SignPage = () => {
         register,
         handleSubmit,
         watch,
-        formState: {errors},
+        formState: {errors, isValid},
         setError,
     } = useForm<SignupFormData>()
 
@@ -47,6 +47,7 @@ const SignPage = () => {
             handleSubmit={handleSubmit}
             register={register}
             errors={errors}
+            isValid={isValid}
             validationRules={{
                 name: {
                     required: '이름은 필수입니다.',

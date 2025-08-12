@@ -4,6 +4,7 @@ import React from 'react'
 
 import clsx from 'clsx'
 
+import ButtonStyle from '../style/button-style'
 import InputStyle from '../style/input-style'
 
 import type {InputFormProperties} from '@/types/login'
@@ -18,7 +19,11 @@ const InputForm = <T extends Record<string, unknown>>({
     handleSubmit,
     onSubmit,
     validationRules,
+    isValid,
+    isLoading,
 }: InputFormProperties<T>) => {
+    const isDisabled = isLoading || isValid === false
+
     return (
         <div className="flex flex-col items-center justify-center bg-white px-4">
             <div className="tablet:hidden mobile:hidden relative w-[260px] h-[48px] mb-2 text-center">
@@ -46,15 +51,16 @@ const InputForm = <T extends Record<string, unknown>>({
                     </div>
                 ))}
 
-                <button
+                <ButtonStyle
                     type="submit"
-                    className={clsx(
-                        'w-full py-2 mt-6 rounded-md text-white font-semibold',
-                        'bg-custom_slate-400 hover:bg-custom_slate-500 transition-colors',
-                    )}
+                    size="full"
+                    color="default"
+                    disabled={isDisabled}
+                    aria-disabled={isDisabled}
+                    className="mt-6"
                 >
                     {submitText}
-                </button>
+                </ButtonStyle>
             </form>
 
             <div className="mt-6 text-sm text-custom_slate-800">

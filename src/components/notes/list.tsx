@@ -30,21 +30,21 @@ export const NoteList = ({notesData}: {notesData: NoteCommon[]}) => {
                         <NotesSelect noteId={note.id} />
                     </div>
 
-                    <div className="bg-white rounded-xl  ">
+                    <div className="bg-white rounded-xl">
                         <div className="border-b-1 border-custom_slate-200 pt-4 pb-3 ">
                             <span
                                 onClick={() => openNoteDetail(note.id)}
-                                className="text-subTitle font-medium cursor-pointer"
+                                className="text-subTitle font-medium cursor-pointer block w-full truncate"
                             >
                                 {note.title}
                             </span>
                         </div>
 
                         <div className="pt-3 flex items-center gap-2">
-                            <div className="p-1 bg-custom_slate-100 text-custom_slate-700 text-subBody font-medium rounded-sm">
+                            <div className="p-1 bg-custom_slate-100 text-custom_slate-700 text-subBody font-medium rounded-sm shrink-0 whitespace-nowrap">
                                 To do
                             </div>
-                            <p className=" text-custom_slate-700 text-subBody font-normal"> {note.todo.title}</p>
+                            <p className=" text-custom_slate-700 text-subBody font-normal min-w-0 truncate"> {note.todo.title}</p>
                         </div>
                     </div>
                 </div>

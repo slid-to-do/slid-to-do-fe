@@ -183,7 +183,10 @@ const MarkdownEditor = ({
 
     return (
         <div
-            onClick={() => editorInstance?.commands.focus('end')}
+            onClick={(event) => {
+                if ((event.target as HTMLElement).closest('.ProseMirror')) return
+                editorInstance?.commands.focus('end')
+            }}
             className={`relative max-w-full min-w-64 min-h-64 cursor-pointer ${className}`}
         >
             <div className="text-xs font-medium">
@@ -209,7 +212,7 @@ const MarkdownEditor = ({
                             setInternalLink('')
                             onSetLinkButton?.(undefined)
                         }}
-                        className="shrink-0 ml-2"
+                        className="shrink-0 ml-2 cuesor-pointer"
                     >
                         <Image src="/todos/ic-delete.svg" alt="삭제" width={24} height={24} />
                     </button>

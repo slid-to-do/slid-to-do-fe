@@ -61,7 +61,7 @@ const TodoItem = ({
         <div>
             <div className="flex justify-between">
                 {/* 체크박스, 제목 영역 */}
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 min-w-0">
                     <div
                         className="flex items-center justify-center rounded-full size-6"
                         onClick={() => onToggle(todoDetail.id, !todoDetail.done)}
@@ -74,7 +74,7 @@ const TodoItem = ({
                         />
                     </div>
                     <div
-                        className={`text-sm cursor-pointer hover:underline ${todoDetail?.done ? 'line-through' : ''}`}
+                        className={`text-sm cursor-pointer hover:underline ${todoDetail?.done ? 'line-through' : ''} truncate`}
                         onClick={() =>
                             isGoal ? onToggle(todoDetail.id, !todoDetail.done) : setIsGoalTitleOpen(!isGoalTitleOpen)
                         }

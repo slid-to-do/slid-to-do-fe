@@ -1,4 +1,5 @@
 'use client'
+
 import Image from 'next/image'
 import Link from 'next/link'
 import {useRouter} from 'next/navigation'
@@ -6,6 +7,7 @@ import {useEffect, useLayoutEffect, useRef, useState} from 'react'
 import {createPortal} from 'react-dom'
 
 import {useModal} from '@/hooks/use-modal'
+
 import SideModal from './modal/side-modal'
 
 import type {TodoResponse} from '@/types/todos'
@@ -14,7 +16,7 @@ import type {TodoResponse} from '@/types/todos'
 function Portal({children}: {children: React.ReactNode}) {
     const [mounted, setMounted] = useState(false)
     useEffect(() => setMounted(true), [])
-    if (!mounted) return null
+    if (!mounted) return undefined
     return createPortal(children, document.body)
 }
 
@@ -34,8 +36,8 @@ const TodoItem = ({
     const [isGoalTitleOpen, setIsGoalTitleOpen] = useState(false)
     const [isContextMenuOpen, setIsContextMenuOpen] = useState(false)
 
-    const triggerRef = useRef<HTMLDivElement>(null)
-    const menuRef = useRef<HTMLDivElement>(null)
+    const triggerReference = useRef<HTMLDivElement>(null)
+    const menuReference = useRef<HTMLDivElement>(null)
 
     // 메뉴 좌표 (뷰포트 기준)
     const [pos, setPos] = useState<{top: number; left: number}>({top: 0, left: 0})
@@ -49,14 +51,14 @@ const TodoItem = ({
 
     // 외부 클릭 닫기
     useEffect(() => {
-        const handleClickOutside = (e: MouseEvent) => {
-            const t = e.target as Node
-            if (menuRef.current?.contains(t)) return
-            if (triggerRef.current?.contains(t)) return
+        const handleClickOutside = (event_: MouseEvent) => {
+            const t = event_.target as Node
+            if (menuReference.current?.contains(t)) return
+            if (triggerReference.current?.contains(t)) return
             setIsContextMenuOpen(false)
         }
-        const onEsc = (e: KeyboardEvent) => {
-            if (e.key === 'Escape') setIsContextMenuOpen(false)
+        const onEsc = (event_: KeyboardEvent) => {
+            if (event_.key === 'Escape') setIsContextMenuOpen(false)
         }
 
         if (isContextMenuOpen) {
@@ -72,8 +74,8 @@ const TodoItem = ({
     // 위치 계산 (열릴 때 + 스크롤/리사이즈 시)
     useLayoutEffect(() => {
         const updatePosition = () => {
-            if (!triggerRef.current) return
-            const rect = triggerRef.current.getBoundingClientRect()
+            if (!triggerReference.current) return
+            const rect = triggerReference.current.getBoundingClientRect()
             // 아이콘의 오른쪽 아래에 붙이고, 메뉴 너비만큼 왼쪽으로 당김
             const estimatedMenuWidth = 80
             const top = rect.bottom + 8
@@ -159,7 +161,7 @@ const TodoItem = ({
                     )}
 
                     {/* 메뉴 트리거 */}
-                    <div className="relative" ref={triggerRef}>
+                    <div className="relative" ref={triggerReference}>
                         <Image
                             src="/todos/ic-menu.svg"
                             alt="Menu Icon"
@@ -189,12 +191,12 @@ const TodoItem = ({
             {isContextMenuOpen && (
                 <Portal>
                     <div
-                        ref={menuRef}
+                        ref={menuReference}
                         role="menu"
                         className="fixed z-50 flex flex-col overflow-hidden text-sm bg-white shadow-lg rounded-xl"
                         style={{top: pos.top, left: pos.left}}
                     >
-                        {todoDetail?.noteId === null && (
+                        {todoDetail?.noteId === undefined && (
                             <Link
                                 className="px-4 py-2 transition cursor-pointer hover:bg-gray-100"
                                 href={`/notes/write?goalId=${todoDetail.goal.id}&todoId=${todoDetail.id}`}

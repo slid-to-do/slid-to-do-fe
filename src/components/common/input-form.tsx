@@ -7,6 +7,7 @@ import clsx from 'clsx'
 import InputStyle from '../style/input-style'
 
 import type {InputFormProperties} from '@/types/login'
+import ButtonStyle from '../style/button-style'
 
 const InputForm = <T extends Record<string, unknown>>({
     fields,
@@ -18,6 +19,7 @@ const InputForm = <T extends Record<string, unknown>>({
     handleSubmit,
     onSubmit,
     validationRules,
+    isValid,
 }: InputFormProperties<T>) => {
     return (
         <div className="flex flex-col items-center justify-center bg-white px-4">
@@ -46,15 +48,16 @@ const InputForm = <T extends Record<string, unknown>>({
                     </div>
                 ))}
 
-                <button
+                <ButtonStyle
                     type="submit"
-                    className={clsx(
-                        'w-full py-2 mt-6 rounded-md text-white font-semibold',
-                        'bg-custom_slate-400 hover:bg-custom_slate-500 transition-colors',
-                    )}
+                    size="full"
+                    color="default"
+                    disabled={isValid === false}
+                    aria-disabled={isValid === false}
+                    className="mt-6"
                 >
                     {submitText}
-                </button>
+                </ButtonStyle>
             </form>
 
             <div className="mt-6 text-sm text-custom_slate-800">

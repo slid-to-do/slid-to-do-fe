@@ -1,7 +1,7 @@
 'use client'
 
 import Image from 'next/image'
-import {useEffect, useRef, useState} from 'react'
+import {useRef, useState} from 'react'
 
 import {useQueryClient} from '@tanstack/react-query'
 import axios from 'axios'
@@ -180,20 +180,6 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
         }
     }
 
-    useEffect(() => {
-        if (loadingGoals) return // 로딩 중엔 기다림
-
-        const exists = fetchGoals.some((goal) => goal.id === inputs.goalId)
-
-        if (!exists) {
-            const timer = setTimeout(() => {
-                setInputs((previous) => ({...previous, goalId: undefined}))
-            }, 2000)
-
-            return () => clearTimeout(timer)
-        }
-    }, [loadingGoals, fetchGoals, inputs.goalId])
-
     return (
         <div className="absolute flex flex-col justify-between w-full h-full p-6 transform bg-white -translate-1/2 top-1/2 left-1/2 md:rounded-xl md:h-auto md:w-lg">
             <div>
@@ -225,7 +211,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                 {/* 목표 드롭다운 */}
                 {/* goals API가 무한 스크롤 방식이기 때문에 input 태그 대신 div 태그로 구현 */}
                 <div className="mt-6">
-                    <div className="text-base font-semibold">목표 {inputs.goalId}</div>
+                    <div className="text-base font-semibold">목표</div>
 
                     <div
                         tabIndex={0}

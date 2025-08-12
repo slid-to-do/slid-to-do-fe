@@ -17,3 +17,9 @@ export interface GoalResponse extends Goal {
 export interface GoalProgress {
     progress: number
 }
+
+export interface GoalsListResponse {
+    goals: GoalResponse[]
+    totalCount: number
+    nextCursor: number
+}

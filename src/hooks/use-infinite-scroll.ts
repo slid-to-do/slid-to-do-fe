@@ -7,18 +7,19 @@ import type {InfiniteScrollOptions} from '@/types/infinite-scroll'
 import type {InfiniteData} from '@tanstack/react-query'
 
 export function useInfiniteScrollQuery<T>({queryKey, fetchFn}: InfiniteScrollOptions<T>) {
-    const {data, fetchNextPage, hasNextPage, isFetchingNextPage, isError, error, isLoading} = useInfiniteQuery<
-        {data: T[]; nextCursor: number | undefined},
-        Error,
-        {data: T[]; nextCursor: number | undefined},
-        (string | number | boolean)[],
-        number | undefined
-    >({
-        queryKey,
-        queryFn: ({pageParam}) => fetchFn(pageParam),
-        getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
-        initialPageParam: undefined,
-    })
+    const {data, fetchNextPage, hasNextPage, isFetchingNextPage, isError, error, isLoading, isFetched} =
+        useInfiniteQuery<
+            {data: T[]; nextCursor: number | undefined},
+            Error,
+            {data: T[]; nextCursor: number | undefined},
+            (string | number | boolean)[],
+            number | undefined
+        >({
+            queryKey,
+            queryFn: ({pageParam}) => fetchFn(pageParam),
+            getNextPageParam: (lastPage) => lastPage.nextCursor ?? undefined,
+            initialPageParam: undefined,
+        })
 
     const {ref, inView} = useInView({threshold: 0.5})
 
@@ -40,5 +41,6 @@ export function useInfiniteScrollQuery<T>({queryKey, fetchFn}: InfiniteScrollOpt
         hasMore: hasNextPage,
         isError,
         error,
+        isFetched,
     }
 }

@@ -46,8 +46,8 @@ const config: Config = {
             },
 
             screens: {
-                mobile: {max: '374px'},
-                tablet: {min: '374px', max: '774px'},
+                mobile: {max: '430px'},
+                tablet: {min: '430px', max: '774px'},
                 desktop: {min: '774px'},
             },
 
@@ -125,6 +125,11 @@ const config: Config = {
             addComponents({
                 '.desktop-layout': {
                     padding: theme('spacing.6'),
+                    [`@media (min-width: 430px) and (max-width: 774px)`]: {
+                        marginLeft: '42px',
+                        paddingLeft: `${theme('spacing.10')}!important`,
+                        paddingRight: `${theme('spacing.20')}!important`,
+                    },
                     [`@media (min-width: 774px)`]: {
                         maxWidth: '1200px',
                         paddingLeft: `${theme('spacing.20')}!important`,

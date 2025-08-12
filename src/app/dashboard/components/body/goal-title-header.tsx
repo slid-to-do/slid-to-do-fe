@@ -12,7 +12,7 @@ import {get} from '@/lib/common-api'
 import type {GoalProgress} from '@/types/goals'
 
 const GoalTitleHeader = ({goalId, title}: {goalId: number; title: string}) => {
-    const {openModal} = useModal(<AddTodoModal />)
+    const {openModal} = useModal(<AddTodoModal goalId={goalId} />)
     const {data: progressData} = useCustomQuery<number>(['todos', goalId, 'dashProgress'], async () => {
         const response = await get<GoalProgress>({
             endpoint: `todos/progress?goalId=${goalId}`,

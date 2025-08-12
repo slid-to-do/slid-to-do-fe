@@ -129,15 +129,17 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
                             </ButtonStyle>
                         </div>
                     </div>
-                    <div className="mt-4 flex items-center gap-2">
+                    <div className="mt-4 flex items-center gap-2 w-full">
                         <Image src="/goals/flag-goal.svg" alt="goal-flag" width={24} height={24} />
-                        <h2 className="text-subTitle-sm">{data.goal.title}</h2>
+                        <h2 className="text-subTitle-sm  truncate min-w-0">{data.goal.title}</h2>
                     </div>
-                    <div className="mt-3 flex items-center gap-2">
-                        <div className="p-1 bg-custom_slate-100 text-custom_slate-700 text-subBody font-medium rounded-sm">
-                            <p>To do</p>
+                    <div className="w-full mt-3 flex items-center gap-2">
+                        <div className="p-1 bg-custom_slate-100 text-custom_slate-700 text-subBody font-medium rounded-sm shrink-0 whitespace-nowrap">
+                            To do
                         </div>
-                        <p className=" text-custom_slate-700 text-subBody font-normal">{data?.todo.title}</p>
+                        <p className=" text-custom_slate-700 text-subBody font-normal flex-1 min-w-0 truncate">
+                            {data?.todo.title}
+                        </p>
                     </div>
 
                     <div className="py-3 mt-6 border-y-1 border-custom_slate-200">
@@ -155,7 +157,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
                         ) : (
                             <p
                                 onClick={() => setIsEditingTitle(true)}
-                                className="text-custom_slate-800 text-lg font-medium cursor-pointer"
+                                className="text-custom_slate-800 text-lg font-medium cursor-pointer truncate"
                             >
                                 {title}
                             </p>

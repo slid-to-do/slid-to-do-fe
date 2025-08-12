@@ -1,6 +1,6 @@
 import {del, get, patch} from '@/lib/common-api'
 
-import type {Goal, GoalProgress} from '@/types/goals'
+import type {Goal, GoalProgress, GoalsListResponse} from '@/types/goals'
 import type {TodoResponse} from '@/types/todos'
 
 // goal API 호출 함수
@@ -40,5 +40,15 @@ export const goalPrograssApi = async (goalId: number): Promise<GoalProgress> => 
     const response = await get<GoalProgress>({
         endpoint: `todos/progress?goalId=${goalId}`,
     })
+    return response.data
+}
+
+// goal list API 함수
+export const goalListApi = async (): Promise<GoalsListResponse> => {
+    const endpoint = `goals?sortOrder=newest`
+    const response = await get<GoalsListResponse>({
+        endpoint,
+    })
+
     return response.data
 }

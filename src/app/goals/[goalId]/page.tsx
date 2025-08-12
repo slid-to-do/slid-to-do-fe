@@ -251,7 +251,6 @@ const GoalsPage = () => {
         goalUpdateLoading,
         goalGetLoading,
     ].includes(true)
-    if (isAnyLoading) return <LoadingSpinner />
 
     /**할일 에러 발생 구현 화면 */
     const error = [doneIsError && doneError, notDoneIsError && notDoneError].find(Boolean)
@@ -262,7 +261,7 @@ const GoalsPage = () => {
     }
 
     return (
-        <div className="w-full desktop-layout flex-1 min-w-0 min-h-screen overflow-y-auto">
+        <div className="w-full desktop-layout flex-1 min-w-0">
             <div className="text-subTitle">목표</div>
             <GoalHeader
                 goal={goal}
@@ -287,28 +286,32 @@ const GoalsPage = () => {
                 <Image src="/goals/ic-arrow-right.svg" alt="노트보기 페이지 이동" width={24} height={24} />
             </Link>
 
-            <div className="mt-6 flex flex-col lg:flex-row gap-6 justify-between">
-                <InfiniteTodoList
-                    title="To do"
-                    todos={todosNotDone}
-                    isLoading={loadingNotDone}
-                    hasMore={hasMoreNotDone}
-                    refCallback={notDoneReference}
-                    onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
-                    onDelete={(todoId: number) => handleTodoDelete(todoId)}
-                    onAddClick={todoAddModal}
-                />
+            {isAnyLoading ? (
+                <LoadingSpinner />
+            ) : (
+                <div className="mt-6 flex flex-col lg:flex-row gap-6 justify-between">
+                    <InfiniteTodoList
+                        title="To do"
+                        todos={todosNotDone}
+                        isLoading={loadingNotDone}
+                        hasMore={hasMoreNotDone}
+                        refCallback={notDoneReference}
+                        onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
+                        onDelete={(todoId: number) => handleTodoDelete(todoId)}
+                        onAddClick={todoAddModal}
+                    />
 
-                <InfiniteTodoList
-                    title="Done"
-                    todos={todosDone}
-                    isLoading={loadingDone}
-                    hasMore={haseMoreDone}
-                    refCallback={doneReference}
-                    onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
-                    onDelete={(todoId: number) => handleTodoDelete(todoId)}
-                />
-            </div>
+                    <InfiniteTodoList
+                        title="Done"
+                        todos={todosDone}
+                        isLoading={loadingDone}
+                        hasMore={haseMoreDone}
+                        refCallback={doneReference}
+                        onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
+                        onDelete={(todoId: number) => handleTodoDelete(todoId)}
+                    />
+                </div>
+            )}
         </div>
     )
 }

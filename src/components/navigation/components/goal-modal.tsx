@@ -39,8 +39,12 @@ const GoalModal = () => {
 
                 clearModal()
             },
-            onError: () => {
-                setErrorChange('제목을 입력해주세요.')
+            onError: (error) => {
+                const status = (error as Error & {status?: number}).status || 500
+
+                if (status !== 500) {
+                    setErrorChange('제목을 입력해주세요.')
+                }
             },
         },
     )

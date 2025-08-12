@@ -127,6 +127,8 @@ const config: Config = {
                     padding: theme('spacing.6'),
                     [`@media (min-width: 430px) and (max-width: 774px)`]: {
                         marginLeft: '42px',
+                        paddingLeft: `${theme('spacing.10')}!important`,
+                        paddingRight: `${theme('spacing.20')}!important`,
                     },
                     [`@media (min-width: 774px)`]: {
                         maxWidth: '1200px',

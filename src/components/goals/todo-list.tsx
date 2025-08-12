@@ -52,7 +52,7 @@ export default function InfiniteTodoList({
                     </div>
                 )}
             </div>
-            <div className="mt-4   min-h-0 overflow-y-auto scrollbar-custom">
+            <div className="mt-4 min-h-0 overflow-y-auto scrollbar-custom">
                 {todos.length > 0 ? (
                     <>
                         {isLoading ? (

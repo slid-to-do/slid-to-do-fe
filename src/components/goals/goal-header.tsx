@@ -41,7 +41,7 @@ export default function GoalHeader({
     const {goalId} = useParams()
     /** 목표 달성 API */
     const {data: progressData, isLoading} = useCustomQuery<GoalProgress>(
-        ['goals', goalId, 'progress'],
+        ['goal', goalId, 'progress'],
         async () => goalPrograssApi(Number(goalId)),
         {
             errorDisplayType: 'toast',

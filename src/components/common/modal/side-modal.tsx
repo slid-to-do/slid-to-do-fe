@@ -27,7 +27,7 @@ const SideModal = ({noteId}: {noteId: number}) => {
     const {clearModal} = useModalStore()
 
     return (
-        <div className="absolute inset-y-0 right-0 z-50 bg-white lg:w-[800px] sm:w-lg w-full flex-1 min-h-0 p-6">
+        <div className="absolute inset-y-0 right-0 z-50 bg-white lg:w-[800px] sm:w-lg w-full  p-6">
             <Image
                 src="/todos/ic-close.svg"
                 alt="Close Icon"
@@ -40,8 +40,8 @@ const SideModal = ({noteId}: {noteId: number}) => {
             {isLoading ? (
                 <LoadingSpinner />
             ) : (
-                <div className=" w-full h-screen  overflow-y-scroll">
-                    <div className="flex  items-center gap-1.5 mb-3 text-base font-medium text-custom_slate-800">
+                <div className=" w-full h-screen min-h-0 flex-1 overflow-y-scroll ">
+                    <div className="flex  items-center gap-1.5 mb-3 text-base font-medium text-custom_slate-800 ">
                         <Image src="/todos/ic-flag.svg" alt="Flag Icon" width={24} height={24} />
                         <div>{data?.goal.title}</div>
                     </div>
@@ -72,7 +72,7 @@ const SideModal = ({noteId}: {noteId: number}) => {
                     )}
 
                     <p
-                        className="text-custom_slate-700 prose break-words "
+                        className="text-custom_slate-700 prose break-words  mb-30  "
                         dangerouslySetInnerHTML={{__html: data?.content || ''}}
                     />
                 </div>

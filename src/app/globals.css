@@ -97,3 +97,17 @@ button:disabled {
     margin: 0 !important;
     width: 100%;
 }
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+/* Firefox */
+* {
+    scrollbar-width: none; /* 스크롤바 숨기기 */
+}
+
+/* IE & Edge (구버전) */
+* {
+    -ms-overflow-style: none;
+}

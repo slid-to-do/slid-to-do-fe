@@ -66,5 +66,4 @@ https://slid-to-do-fe.vercel.app/
 [팀 협업 컨벤션](https://github.com/slid-to-do/slid-to-do-fe/blob/develop/CONVENTION.md)
 
 ## 🗒️ 팀 회고
-
 <img width="793" alt="Image" src="https://github.com/user-attachments/assets/58820917-6d07-4d59-ba49-368188488245" />

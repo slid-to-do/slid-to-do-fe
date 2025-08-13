@@ -264,7 +264,7 @@ const GoalsPage = () => {
     }
 
     return (
-        <div className="w-full desktop-layout flex-1 min-w-0">
+        <div className="w-full desktop-layout flex-1 min-w-0 overflow-y-auto">
             <div className="text-subTitle">목표</div>
             <GoalHeader
                 goal={goal}

@@ -2,6 +2,10 @@
 
 ![Slid to-do](https://private-user-images.githubusercontent.com/104883910/476993685-8dbfd81f-b61c-41be-acb2-7db92c9af8dd.png?jwt=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJpc3MiOiJnaXRodWIuY29tIiwiYXVkIjoicmF3LmdpdGh1YnVzZXJjb250ZW50LmNvbSIsImtleSI6ImtleTUiLCJleHAiOjE3NTQ5OTI3ODUsIm5iZiI6MTc1NDk5MjQ4NSwicGF0aCI6Ii8xMDQ4ODM5MTAvNDc2OTkzNjg1LThkYmZkODFmLWI2MWMtNDFiZS1hY2IyLTdkYjkyYzlhZjhkZC5wbmc_WC1BbXotQWxnb3JpdGhtPUFXUzQtSE1BQy1TSEEyNTYmWC1BbXotQ3JlZGVudGlhbD1BS0lBVkNPRFlMU0E1M1BRSzRaQSUyRjIwMjUwODEyJTJGdXMtZWFzdC0xJTJGczMlMkZhd3M0X3JlcXVlc3QmWC1BbXotRGF0ZT0yMDI1MDgxMlQwOTU0NDVaJlgtQW16LUV4cGlyZXM9MzAwJlgtQW16LVNpZ25hdHVyZT1mZGVmMzBiZmYwM2ViZjkzNDlmNTk1OTAxYzUzYzk0MzNiZTU5YTJiNTQzZjBhZmQ1YTY0OWM2NGMzYTZlMjY0JlgtQW16LVNpZ25lZEhlYWRlcnM9aG9zdCJ9.51jVuBeF72xZLwf9e6e7kyrhiOiKq05WEsq0R5twYpA)
 
+## 배포 링크
+
+https://slid-to-do-fe.vercel.app/
+
 ## 💡 Slid to-do는
 
 `Slid to-do`는 다양한 학습 및 작업 콘텐츠(아티클, 강의 영상, Zoom 미팅 일정, 강의 자료 등)를 할 일 목록으로 정리하고, 각 콘텐츠에 대한 노트를 작성하며 체계적으로 학습과 프로젝트를 관리할 수 있는 서비스입니다.

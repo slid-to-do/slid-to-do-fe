@@ -47,7 +47,7 @@ const GoalsPage = () => {
         ['goal', goalId],
         async () => goalDataApi(goalId),
         {
-            errorDisplayType: 'toast',
+            errorDisplayType: 'both',
             mapErrorMessage: (error) => {
                 const typedError = error as {message?: string; response?: {data?: {message?: string}}}
 
@@ -57,7 +57,7 @@ const GoalsPage = () => {
 
                 return typedError.message || '알 수 없는 오류가 발생했습니다.'
             },
-            // errorRedirectPath: '/',
+            errorRedirectPath: '/',
         },
     )
 
@@ -84,7 +84,6 @@ const GoalsPage = () => {
             },
             onSuccess: () => {
                 queryClient.invalidateQueries({queryKey: ['goal']})
-                queryClient.invalidateQueries({queryKey: ['goals']})
                 showToast('수정이 완료되었습니다.')
             },
         },
@@ -216,6 +215,7 @@ const GoalsPage = () => {
             },
             onSuccess: () => {
                 queryClient.invalidateQueries({queryKey: ['todos']})
+                queryClient.invalidateQueries({queryKey: ['goal']})
             },
         },
     )
@@ -236,6 +236,7 @@ const GoalsPage = () => {
             },
             onSuccess: () => {
                 queryClient.invalidateQueries({queryKey: ['todos']})
+                queryClient.invalidateQueries({queryKey: ['goal']})
             },
         },
     )

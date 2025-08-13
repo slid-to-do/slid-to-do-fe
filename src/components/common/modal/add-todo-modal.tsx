@@ -285,7 +285,7 @@ const AddTodoModal = ({goalId}: AddTodoModalProperties) => {
                     {isCheckedFile && (
                         <div
                             tabIndex={0}
-                            className="flex flex-col items-center justify-center gap-2 py-16 bg-custom_slate-50 rounded-xl cursor-pointer"
+                            className="flex flex-col items-center justify-center gap-2 py-4 bg-custom_slate-50 rounded-xl cursor-pointer"
                             onClick={() => {
                                 fileInputReference.current?.click()
                             }}

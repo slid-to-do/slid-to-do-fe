@@ -61,7 +61,7 @@ const SideModal = ({noteId}: {noteId: number}) => {
                     </h2>
 
                     {data?.linkUrl && (
-                        <div className="my-4 bg-custom_slate-200 p-1 rounded-full flex justify-between  overflow-y-scroll items-center">
+                        <div className="my-4 bg-custom_slate-200 p-1 rounded-full flex justify-between   items-center">
                             <div className="flex items-end gap-2">
                                 <Image src="/markdown-editor/ic-save-link.svg" alt="링크이동" width={24} height={24} />
                                 <a href={data?.linkUrl} target="_blank" className="inline-block" rel="noreferrer">

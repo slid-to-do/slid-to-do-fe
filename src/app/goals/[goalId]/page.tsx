@@ -17,7 +17,7 @@ import {useCustomQuery} from '@/hooks/use-custom-query'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import useModal from '@/hooks/use-modal'
 import useToast from '@/hooks/use-toast'
-import {get} from '@/lib/api'
+import {get} from '@/lib/common-api'
 import {goalDataApi, goalDeleteApi, goalUpdateApi} from '@/lib/goals/api'
 import {todoDeleteApi, todoUpdateApi} from '@/lib/todos/api'
 import {useModalStore} from '@/store/use-modal-store'
@@ -48,7 +48,7 @@ const GoalsPage = () => {
         ['goal', goalId],
         async () => goalDataApi(goalId),
         {
-            errorDisplayType: 'toast',
+            errorDisplayType: 'both',
             mapErrorMessage: (error) => {
                 const typedError = error as {message?: string; response?: {data?: {message?: string}}}
 
@@ -58,7 +58,7 @@ const GoalsPage = () => {
 
                 return typedError.message || '알 수 없는 오류가 발생했습니다.'
             },
-            // errorRedirectPath: '/',
+            errorRedirectPath: '/',
         },
     )
 
@@ -84,8 +84,8 @@ const GoalsPage = () => {
                 return typedError.message || '알 수 없는 오류가 발생했습니다.'
             },
             onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: ['goal']})
                 showToast('수정이 완료되었습니다.')
-                queryClient.invalidateQueries({queryKey: ['goals']})
             },
         },
     )
@@ -216,6 +216,7 @@ const GoalsPage = () => {
             },
             onSuccess: () => {
                 queryClient.invalidateQueries({queryKey: ['todos']})
+                queryClient.invalidateQueries({queryKey: ['goal']})
             },
         },
     )
@@ -236,6 +237,7 @@ const GoalsPage = () => {
             },
             onSuccess: () => {
                 queryClient.invalidateQueries({queryKey: ['todos']})
+                queryClient.invalidateQueries({queryKey: ['goal']})
             },
         },
     )
@@ -252,7 +254,6 @@ const GoalsPage = () => {
         goalUpdateLoading,
         goalGetLoading,
     ].includes(true)
-    if (isAnyLoading) return <LoadingSpinner />
 
     /**할일 에러 발생 구현 화면 */
     const error = [doneIsError && doneError, notDoneIsError && notDoneError].find(Boolean)
@@ -263,7 +264,7 @@ const GoalsPage = () => {
     }
 
     return (
-        <div className="w-full desktop-layout">
+        <div className="w-full desktop-layout flex-1 min-w-0 overflow-y-auto">
             <div className="text-subTitle">목표</div>
             <GoalHeader
                 goal={goal}
@@ -288,28 +289,32 @@ const GoalsPage = () => {
                 <Image src="/goals/ic-arrow-right.svg" alt="노트보기 페이지 이동" width={24} height={24} />
             </Link>
 
-            <div className="mt-6 flex flex-col lg:flex-row gap-6 justify-between">
-                <InfiniteTodoList
-                    title="To do"
-                    todos={todosNotDone}
-                    isLoading={loadingNotDone}
-                    hasMore={hasMoreNotDone}
-                    refCallback={notDoneReference}
-                    onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
-                    onDelete={(todoId: number) => handleTodoDelete(todoId)}
-                    onAddClick={todoAddModal}
-                />
+            {isAnyLoading ? (
+                <LoadingSpinner />
+            ) : (
+                <div className="mt-6 flex flex-col lg:flex-row gap-6 justify-between">
+                    <InfiniteTodoList
+                        title="To do"
+                        todos={todosNotDone}
+                        isLoading={loadingNotDone}
+                        hasMore={hasMoreNotDone}
+                        refCallback={notDoneReference}
+                        onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
+                        onDelete={(todoId: number) => handleTodoDelete(todoId)}
+                        onAddClick={todoAddModal}
+                    />
 
-                <InfiniteTodoList
-                    title="Done"
-                    todos={todosDone}
-                    isLoading={loadingDone}
-                    hasMore={haseMoreDone}
-                    refCallback={doneReference}
-                    onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
-                    onDelete={(todoId: number) => handleTodoDelete(todoId)}
-                />
-            </div>
+                    <InfiniteTodoList
+                        title="Done"
+                        todos={todosDone}
+                        isLoading={loadingDone}
+                        hasMore={haseMoreDone}
+                        refCallback={doneReference}
+                        onToggle={(todoId: number, newDone: boolean) => updateTodo({todoId, newDone})}
+                        onDelete={(todoId: number) => handleTodoDelete(todoId)}
+                    />
+                </div>
+            )}
         </div>
     )
 }

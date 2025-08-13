@@ -3,16 +3,17 @@
 import Image from 'next/image'
 import React from 'react'
 
-import {useInfiniteQuery, useMutation, useQueryClient} from '@tanstack/react-query'
+import {useInfiniteQuery, useQueryClient} from '@tanstack/react-query'
 
+import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useToast from '@/hooks/use-toast'
-import {del, get, patch} from '@/lib/api'
+import {del, get, patch} from '@/lib/common-api'
 
 import TodoList from './todo-list'
 
 import type {TodoResponse} from '@/types/todos'
 
-const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
+const GoalListBody = ({goalId}: {goalId: number | undefined}) => {
     const queryClient = useQueryClient()
     const {showToast} = useToast()
 
@@ -29,9 +30,6 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
                 nextCursor: number | undefined
             }>({
                 endpoint,
-                options: {
-                    headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                },
             })
 
             return {
@@ -79,70 +77,61 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
     const todosDone = doneData?.pages.flatMap((page) => page.data) ?? []
 
     /**할일 checkbox update */
-    const updateTodo = useMutation({
-        mutationFn: async ({todoId, newDone}: {todoId: number; newDone: boolean}) => {
+    const updateTodo = useCustomMutation(
+        async ({todoId, newDone}: {todoId: number; newDone: boolean}) => {
             const response = await patch<TodoResponse>({
                 endpoint: `todos/${todoId}`,
                 data: {done: newDone},
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
             })
             return response.data
         },
-        onSuccess: (_, value) => {
-            queryClient.invalidateQueries({queryKey: ['todo']})
-            queryClient.invalidateQueries({queryKey: ['allProgress']})
-            queryClient.invalidateQueries({queryKey: ['newTodo']})
-            queryClient.invalidateQueries({queryKey: ['todo', 'notDone', goalId]})
-            queryClient.invalidateQueries({queryKey: ['todo', 'done', goalId]})
-            queryClient.invalidateQueries({queryKey: ['todos', goalId, 'dashProgress']})
-            if (value.newDone) showToast('할 일이 완료되었습니다.', {type: 'info'})
-            else showToast('할 일이 다시 추가되었습니다.', {type: 'info'})
+        {
+            onSuccess: (_, value) => {
+                queryClient.invalidateQueries({queryKey: ['allProgress']})
+                queryClient.invalidateQueries({queryKey: ['newTodo']})
+                queryClient.invalidateQueries({queryKey: ['todo', 'notDone', goalId]})
+                queryClient.invalidateQueries({queryKey: ['todo', 'done', goalId]})
+                queryClient.invalidateQueries({queryKey: ['todos', goalId, 'dashProgress']})
+                if (value.newDone) showToast('할 일이 완료되었습니다.', {type: 'info'})
+                else showToast('할 일이 다시 추가되었습니다.', {type: 'info'})
+            },
         },
-    })
+    )
 
     /**할일 삭제 */
-    const deleteTodo = useMutation({
-        mutationFn: async (todoId: number) => {
+    const deleteTodo = useCustomMutation(
+        async (todoId: number) => {
             if (!confirm('정말로 이 할 일을 삭제하시겠습니까?')) return
 
             const response = await del({
                 endpoint: `todos/${todoId}`,
-                options: {
-                    headers: {
-                        Authorization: `Bearer ${localStorage.getItem('refreshToken')}`,
-                    },
-                },
             })
             return response
         },
-        onSuccess: () => {
-            queryClient.invalidateQueries({queryKey: ['todo']})
-            queryClient.invalidateQueries({queryKey: ['allProgress']})
-            queryClient.invalidateQueries({queryKey: ['newTodo']})
-            queryClient.invalidateQueries({queryKey: ['todo', 'notDone', goalId]})
-            queryClient.invalidateQueries({queryKey: ['todo', 'done', goalId]})
-            queryClient.invalidateQueries({queryKey: ['todos', 'progress']})
+        {
+            onSuccess: () => {
+                queryClient.invalidateQueries({queryKey: ['todo']})
+                queryClient.invalidateQueries({queryKey: ['allProgress']})
+                queryClient.invalidateQueries({queryKey: ['newTodo']})
+                queryClient.invalidateQueries({queryKey: ['todo', 'notDone', goalId]})
+                queryClient.invalidateQueries({queryKey: ['todo', 'done', goalId]})
+                queryClient.invalidateQueries({queryKey: ['todos', 'progress']})
+            },
         },
-    })
+    )
 
-    // 더보기 함수 - 두 리스트 모두 추가 로드
     const handleLoadMore = () => {
         fetchNextNotDone()
         fetchNextDone()
     }
 
-    // 둘 중 하나라도 더 불러올 데이터가 있으면 더보기 버튼 표시
     const hasMoreData = hasNextNotDone || hasNextDone
-    // 둘 중 하나라도 로딩 중이면 로딩 상태 표시
+
     const isLoadingMore = isFetchingNextPageNotDone || isFetchingNextPageDone
 
     return (
         <>
-            <section className="flex w-full h-auto flex-col lg:flex-row">
+            <section className="flex w-full h-auto flex-col lg:flex-row flex-1 min-w-0">
                 <TodoList
                     title="To do"
                     todos={todosNotDone}
@@ -160,36 +149,36 @@ const GoalListBody = ({goalId = 2386}: {goalId: number | undefined}) => {
             </section>
 
             {/* 통합 더보기 버튼 */}
-
-            <div className="mt-4 flex justify-center">
-                <button
-                    onClick={handleLoadMore}
-                    disabled={isLoadingMore || !hasMoreData}
-                    className="px-4 py-1 text-sm bg-white rounded-full border after:border-transparent border-transparent hover:text-custom_blue-800 hover:border-custom_blue-800 disabled:text-custom_slate-400 disabled:hover:border-transparent disabled:cursor-not-allowed transition-colors"
-                >
-                    {isLoadingMore ? (
-                        <div className="flex items-center gap-2">
-                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin">
-                                -
+            {hasMoreData && (
+                <div className="mt-4 flex justify-center">
+                    <button
+                        onClick={handleLoadMore}
+                        disabled={isLoadingMore}
+                        className="px-4 py-1 text-sm bg-white rounded-full border border-transparent hover:text-custom_blue-800 hover:border-custom_blue-800 disabled:text-custom_slate-400 disabled:hover:border-transparent disabled:cursor-not-allowed transition-colors"
+                    >
+                        {isLoadingMore ? (
+                            <div className="flex items-center gap-2">
+                                <div
+                                    className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"
+                                    aria-label="로딩중"
+                                />
+                                로딩중...
                             </div>
-                            로딩중...
-                        </div>
-                    ) : (
-                        <div className="w-full h-full flex min-w-[65px]  gap-3">
-                            {hasMoreData && (
+                        ) : (
+                            <div className="flex items-center gap-3 min-w-[65px]">
                                 <Image
-                                    src={'/dashboard/down-arrow.svg'}
-                                    alt={'downArrow'}
+                                    src="/dashboard/down-arrow.svg"
+                                    alt="더 보기 화살표"
                                     width={9}
                                     height={9}
-                                    className=" w-2.5 h-auto"
+                                    className="w-2.5 h-auto"
                                 />
-                            )}
-                            {hasMoreData && '더 보기'}
-                        </div>
-                    )}
-                </button>
-            </div>
+                                더 보기
+                            </div>
+                        )}
+                    </button>
+                </div>
+            )}
         </>
     )
 }

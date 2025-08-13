@@ -10,7 +10,7 @@ import clsx from 'clsx'
 import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import useModal from '@/hooks/use-modal'
 import useToast from '@/hooks/use-toast'
-import {del} from '@/lib/api'
+import {noteDeleteApi} from '@/lib/notes/api'
 
 import TwoButtonModal from '../common/modal/two-buttom-modal'
 
@@ -23,11 +23,7 @@ const NotesSelect: React.FC<{noteId: number}> = ({noteId}) => {
     const queryClient = useQueryClient()
 
     const {mutate: deletNote} = useCustomMutation<void, Error, number>(
-        async (id) => {
-            await del({
-                endpoint: `notes/${id}`,
-            })
-        },
+        noteDeleteApi,
         {
             errorDisplayType: 'toast',
             mapErrorMessage: (error) => {

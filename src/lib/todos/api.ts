@@ -1,4 +1,4 @@
-import {del, get, patch} from '@/lib/api'
+import {del, get, patch} from '@/lib/common-api'
 
 import type {Todo, TodoResponse} from '@/types/todos'
 

@@ -7,7 +7,7 @@ import userEvent from '@testing-library/user-event'
 
 import InfiniteTodoList from '@/components/goals/todo-list'
 import useToast from '@/hooks/use-toast'
-import * as api from '@/lib/api'
+import * as api from '@/lib/common-api'
 
 const mockGoal = {
     id: 2479,
@@ -26,7 +26,7 @@ jest.mock('@/hooks/use-toast')
 let mockShowToast: jest.Mock
 
 // api통신 모킹
-jest.mock('@/lib/api')
+jest.mock('@/lib/common-api')
 const mockedGet = api.get as jest.MockedFunction<typeof api.get>
 
 beforeEach(() => {
@@ -45,7 +45,7 @@ const createQueryClient = () =>
         },
     })
 
-function renderWithClient(ui: React.ReactElement) {
+const renderWithClient = (ui: React.ReactElement) => {
     const queryClient = createQueryClient()
     return render(<QueryClientProvider client={queryClient}>{ui}</QueryClientProvider>)
 }

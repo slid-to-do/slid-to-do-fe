@@ -10,12 +10,15 @@ import clsx from 'clsx'
 import ButtonStyle from '@/components/style/button-style'
 import InputStyle from '@/components/style/input-style'
 import {useCustomMutation} from '@/hooks/use-custom-mutation'
-import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
+import {useCustomQuery} from '@/hooks/use-custom-query'
 import useToast from '@/hooks/use-toast'
-import {get, patch} from '@/lib/api'
+import {patch} from '@/lib/common-api'
+import {goalListApi} from '@/lib/goals/api'
 import {useModalStore} from '@/store/use-modal-store'
 
-import type {Goal, GoalResponse} from '@/types/goals'
+import LoadingSpinner from '../loading-spinner'
+
+import type {GoalsListResponse} from '@/types/goals'
 import type {PatchTodoRequest, PostTodoRequest, TodoResponse} from '@/types/todos'
 
 const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
@@ -28,10 +31,8 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
         linkUrl: todoDetail.linkUrl || '',
     })
 
-    const [selectedGoal, setSelectedGoal] = useState<Goal>(todoDetail.goal)
     const [isCheckedFile, setIsCheckedFile] = useState<boolean>(!!todoDetail.fileUrl)
     const [isCheckedLink, setIsCheckedLink] = useState<boolean>(!!todoDetail.linkUrl)
-    const [isDropdownOpen, setIsDropdownOpen] = useState<boolean>(false)
     const [file, setFile] = useState<File | undefined>()
 
     const fileInputReference = useRef<HTMLInputElement>(null)
@@ -40,34 +41,17 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
 
     const {showToast} = useToast()
 
-    // 무한 스크롤 목표 데이터
-    const getGoalsData = async (cursor: number | undefined) => {
-        try {
-            const urlParameter = cursor === undefined ? '' : `&cursor=${cursor}`
-            const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
-                endpoint: `goals?size=3&sortOrder=newest${urlParameter}`,
-            })
+    const {data: goals, isLoading: isLoadingGoals} = useCustomQuery<GoalsListResponse>(['goals'], goalListApi, {
+        errorDisplayType: 'toast',
+        mapErrorMessage: (error) => {
+            const typedError = error as {message?: string; response?: {data?: {message?: string}}}
 
-            return {
-                data: response.data.goals,
-                nextCursor: response.data.nextCursor,
+            if (axios.isAxiosError(error)) {
+                return error.response?.data.message || '서버 오류가 발생했습니다.'
             }
-        } catch (fetchError) {
-            if (fetchError instanceof Error) {
-                throw fetchError
-            }
-            throw new Error(String(fetchError))
-        }
-    }
 
-    const {
-        data: fetchGoals,
-        ref: goalReference,
-        isLoading: loadingGoals,
-        hasMore: hasMoreGoals,
-    } = useInfiniteScrollQuery<GoalResponse>({
-        queryKey: ['myGoals'],
-        fetchFn: getGoalsData,
+            return typedError.message || '알 수 없는 오류가 발생했습니다.'
+        },
     })
 
     const uploadFileMutation = useCustomMutation<string>(
@@ -171,7 +155,7 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
     }
 
     return (
-        <div className="absolute p-6 transform bg-white -translate-1/2 top-1/2 left-1/2 md:rounded-xl md:h-auto w-full h-full md:w-lg flex flex-col justify-between">
+        <div className="absolute flex flex-col justify-between w-full h-full p-6 transform bg-white -translate-1/2 top-1/2 left-1/2 md:rounded-xl md:h-auto md:w-lg">
             <div>
                 <div className="flex items-center justify-between">
                     <div className="text-lg font-bold">할 일 수정</div>
@@ -194,75 +178,31 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
                         value={inputs.title}
                         name="title"
                         onChange={handleInputUpdate}
+                        maxLength={30}
                     />
                 </div>
 
-                {/* 목표 드롭다운 - 무한 스크롤 */}
+                {/* 목표 드롭다운 */}
                 <div className="mt-6">
                     <div className="text-base font-semibold">목표</div>
-
-                    <div className="relative px-5 py-3 bg-custom_slate-50 rounded-md">
-                        <div
-                            className={clsx('text-custom_slate-400 cursor-pointer', {
-                                'text-custom_slate-800': inputs.goalId,
-                            })}
-                            onClick={() => setIsDropdownOpen(!isDropdownOpen)}
+                    {isLoadingGoals ? (
+                        <LoadingSpinner />
+                    ) : (
+                        <select
+                            value={inputs.goalId || ''}
+                            onChange={(event) => setInputs({...inputs, goalId: Number(event.target.value)})}
+                            className="w-full px-5 py-3 rounded-md bg-custom_slate-50 appearance-none"
                         >
-                            {inputs.goalId ? selectedGoal.title : '목표를 선택해주세요'}
-                        </div>
-
-                        {isDropdownOpen && (
-                            <div className="absolute left-0 w-full top-12 h-72 overflow-auto bg-white border border-gray-200 rounded-md shadow-lg z-10">
-                                {loadingGoals && fetchGoals.length === 0 ? (
-                                    <div className="flex items-center justify-center w-full h-full text-sm text-custom_slate-400">
-                                        로딩 중...
-                                    </div>
-                                ) : (
-                                    <div className="flex flex-col">
-                                        {fetchGoals.length === 0 ? (
-                                            <div className="px-3 py-2 text-sm text-custom_slate-400">
-                                                등록된 목표가 없어요
-                                            </div>
-                                        ) : (
-                                            <>
-                                                {fetchGoals.map((goal, index) => (
-                                                    <div
-                                                        key={goal.id}
-                                                        ref={
-                                                            index === fetchGoals.length - 1 ? goalReference : undefined
-                                                        }
-                                                        className="px-3 py-2 text-sm cursor-pointer hover:bg-custom_slate-100"
-                                                        onClick={(event_) => {
-                                                            event_.stopPropagation()
-                                                            setInputs((previous) => ({...previous, goalId: goal.id}))
-                                                            setSelectedGoal(goal)
-                                                            setIsDropdownOpen(false)
-                                                        }}
-                                                    >
-                                                        {goal.title}
-                                                    </div>
-                                                ))}
-
-                                                {/* 로딩 인디케이터 */}
-                                                {loadingGoals && (
-                                                    <div className="px-3 py-2 text-sm text-center text-custom_slate-400">
-                                                        더 불러오는 중...
-                                                    </div>
-                                                )}
-
-                                                {/* 더 이상 데이터가 없을 때 */}
-                                                {!hasMoreGoals && fetchGoals.length > 0 && (
-                                                    <div className="px-3 py-2 text-sm text-center text-custom_slate-400">
-                                                        모든 목표를 불러왔습니다
-                                                    </div>
-                                                )}
-                                            </>
-                                        )}
-                                    </div>
-                                )}
-                            </div>
-                        )}
-                    </div>
+                            <option value="" disabled>
+                                목표를 선택하세요
+                            </option>
+                            {goals?.goals?.map((goal) => (
+                                <option key={goal.id} value={goal.id}>
+                                    {goal.title}
+                                </option>
+                            ))}
+                        </select>
+                    )}
                 </div>
 
                 {/* 자료 */}
@@ -326,9 +266,15 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
 
                     {(isCheckedFile || inputs.fileUrl) && (
                         <div
-                            className="flex flex-col items-center justify-center gap-2 py-16 bg-custom_slate-50 rounded-xl"
+                            tabIndex={0}
+                            className="flex flex-col items-center justify-center gap-2 py-4 bg-custom_slate-50 rounded-xl"
                             onClick={() => {
                                 fileInputReference.current?.click()
+                            }}
+                            onKeyDown={(event) => {
+                                if (event.key === 'Enter') {
+                                    fileInputReference.current?.click()
+                                }
                             }}
                         >
                             {file || inputs.fileUrl ? (
@@ -355,7 +301,11 @@ const EditTodoModal = ({todoDetail}: {todoDetail: TodoResponse}) => {
 
             {/* 확인 버튼 */}
             <div className="mt-6">
-                <ButtonStyle size="full" disabled={!inputs.title.trim() || !inputs.goalId} onClick={handleSubmit}>
+                <ButtonStyle
+                    size="full"
+                    disabled={!inputs.title.trim() || !inputs.goalId || submitForm.isPending}
+                    onClick={handleSubmit}
+                >
                     수정하기
                 </ButtonStyle>
             </div>

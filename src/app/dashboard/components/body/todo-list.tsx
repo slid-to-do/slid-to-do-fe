@@ -24,9 +24,9 @@ const TodoList = ({
         <EditTodoModal todoDetail={todoDetail} />
     ))
     return (
-        <div className="bg-blue-50 py-4 px-6 min-h-[228px]  flex flex-col  lg:flex-1">
+        <div className="bg-blue-50 py-4 px-6 min-h-[228px]  flex flex-col  lg:flex-1 min-w-0">
             <h1 className="text-subTitle">{title}</h1>
-            <div className="mt-4 flex-1 min-h-0 scrollbar-custom">
+            <div className="mt-4 flex-1 min-w-0 min-h-0 scrollbar-custom">
                 {todos.length > 0 ? (
                     <>
                         {isLoading ? (

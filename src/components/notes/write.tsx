@@ -154,7 +154,7 @@ const NoteWriteCompo = ({
     const {mutate: saveNotes} = useCustomMutation(
         async () => {
             const payload = {
-                id: Number(todoId),
+                todoId: Number(todoId),
                 title: subject,
                 content,
                 ...(linkButton && {linkUrl: linkButton}),
@@ -221,10 +221,10 @@ const NoteWriteCompo = ({
                             alt="delete"
                             width={24}
                             height={24}
-                            className="w-6 h-6"
+                            className="w-6 h-6 cursor-pointer"
                             onClick={() => setSaveToastOpen(false)}
                         />
-                        <div className="text-custom_blue-500 text-sm font-semibold">
+                        <div className="text-custom_blue-500 text-sm font-semibold mobile:text-xs">
                             임시 작성된 노트가 있어요. 작성된 노트를 불러오시겠어요?
                         </div>
                     </div>
@@ -235,14 +235,14 @@ const NoteWriteCompo = ({
             )}
 
             <div className="mt-4 flex items-center gap-2">
-                <Image src="/goals/flag-goal.svg" alt="목표깃발" width={24} height={24} />
-                <h2 className="text-subTitle-sm">{goalTitle}</h2>
+                <Image src="/goals/flag-goal.svg" alt="goal-flag" width={24} height={24} />
+                <h2 className="text-subTitle-sm truncate">{goalTitle}</h2>
             </div>
             <div className="mt-3 flex items-center gap-2">
-                <div className="p-1 bg-custom_slate-100 text-custom_slate-700 text-subBody font-medium rounded-sm">
-                    <p>To do</p>
+                <div className="p-1 bg-custom_slate-100 text-custom_slate-700 text-subBody font-medium rounded-sm shirink-0 whitespace-nowrap">
+                    To do
                 </div>
-                <p className=" text-custom_slate-700 text-subBody font-normal">{todoTitle}</p>
+                <p className=" text-custom_slate-700 text-subBody font-normal truncate min-w-0">{todoTitle}</p>
             </div>
             <div className="mt-6">
                 <div className="border-t border-b flex items-center">

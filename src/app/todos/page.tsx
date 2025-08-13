@@ -5,12 +5,13 @@ import {useState} from 'react'
 import {useQueryClient} from '@tanstack/react-query'
 import axios from 'axios'
 
+import LoadingSpinner from '@/components/common/loading-spinner'
 import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import EditTodoModal from '@/components/common/modal/edit-todo-modal'
 import {useCustomMutation} from '@/hooks/use-custom-mutation'
 import {useCustomQuery} from '@/hooks/use-custom-query'
 import {useModal} from '@/hooks/use-modal'
-import {del, get, patch} from '@/lib/api'
+import {del, get, patch} from '@/lib/common-api'
 
 import Filter from './components/filter'
 import TodoItem from '../../components/common/todo-item'
@@ -114,7 +115,9 @@ const Page = () => {
         <div className="flex flex-col w-full bg-slate-100 ">
             <div className="desktop-layout flex flex-col min-h-screen">
                 <div className="flex items-center justify-between ">
-                    <h1 className="text-lg font-semibold">모든 할 일 ({data?.totalCount})</h1>
+                    <h1 className="text-lg font-semibold">
+                        모든 할 일 {data?.totalCount ? `(${data.totalCount})` : ''}
+                    </h1>
                     <button className="text-sm font-semibold text-custom_blue-500" onClick={openAddTodoModal}>
                         + 할 일 추가
                     </button>
@@ -150,9 +153,7 @@ const Page = () => {
                     </div>
 
                     {isLoading ? (
-                        <div className="flex items-center justify-center flex-1 text-sm text-custom_slate-400">
-                            로딩 중...
-                        </div>
+                        <LoadingSpinner />
                     ) : (
                         <>
                             <div className="flex flex-col gap-2 mt-4 overflow-y-auto flex-1 min-h-0">

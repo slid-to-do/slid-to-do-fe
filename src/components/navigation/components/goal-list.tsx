@@ -7,7 +7,7 @@ import LoadingSpinner from '@/components/common/loading-spinner'
 import AddTodoModal from '@/components/common/modal/add-todo-modal'
 import {useInfiniteScrollQuery} from '@/hooks/use-infinite-scroll'
 import {useModal} from '@/hooks/use-modal'
-import {get} from '@/lib/api'
+import {get} from '@/lib/common-api'
 
 import ButtonStyle from '../../style/button-style'
 
@@ -22,10 +22,6 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                 const urlParameter = cursor === undefined ? '' : `&cursor=${cursor}`
                 const response = await get<{goals: GoalResponse[]; nextCursor: number | undefined}>({
                     endpoint: `goals?size=10&sortOrder=newest${urlParameter}`,
-
-                    options: {
-                        headers: {Authorization: `Bearer ${localStorage.getItem('refreshToken')}`},
-                    },
                 })
 
                 return {
@@ -45,6 +41,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
         ref: goalReference,
         isLoading: loadingGoals,
         hasMore: hasMoreGoals,
+        isFetched,
     } = useInfiniteScrollQuery<GoalResponse>({
         queryKey: ['navMygoals'],
         fetchFn: getGoalsData(),
@@ -62,7 +59,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                         목표
                     </h2>
 
-                    {isMobile && (
+                    {isMobile === true && goals.length > 0 && (
                         <ButtonStyle onClick={openModal} type="button" size="small" color="outline">
                             + 새 할일
                         </ButtonStyle>
@@ -70,33 +67,29 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                 </div>
 
                 <div className="p-4   space-y-4 flex-nowrap overflow-y-auto overflow-scroll  flex-1 min-h-0">
-                    {goals.length > 0 ? (
+                    {loadingGoals || !isFetched ? (
+                        <LoadingSpinner />
+                    ) : goals.length > 0 ? (
                         <>
-                            {loadingGoals ? (
-                                <LoadingSpinner />
-                            ) : (
-                                <>
-                                    {goals.map((goal: Goal) => (
-                                        <Link
-                                            href={`/goals/${goal.id}`}
-                                            className=" flex h-[23px]  items-center whitespace-nowrap cursor-pointer group  overflow-hidden "
-                                            key={goal.id}
-                                        >
-                                            <span className=" text-custom_slate-700 text-body mr-1 group-hover:opacity-70">
-                                                ・
-                                            </span>
-                                            <span className="text-custom_slate-700 text-body-sm tracking-tight truncate group-hover:opacity-70">
-                                                {goal.title}
-                                            </span>
-                                        </Link>
-                                    ))}
+                            {goals.map((goal: Goal) => (
+                                <Link
+                                    href={`/goals/${goal.id}`}
+                                    className="flex h-[23px] items-center whitespace-nowrap cursor-pointer group overflow-hidden"
+                                    key={goal.id}
+                                >
+                                    <span className="text-custom_slate-700 text-body mr-1 group-hover:opacity-70">
+                                        ・
+                                    </span>
+                                    <span className="text-custom_slate-700 text-body-sm tracking-tight truncate group-hover:opacity-70">
+                                        {goal.title}
+                                    </span>
+                                </Link>
+                            ))}
 
-                                    {hasMoreGoals && !loadingGoals && goals.length > 0 && <div ref={goalReference} />}
+                            {hasMoreGoals && !loadingGoals && goals.length > 0 && <div ref={goalReference} />}
 
-                                    {!hasMoreGoals && goals.length > 0 && (
-                                        <div className="mt-4 text-gray-400 text-sm">모든 목표를 다 불러왔어요</div>
-                                    )}
-                                </>
+                            {!hasMoreGoals && goals.length > 0 && (
+                                <div className="mt-4 text-gray-400 text-sm">모든 목표를 다 불러왔어요</div>
                             )}
                         </>
                     ) : (
@@ -106,7 +99,7 @@ const GoalList = ({isMobile}: {isMobile: boolean | 'noState'}) => {
                     )}
                 </div>
             </div>
-            {!isMobile && (
+            {!isMobile && goals.length > 0 && (
                 <ButtonStyle type="button" onClick={openModal} size="full" color="outline">
                     + 새 할일
                 </ButtonStyle>

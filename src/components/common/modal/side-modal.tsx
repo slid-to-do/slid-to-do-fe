@@ -27,7 +27,7 @@ const SideModal = ({noteId}: {noteId: number}) => {
     const {clearModal} = useModalStore()
 
     return (
-        <div className="absolute inset-y-0 right-0 z-50 bg-white lg:w-[800px] sm:w-lg w-full p-6">
+        <div className="absolute inset-y-0 right-0 z-50 bg-white lg:w-[800px] sm:w-lg w-full flex-1 min-h-0 p-6">
             <Image
                 src="/todos/ic-close.svg"
                 alt="Close Icon"
@@ -40,8 +40,8 @@ const SideModal = ({noteId}: {noteId: number}) => {
             {isLoading ? (
                 <LoadingSpinner />
             ) : (
-                <>
-                    <div className="flex items-center gap-1.5 mb-3 text-base font-medium text-custom_slate-800">
+                <div className=" w-full h-screen  overflow-y-scroll">
+                    <div className="flex  items-center gap-1.5 mb-3 text-base font-medium text-custom_slate-800">
                         <Image src="/todos/ic-flag.svg" alt="Flag Icon" width={24} height={24} />
                         <div>{data?.goal.title}</div>
                     </div>
@@ -61,7 +61,7 @@ const SideModal = ({noteId}: {noteId: number}) => {
                     </h2>
 
                     {data?.linkUrl && (
-                        <div className="my-4 bg-custom_slate-200 p-1 rounded-full flex justify-between items-center">
+                        <div className="my-4 bg-custom_slate-200 p-1 rounded-full flex justify-between  overflow-y-scroll items-center">
                             <div className="flex items-end gap-2">
                                 <Image src="/markdown-editor/ic-save-link.svg" alt="링크이동" width={24} height={24} />
                                 <a href={data?.linkUrl} target="_blank" className="inline-block" rel="noreferrer">
@@ -72,10 +72,10 @@ const SideModal = ({noteId}: {noteId: number}) => {
                     )}
 
                     <p
-                        className="text-custom_slate-700 prose break-words"
+                        className="text-custom_slate-700 prose break-words "
                         dangerouslySetInnerHTML={{__html: data?.content || ''}}
                     />
-                </>
+                </div>
             )}
         </div>
     )

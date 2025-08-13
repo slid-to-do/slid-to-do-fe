@@ -54,6 +54,10 @@ https://slid-to-do-fe.vercel.app/
 | 테스트          | Jest, React Testing Library            |
 | 협업/버전관리   | Git, Notion, Swagger, Figma            |
 
+## 📅 팀 프로젝트 기간
+
+2025.07.03 ~ 2025.08.12 (총 6주)
+
 ## 🤝🏻 Team Slid to-do
 
 | <img width="268" alt="Image" src="https://github.com/user-attachments/assets/e73b4f54-fd73-46ba-ac71-22bee63dfae1" /> | <img width="268" alt="Image" src="https://github.com/user-attachments/assets/293f6f22-4d36-420a-979a-be79dc86d6d6" /> | <img width="268" alt="Image" src="https://github.com/user-attachments/assets/53b9b249-a2cc-49bc-9979-a39492874504" /> | <img width="268" alt="Image" src="https://github.com/user-attachments/assets/fb2046a9-e8a9-420a-a011-181ff6f33fcd" /> | <img width="268" alt="Image" src="https://github.com/user-attachments/assets/b8da23a4-6a04-492d-9efd-53a524f945d7" /> |
@@ -66,4 +70,5 @@ https://slid-to-do-fe.vercel.app/
 [팀 협업 컨벤션](https://github.com/slid-to-do/slid-to-do-fe/blob/develop/CONVENTION.md)
 
 ## 🗒️ 팀 회고
+
 <img width="793" alt="Image" src="https://github.com/user-attachments/assets/58820917-6d07-4d59-ba49-368188488245" />

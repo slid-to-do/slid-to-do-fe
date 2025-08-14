@@ -1,26 +1,113 @@
 @import 'tailwindcss';
+@plugin '@tailwindcss/typography';
+@config "../../tailwind.config.ts";
 
 :root {
     --background: #ffffff;
+
     --foreground: #171717;
 }
-
 @theme inline {
     --color-background: var(--background);
     --color-foreground: var(--foreground);
-    --font-sans: var(--font-geist-sans);
-    --font-mono: var(--font-geist-mono);
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --background: #0a0a0a;
-        --foreground: #ededed;
-    }
 }
 
 body {
     background: var(--background);
     color: var(--foreground);
-    font-family: Arial, Helvetica, sans-serif;
+    font-family: var(--font-pretendard), Arial, Helvetica, sans-serif;
+}
+
+.ProseMirror p.is-editor-empty:first-child::before {
+    content: attr(data-placeholder);
+    float: left;
+    color: #6b7280;
+    pointer-events: none;
+    height: 0;
+}
+
+button {
+    cursor: pointer;
+}
+
+button:disabled {
+    cursor: default;
+}
+.scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+.scrollbar-custom::-webkit-scrollbar {
+    width: 6px;
+}
+.scrollbar-custom::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+.scrollbar-custom::-webkit-scrollbar-track {
+    background: transparent;
+}
+.scrollbar-custom {
+    scrollbar-width: thin;
+    scrollbar-color: rgba(0, 0, 0, 0.2) transparent;
+}
+.scrollbar-custom::-webkit-scrollbar {
+    width: 6px;
+}
+.scrollbar-custom::-webkit-scrollbar-thumb {
+    background-color: rgba(0, 0, 0, 0.2);
+    border-radius: 3px;
+}
+.scrollbar-custom::-webkit-scrollbar-track {
+    background: transparent;
+}
+
+.prose {
+    max-width: 100%;
+}
+
+.Toastify__progress-bar--bg {
+    background: linear-gradient(
+        to right,
+        rgba(209, 213, 219, 0.5),
+        /* #D1D5DB - gray-300 */ rgba(96, 99, 103, 0.5),
+        rgba(23, 24, 24, 0.5)
+    ) !important;
+}
+
+.custom-toast {
+    background-color: rgba(0, 0, 0, 0.7); /* ✅ 검정색 + 80% 불투명 */
+    color: white;
+    border-radius: 0.5rem;
+    padding: 0.75rem 1rem;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.3);
+}
+
+/* note 임시작성 toast custom */
+#noteWrite .Toastify__toast {
+    background: transparent !important;
+    box-shadow: none !important;
+    padding: 0 !important;
+    border-radius: 0 !important;
+    margin: 0 auto !important;
+    width: 100%;
+}
+#noteWrite .Toastify__toast-body {
+    padding: 0 !important;
+    margin: 0 !important;
+    width: 100%;
+}
+
+::-webkit-scrollbar {
+    display: none;
+}
+
+/* Firefox */
+* {
+    scrollbar-width: none; /* 스크롤바 숨기기 */
+}
+
+/* IE & Edge (구버전) */
+* {
+    -ms-overflow-style: none;
 }

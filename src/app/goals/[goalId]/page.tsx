@@ -32,7 +32,6 @@ const GoalsPage = () => {
     const [moreButton, setMoreButton] = useState<boolean>(false)
     const [goalEdit, setGoalEdit] = useState<boolean>(false)
     const [goalTitle, setGoalTitle] = useState<string>('')
-
     const {showToast} = useToast()
 
     const queryClient = useQueryClient()

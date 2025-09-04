@@ -27,6 +27,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
     const [content, setContent] = useState('')
 
     const {showToast} = useToast()
+
     const router = useRouter()
 
     /** 노트 단일 조회 통신 */
@@ -89,6 +90,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
         async () => {
             return await noteEditApi(Number(noteId), payload)
         },
+
         {
             errorDisplayType: 'toast',
             mapErrorMessage: (error: Error) => {
@@ -104,6 +106,7 @@ const NoteEditCompo = ({noteId}: {noteId: string}) => {
             },
         },
     )
+
 
     /** 수정하기 버튼 클릭 이벤트 */
     const handleEdit = () => {
